@@ -29,8 +29,9 @@ else:
 
 if os.path.exists(ini):
     config = configparser.ConfigParser()
-    with open(ini, mode='r', encoding='utf-8') as f:
-        config.readfp(f)
+    # with open(ini, mode='r', encoding='utf-8') as f:
+    #     config.readfp(f)
+    config.read([ini], encoding='utf-8')
     for section in config.sections():
         try:
             app = config.get(section, 'app')

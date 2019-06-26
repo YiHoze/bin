@@ -1,5 +1,6 @@
 import os, sys, glob, argparse, winshell
-from win32com.client import Dispatch
+from win32com.client import Dispatch 
+# Install pywin32 to use win32com 
 
 parser = argparse.ArgumentParser(
     description = 'Create a shortcut into a favorite or specific directory.'
@@ -12,8 +13,8 @@ parser.add_argument(
 parser.add_argument(
     '-d',
     dest = 'destination_path',
-    default = r'C:\Users\Hoze\Favorites\링크',
-    help = r'Specify the destination directory. The default path is C:\Users\Hoze\Favorites\링크.'
+    default = r'C:\Users\yihoze\Favorites\링크',
+    help = r'Specify the destination directory. The default path is C:\Users\yihoze\Favorites\링크.'
 )
 args = parser.parse_args()
 

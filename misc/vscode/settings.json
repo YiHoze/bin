@@ -47,20 +47,20 @@
     },
     "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
     "latex-workshop.latex.autoBuild.run": "never",
-    "editor.fontFamily": "Consolas,  monospace"
+    "editor.fontFamily": "Consolas,  monospace",
     "surround.custom": {
         "term": {
             "label": "#term",
             "description": "\\term{ ... }",
             "disabled": false,
             "snippet": "\\term{$TM_SELECTED_TEXT}$0"
-        }
+        },
         "anota": {
             "label": "#anota",
             "description": "\\anota{ ... }",
             "disabled": false,
             "snippet": "\\anota{$TM_SELECTED_TEXT}$0"
-        }
+        },
         "anota*": {
             "label": "#anota*",
             "description": "\\anota*{ ... }",

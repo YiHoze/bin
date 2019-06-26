@@ -58,21 +58,21 @@ parser.add_argument(
     dest = 'density',
     type = int,
     # default = 100,
-    help = 'Pixel density (default: 100 pixels per centimeter for bitmap and 254 for vector)'
+    help = 'Pixel density (default: 100 pixels per centimeter)'
 )
 parser.add_argument(
     '-m',
     dest = 'maxwidth',
     type = int,
-    default = 1920,
-    help = 'Maximum width (default: 1920 pixels)'
+    default = 0,
+    help = 'Specify a max width to reduce bigger ones than it.'
 )
 parser.add_argument(
     '-s',
     dest = 'scale',
     type = int,
     default = 100,
-    help = "Scale (default: 100 %%). If an image's width is 800 pixels and 50 is given for scale, the image is reduced to 400 pixels."
+    help = "Scale, applied after checked with the max width (default: 100 %%). If an image's width is 800 pixels and 50 is given for scale, the image is reduced to 400 pixels."
 )
 parser.add_argument(
     '-g',
@@ -202,12 +202,15 @@ def resize_bitmap(img):
     if args.density is None:
         density = 100
     else: 
-        density = args.density
-    widthlimit = args.maxwidth / density
-    cmd = '\"%s\" identify -ping -format %%w %s' %(MagickPath, img)
-    imgwidth = int(subprocess.check_output(cmd, stderr = subprocess.STDOUT))
-    if imgwidth > args.maxwidth:
-        density = imgwidth / widthlimit    
+        density = args.density    
+    # cmd = '\"%s\" identify -ping -format %%w %s' %(MagickPath, img)
+    # imgwidth = int(subprocess.check_output(cmd, stderr = subprocess.STDOUT))
+    # if imgwidth > args.maxwidth:
+        # widthlimit = args.maxwidth / density
+        # density = imgwidth / widthlimit    
+    if args.maxwidth > 0:
+        cmd = '\"%s\" %s  -resize %dx%d^> %s' % (MagickPath, img, args.maxwidth, args.maxwidth, img)    
+        os.system(cmd)    
     cmd = '\"%s\" %s -auto-orient -units PixelsPerCentimeter -density %d -resize %d%%  %s' % (MagickPath, img, density, args.scale, img)
     os.system(cmd)    
     cnt += 1

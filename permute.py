@@ -2,9 +2,11 @@ import os, argparse
 from nltk.corpus import wordnet
 # from nltk.corpus import words 
 
+# Install the nltk package.
 #>>>import nltk
 #>>>nltk.download()
-# wordnet/words package
+# Then the NLTKDownloader window appears.
+# Click the All Packages tab, scroll down to the wordnet item, and then click the Download button
 
 parser = argparse.ArgumentParser(
     description = 'Permute letters.'

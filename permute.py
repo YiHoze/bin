@@ -1,12 +1,13 @@
 import os, argparse
 from nltk.corpus import wordnet
-# from nltk.corpus import words 
+from nltk.corpus import words 
 
-# Install the nltk package.
-#>>>import nltk
-#>>>nltk.download()
+# How to download nltk packages:
+# >>> import nltk
+# >>> nltk.download()
 # Then the NLTKDownloader window appears.
 # Click the All Packages tab, scroll down to the wordnet item, and then click the Download button
+# Scroll down to the words item, and click the Download button
 
 parser = argparse.ArgumentParser(
     description = 'Permute letters.'
@@ -18,11 +19,18 @@ parser.add_argument(
     help = 'Type letters without space.'
 )
 parser.add_argument(
-    '-e',
-    dest = 'eng',
+    '-a',
+    dest = 'wordnet',
     action = 'store_true',
     default = False,
-    help = 'Show only English words of results. Note that it takes a rahter long time. Use the -r option together to remove duplicates.'
+    help = 'Show only approximate words of results. Note that it takes a rather long time. Use the -r option together to remove duplicates.'
+)
+parser.add_argument(
+    '-e',
+    dest = 'words',
+    action = 'store_true',
+    default = False,
+    help = 'Show only exact words of results. Note that it takes a VERY long time. '
 )
 parser.add_argument(
     '-r',
@@ -50,7 +58,7 @@ parser.add_argument(
     dest = 'print',
     action = 'store_true',
     default = False,
-    help = 'Print results in PDF using XeLaTeX. Only the -s option can be used with this option.'
+    help = 'Print results in PDF using XeLaTeX. Only the -s option is available together.'
 )
 parser.add_argument(
     '-heap',
@@ -106,13 +114,20 @@ def show(a):
     global row
     global num
     result = ''.join(a)
-    if args.eng:      
-        if wordnet.synsets(result):
-        # if result in words.words(): This method takes too much long
-            if args.row:
-                row.append(result)
-            else:
-                print(result)
+    if args.wordnet or args.words:      
+        if args.wordnet:
+            if wordnet.synsets(result):
+                if args.row:
+                    row.append(result)
+                else:
+                    print(result)
+        else:
+            if args.words:
+                if result in words.words(): 
+                    if args.row:
+                        row.append(result)
+                    else:
+                        print(result)
     else:
         if args.row:
             if args.number:
@@ -198,6 +213,6 @@ else:
     else:
         permute(letters)
     if args.row:
-        if args.eng:
+        if args.wordnet or args.words:
             row = set(row)
         print(' '.join(row))

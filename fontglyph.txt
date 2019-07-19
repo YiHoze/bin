@@ -57,5 +57,8 @@ Conserve este manual para poder usarlo más adelante.
 swedish SVENSKA: 
 Behåll denna handbok för framtida användning.
 
+thai ไทย:
+เก็บคู่มือนี้ไว้เพื่อใช้ในอนาคต
+
 turkish TÜRKÇE: 
 Bu kılavuzu daha sonra kullanmak üzere saklayın.

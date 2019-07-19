@@ -71,7 +71,6 @@ def show_glyphs():
     os.system('powershell -command open.py %s' %(pdf))
 
 def enumerate_fonts():
-    tmplist = []
     if os.path.exists(args.fonts_list):
         os.remove(args.fonts_list)
     cmd = 'fc-list : -f "%%{fullname} > %%{file}\\n" >> %s' %(args.fonts_list)        

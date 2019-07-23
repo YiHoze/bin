@@ -119,10 +119,10 @@ def millimeter_point(distance):
 
 def kilogram_pound(mass): 
     pound = float(mass)
-    kilogram = pound * 2.20462
+    kilogram = pound * 0.453592
     print('\n%3.2f pounds = %3.2f kilograms' %(pound, kilogram))
     kilogram = float(mass)
-    pound = kilogram * 0.453592
+    pound = kilogram * 2.20462
     print('%3.2f kilograms = %3.2f pounds\n' %(kilogram, pound))
 
 def kilogram_pyeong(area): 

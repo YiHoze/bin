@@ -125,7 +125,7 @@ def kilogram_pound(mass):
     pound = kilogram * 0.453592
     print('%3.2f kilograms = %3.2f pounds\n' %(kilogram, pound))
 
-def kilogram_pound(area): 
+def kilogram_pyeong(area): 
     pyeong = float(area)
     squaremeter = pyeong * 3.30579
     print('\n%3.2f pyeongs = %3.2f square meters' %(pyeong, squaremeter))

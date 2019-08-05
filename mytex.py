@@ -16,13 +16,6 @@ parser.add_argument(
     nargs = '?',
     help = 'Specify a filename for output.'
 )
-# parser.add_argument(
-#     '-t',
-#     dest = 'tex',
-#     action = 'store_true',
-#     default = False,
-#     help = 'Create a latex file for free writing.' 
-# )
 parser.add_argument(
     '-cls',
     dest = 'tex_class',
@@ -30,18 +23,18 @@ parser.add_argument(
     help = 'Choose one among article, hzbeamer, hzguide, memoir, oblivoir. (default: hzguide)'
 )
 parser.add_argument(
-    '-tpl',
-    dest = 'template',
-    action = 'store_true',
-    default = False,
-    help = 'Create an instruction manual template.' 
-)
-parser.add_argument(
     '-alb',
     dest = 'album',
     action = 'store_true',
     default = False,
-    help = 'Create an album with image files in the current directory.'
+    help = 'Create an album with all the image files in the current directory.'
+)
+parser.add_argument(
+    '-tpl',
+    dest = 'template',
+    action = 'store_true',
+    default = False,
+    help = 'Create using the template for manuals.' 
 )
 parser.add_argument(
     '-s',
@@ -54,7 +47,7 @@ parser.add_argument(
     dest = 'hide_image_name',
     action = 'store_true',
     default = False,
-    help = 'Leave out filenames of images.'
+    help = 'Leave out filenames of images when creating an album.'
 )
 parser.add_argument(
     '-k',
@@ -76,6 +69,13 @@ parser.add_argument(
     action = 'store_true',
     default = False,
     help = 'Pass over latex compilation.'
+)
+parser.add_argument(
+    '-m',
+    dest = 'merge',
+    action = 'store_true',
+    default = False,
+    help = 'Create to merge PDF files of different sizes.'
 )
 args = parser.parse_args()
 
@@ -257,6 +257,33 @@ def create_album():
         os.remove(list_file)
         os.remove(tex)
 
+def merge_pdf():
+    if check_to_remove(tex) is False:
+        return
+    content = r"""\documentclass{minimal}
+\usepackage[a4paper]{geometry}
+\usepackage{pdfpages}
+\usepackage{xparse}
+\pdfminorversion=6
+\geometry{paperwidth=210mm, paperheight=297mm}
+\ExplSyntaxOn
+\NewDocumentCommand \mergepdf { m }
+{
+    \clist_set:Nn \l_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l_tmpa_clist 
+    {
+        \includepdf[nup=1x1, pages=-, noautoscale=true, fitpaper=true]{##1}        
+    }
+    
+}
+\ExplSyntaxOff
+\begin{document}
+\mergepdf{1, 2, 3}
+\end{document}"""
+    with open(tex, mode='w', encoding='utf-8') as f:
+        f.write(content)
+    os.system('powershell -command open.py %s' %(tex))
+
 if args.output is None:
     if args.template:
         output = 'manual'
@@ -273,5 +300,7 @@ if args.template:
     create_template()
 elif args.album:
     create_album()
+elif args.merge:
+    merge_pdf()
 else:
     create_tex()

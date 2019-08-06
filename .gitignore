@@ -3,6 +3,7 @@
 *.jsx
 c.cmd
 daily.ini
+debug.log
 .vscode/
 hmltotex/
 pandoc-2.2.2/

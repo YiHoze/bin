@@ -261,24 +261,51 @@ def merge_pdf():
     if check_to_remove(tex) is False:
         return
     content = r"""\documentclass{minimal}
-\usepackage[a4paper]{geometry}
-\usepackage{pdfpages}
 \usepackage{xparse}
+\usepackage[a4paper]{geometry}
+\usepackage{graphicx}
 \pdfminorversion=6
-\geometry{paperwidth=210mm, paperheight=297mm}
+\geometry{paperwidth=216mm, paperheight=303mm, margin={0pt, 0pt}}
 \ExplSyntaxOn
-\NewDocumentCommand \mergepdf { m }
+\NewDocumentCommand \margepdf { m }
 {
     \clist_set:Nn \l_tmpa_clist { #1 }
-    \clist_map_inline:Nn \l_tmpa_clist 
+    \int_zero:N \l_tmpa_int    
+    \int_set:Nn \l_tmpb_int { \clist_count:N \l_tmpa_clist }
+    \bool_gset_false:N \g_tmpa_bool % for the last page
+    \clist_map_inline:Nn \l_tmpa_clist
     {
-        \includepdf[nup=1x1, pages=-, noautoscale=true, fitpaper=true]{##1}        
+        \clist_set:Nn \l_tmpb_clist { ##1 }
+        \clist_pop:NN \l_tmpb_clist \l_tmpa_tl
+        \clist_pop:NN \l_tmpb_clist \l_tmpb_tl
+        \int_incr:N \l_tmpa_int
+        \int_compare:nF { \l_tmpa_int < \l_tmpb_int }
+        {
+            \bool_gset_true:N \g_tmpa_bool
+        }
+        \mergepage{ \l_tmpa_tl }{ \l_tmpb_tl }            
+        
+    }    
+}
+\NewDocumentCommand \mergepage { m m }
+{
+    \int_step_inline:nn { #2 }
+    {        
+        \includegraphics[width=\paperwidth, page=##1]{#1}
+        \bool_if:NTF \g_tmpa_bool 
+        {
+            \int_compare:nT { ##1 < #2 }
+            {
+                \break
+            }            
+        }{
+            \break
+        }        
     }
-    
 }
 \ExplSyntaxOff
 \begin{document}
-\mergepdf{1, 2, 3}
+\margepdf{{filename, pages}, {filename, pages}, ...}
 \end{document}"""
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)

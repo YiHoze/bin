@@ -261,40 +261,46 @@ def merge_pdf():
     if check_to_remove(tex) is False:
         return
     content = r"""\documentclass{minimal}
-\usepackage{xparse}
 \usepackage[a4paper]{geometry}
 \usepackage{graphicx}
-\pdfminorversion=6
+\usepackage{xparse}
 \geometry{paperwidth=216mm, paperheight=303mm, margin={0pt, 0pt}}
 \ExplSyntaxOn
-\NewDocumentCommand \margepdf { m }
+\sys_if_engine_pdftex:T
 {
-    \clist_set:Nn \l_tmpa_clist { #1 }
-    \int_zero:N \l_tmpa_int    
-    \int_set:Nn \l_tmpb_int { \clist_count:N \l_tmpa_clist }
-    \bool_gset_false:N \g_tmpa_bool % for the last page
-    \clist_map_inline:Nn \l_tmpa_clist
+    \pdfminorversion=6
+}
+\NewDocumentCommand \mergepdf { m }
+{
+    \bool_gset_false:N \g_tmpa_bool % Not to break the last page
+    \clist_set:Nn \l_tmpa_clist { #1 }    
+    \int_set:Nn \l_tmpa_int { \clist_count:N \l_tmpa_clist }
+    \int_step_inline:nn { \l_tmpa_int }
     {
-        \clist_set:Nn \l_tmpb_clist { ##1 }
-        \clist_pop:NN \l_tmpb_clist \l_tmpa_tl
-        \clist_pop:NN \l_tmpb_clist \l_tmpb_tl
-        \int_incr:N \l_tmpa_int
-        \int_compare:nF { \l_tmpa_int < \l_tmpb_int }
+        \clist_pop:NN \l_tmpa_clist \l_tmpa_tl
+        \int_compare:nT { ##1 == \l_tmpa_int }
         {
             \bool_gset_true:N \g_tmpa_bool
         }
-        \mergepage{ \l_tmpa_tl }{ \l_tmpb_tl }            
-        
-    }    
+        \fetchpage{ \l_tmpa_tl }
+    }
+
 }
-\NewDocumentCommand \mergepage { m m }
+\NewDocumentCommand \fetchpage { m }
 {
-    \int_step_inline:nn { #2 }
+    \sys_if_engine_xetex:TF
+    {
+        \exp_args:NNx \int_set:Nn \l_tmpb_int { \XeTeXpdfpagecount"#1.pdf" }
+    }{
+        \pdfximage{#1.pdf}
+        \exp_args:NNx \int_set:Nn \l_tmpb_int { \the\pdflastximagepages }
+    }  
+    \int_step_inline:nn { \l_tmpb_int }
     {        
         \includegraphics[width=\paperwidth, page=##1]{#1}
         \bool_if:NTF \g_tmpa_bool 
         {
-            \int_compare:nT { ##1 < #2 }
+            \int_compare:nT { ##1 < \l_tmpb_int }
             {
                 \break
             }            
@@ -305,7 +311,7 @@ def merge_pdf():
 }
 \ExplSyntaxOff
 \begin{document}
-\margepdf{{filename, pages}, {filename, pages}, ...}
+\mergepdf{A, B, C}
 \end{document}"""
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)

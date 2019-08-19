@@ -62,7 +62,14 @@ parser.add_argument(
     dest = 'pyeong',
     action = 'store_true',
     default = False,
-    help = 'square meter / pyeong'
+    help = 'pyeong / square meter'
+)
+parser.add_argument(
+    '-a',
+    dest = 'acre',
+    action = 'store_true',
+    default = False,
+    help = 'acre / square meter'
 )
 
 args = parser.parse_args()
@@ -125,13 +132,21 @@ def kilogram_pound(mass):
     pound = kilogram * 2.20462
     print('%3.2f kilograms = %3.2f pounds\n' %(kilogram, pound))
 
-def kilogram_pyeong(area): 
+def square_meter_pyeong(area): 
     pyeong = float(area)
     squaremeter = pyeong * 3.30579
     print('\n%3.2f pyeongs = %3.2f square meters' %(pyeong, squaremeter))
     squaremeter = float(area)
     pyeong = squaremeter * 0.3025
     print('%3.2f square meters = %3.2f pyeongs\n' %(squaremeter, pyeong))
+
+def square_meter_acre(area): 
+    acre = float(area)
+    squaremeter = acre * 4046.86
+    print('\n%3.2f acres = %3.2f square meters' %(acre, squaremeter))
+    squaremeter = float(area)
+    acre = squaremeter * 0.000247105
+    print('%3.2f square meters = %3.2f acres\n' %(squaremeter, acre))
 
 if args.temperature: 
     celsius_fahrenheit(args.numeral)
@@ -148,4 +163,6 @@ elif args.point:
 elif args.pound: 
     kilogram_pound(args.numeral)
 elif args.pyeong: 
-    kilogram_pound(args.numeral)
+    square_meter_pyeong(args.numeral)
+elif args.acre: 
+    square_meter_acre(args.numeral)

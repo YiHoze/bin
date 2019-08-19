@@ -55,9 +55,9 @@ def paper_list_show():
         cnt = 0
         for i in paper_types:
             print("\n%s" %(paper_names[cnt]))
-            cnt += 1
             for j in i:
                 print("%3d g \t %s mm" %(j, i[j]))
+            cnt += 1
     else:
         print(paper_names[args.paper_type])
         for i in paper_types[args.paper_type]:
@@ -70,11 +70,11 @@ else:
         parser.print_help()
         cnt = 0
         for i in paper_names:
+            print("   %d: %s" %(cnt, i))
             cnt += 1
-            print("   %d:%s" %(cnt, i))
     else: 
         paper_thickness = paper_types[args.paper_type].get(args.paper_weight)
-        print("%d pages with %d g %s of which thickness is %0.2f mm" %(args.pages,  args.paper_weight, paper_names[args.paper_type], paper_thickness))    
-        A = args.pages / 2 * paper_thickness + args.margin    
-        B = args.paper_weight * args.pages * 0.6 / 1000 + args.margin
+        print("%d pages with %d g %s of which thickness is %0.3f mm" %(args.pages, args.paper_weight, paper_names[args.paper_type], paper_thickness))    
+        A = (args.pages / 2 * paper_thickness) + args.margin    
+        B = (args.paper_weight * args.pages * 0.6 / 1000) + args.margin
         print("%0.2f mm from the paper thickness\n%0.2f mm from the paper weight" %(A, B))

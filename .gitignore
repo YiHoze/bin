@@ -1,6 +1,7 @@
 *.exe
-*.spec
 *.jsx
+*.spec
+*.log
 c.cmd
 daily.ini
 debug.log

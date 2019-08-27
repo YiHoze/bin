@@ -34,7 +34,7 @@ parser.add_argument(
     dest = 'template',
     action = 'store_true',
     default = False,
-    help = 'Create using the template for manuals.' 
+    help = 'Create the manual template.' 
 )
 parser.add_argument(
     '-s',
@@ -47,7 +47,7 @@ parser.add_argument(
     dest = 'hide_image_name',
     action = 'store_true',
     default = False,
-    help = 'Leave out filenames of images when creating an album.'
+    help = "Leave out images' filenames when creating an album."
 )
 parser.add_argument(
     '-k',
@@ -75,7 +75,7 @@ parser.add_argument(
     dest = 'merge',
     action = 'store_true',
     default = False,
-    help = 'Create to merge PDF files of different sizes.'
+    help = 'Create one to merge PDF files of different sizes.'
 )
 args = parser.parse_args()
 

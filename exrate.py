@@ -73,6 +73,3 @@ foreign_amount = (1 / exchange_rate) * amount
 won_amount = '{:,.2f}'.format(won_amount)
 foreign_amount = '{:,.2f}'.format(foreign_amount)
 print('%s KRW = %s %s' %(won_amount, foreign_amount, currency))
-
-
-

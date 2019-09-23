@@ -1,7 +1,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    description = 'Calcurate income tax.'
+    description = 'calculate income tax.'
 )
 parser.add_argument(
     'salary',
@@ -16,29 +16,31 @@ parser.add_argument(
     default = False,
     help = 'Dispay rate sections by income.'
 )
-args = parser.parse_args()
+# args = parser.parse_args()
 
 rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 0:42}
-accumulated_sections = {}
+accumulated_sections = {} 
 
-accumulated = 0
-preceding = 0
-for limit in rate_sections:
-    if preceding == 0:
-        accumulated_sections[limit] = 0
-    else:        
-        accumulated_sections[limit] = int(accumulated)
-    rate = rate_sections[limit]
-    accumulated = accumulated + ((limit - preceding) * rate/100)
-    preceding = limit        
+def initialize():
+    accumulated = 0
+    preceding = 0
+    for limit in rate_sections:
+        if preceding == 0:
+            accumulated_sections[limit] = 0
+        else:        
+            accumulated_sections[limit] = int(accumulated)
+        rate = rate_sections[limit]
+        accumulated = accumulated + ((limit - preceding) * rate/100)
+        preceding = limit
 
 def rate_section_show():
     for limit in rate_sections:
         print("Up to %6d: %2d%%" %(limit, rate_sections[limit]))
 
-def calcurate_tax():
+def calculate_tax(salary):
+    corresponding = 0
     for limit in rate_sections:
-        if args.salary > limit:
+        if salary > limit:
             if limit == 0:
                 preceding = corresponding
             corresponding = limit
@@ -48,13 +50,15 @@ def calcurate_tax():
             break
     accumulated = accumulated_sections[corresponding]
     rate = rate_sections[corresponding]
-    tax = int(accumulated + ((args.salary - preceding) * rate/100))
-    
-    actual_rate = int(tax * 100 /args.salary)
-    monthly_pay = int(args.salary/12)
+    tax = int(accumulated + ((salary - preceding) * rate/100))
+    return tax
+
+def display_pay(salary):
+    tax = calculate_tax(salary)
+    actual_rate = int(tax * 100 /salary)
+    monthly_pay = int(salary/12)
     monthly_tax = int(monthly_pay * actual_rate/100)
-    post_tax_pay = monthly_pay - monthly_tax
-    
+    post_tax_pay = monthly_pay - monthly_tax    
     output = """
     salary: %d
     Actual tax rate: %d%%
@@ -62,12 +66,17 @@ def calcurate_tax():
     Monthly pay: %d
     Monthly tax: %d
     Post-tax pay: %d
-    """ %(args.salary, actual_rate, tax, monthly_pay, monthly_tax, post_tax_pay)
+    """ %(salary, actual_rate, tax, monthly_pay, monthly_tax, post_tax_pay)
     print(output)
 
-if args.show:
-    rate_section_show()
-elif args.salary is None:
-    parser.print_help()
+if __name__=="__main__":
+    args = parser.parse_args()
+    initialize()
+    if args.show:
+        rate_section_show()
+    elif args.salary is None:
+        parser.print_help()
+    else:
+        display_pay(args.salary)
 else:
-    calcurate_tax()
+    initialize()

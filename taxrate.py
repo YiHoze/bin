@@ -1,4 +1,8 @@
 import argparse
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rc
+rc('font', family="HCR Dotum")
 
 parser = argparse.ArgumentParser(
     description = 'calculate income tax.'
@@ -16,8 +20,15 @@ parser.add_argument(
     default = False,
     help = 'Dispay rate sections by income.'
 )
-# args = parser.parse_args()
+parser.add_argument(
+    '-g',
+    dest = 'graph',
+    action = 'store_true',
+    default = False,
+    help = 'Draw graphs for rate sections.'
+)
 
+# 1200만 원 초과 ~ 4600만 원 이하: 15%
 rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 0:42}
 accumulated_sections = {} 
 
@@ -36,6 +47,24 @@ def initialize():
 def rate_section_show():
     for limit in rate_sections:
         print("Up to %6d: %2d%%" %(limit, rate_sections[limit]))
+
+def rate_section_graph():
+    sections, rates = [], []
+    for limit in rate_sections:
+        if limit == 0:
+            sections.append(preceding+1)
+        else:
+            sections.append(limit)
+            preceding = limit
+        rates.append(rate_sections[limit])
+    x = np.arange(len(rate_sections))
+    plt.bar(x,rates)
+    plt.xticks(x, sections)    
+    plt.xlabel('연봉(만 원)')
+    plt.ylabel('세율(%)')
+    plt.title('소득세')
+    plt.show()
+
 
 def calculate_tax(salary):
     corresponding = 0
@@ -74,6 +103,8 @@ if __name__=="__main__":
     initialize()
     if args.show:
         rate_section_show()
+    elif args.graph:
+        rate_section_graph()
     elif args.salary is None:
         parser.print_help()
     else:

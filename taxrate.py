@@ -45,16 +45,30 @@ def initialize():
         preceding = limit
 
 def rate_section_show():
-    for limit in rate_sections:
-        print("Up to %6d: %2d%%" %(limit, rate_sections[limit]))
+    if args.show is True:
+        rate_section_itemize()
+    if args.graph is True:
+        rate_section_draw()
 
-def rate_section_graph():
+def rate_section_itemize():
+    for limit in rate_sections:
+        if limit == 0:
+            salary = '{:,}'.format(preceding)
+            print(" Over %6s: %2d %%" %(salary, rate_sections[limit]))
+        else:
+            salary = '{:,}'.format(limit)
+            print("Up to %6s: %d %%" %(salary, rate_sections[limit]))
+            preceding = limit    
+
+def rate_section_draw():
     sections, rates = [], []
     for limit in rate_sections:
         if limit == 0:
-            sections.append(preceding+1)
+            salary = '>'+'{:,}'.format(preceding)
+            sections.append(salary)
         else:
-            sections.append(limit)
+            salary = '≤'+'{:,}'.format(limit)
+            sections.append(salary)
             preceding = limit
         rates.append(rate_sections[limit])
     x = np.arange(len(rate_sections))
@@ -64,7 +78,6 @@ def rate_section_graph():
     plt.ylabel('세율(%)')
     plt.title('소득세')
     plt.show()
-
 
 def calculate_tax(salary):
     corresponding = 0
@@ -97,16 +110,16 @@ def display_pay(salary):
     Post-tax pay: %d
     """ %(salary, actual_rate, tax, monthly_pay, monthly_tax, post_tax_pay)
     print(output)
+    rate_section_show()
 
 if __name__=="__main__":
     args = parser.parse_args()
-    initialize()
-    if args.show:
-        rate_section_show()
-    elif args.graph:
-        rate_section_graph()
-    elif args.salary is None:
-        parser.print_help()
+    initialize()    
+    if args.salary is None:
+        if args.show or args.graph:
+            rate_section_show()
+        else:
+            parser.print_help()
     else:
         display_pay(args.salary)
 else:

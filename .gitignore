@@ -5,6 +5,7 @@
 c.cmd
 daily.ini
 debug.log
+.pytest_cache/
 .vscode/
 hmltotex/
 pandoc-2.2.2/

@@ -155,18 +155,28 @@ def svg_to_eps(src, trg):
 
 def bitmap_to_bitmap(src, trg):
     global cnt
+    if args.density is None:
+        density = 100
+    else: 
+        density = args.density
+    cmd = '\"%s\" -units PixelsPerCentimeter -density %d' %(MagickPath, density)
     if args.gray:
-        if trgfmt == ".png":
-            cmd = '\"%s\" %s -colorspace gray -transparent white %s' %(MagickPath, src, trg)
-        else:
-            cmd = '\"%s\" %s -colorspace gray %s' %(MagickPath, src, trg)
-    else:
-        if trgfmt == ".png":
-            cmd = '\"%s\" %s -transparent white %s' %(MagickPath, src, trg)
-        else:
-            cmd = '\"%s\" %s %s' %(MagickPath, src, trg)
+        cmd = cmd + ' -colorspace gray'
+    if trgfmt == ".png":
+        cmd = cmd + ' -transparent white'
+    cmd = cmd + ' %s %s' %(src, trg)    
+    # if args.gray:
+    #     if trgfmt == ".png":
+    #         cmd = '\"%s\" %s -colorspace gray -transparent white %s' %(MagickPath, src, trg)
+    #     else:
+    #         cmd = '\"%s\" %s -colorspace gray %s' %(MagickPath, src, trg)
+    # else:
+    #     if trgfmt == ".png":
+    #         cmd = '\"%s\" %s -transparent white %s' %(MagickPath, src, trg)
+    #     else:
+    #         cmd = '\"%s\" %s %s' %(MagickPath, src, trg)
     os.system(cmd)
-    cnt += 1
+    cnt += 1    
 
 def vector_to_bitmap(src, trg):
     global cnt

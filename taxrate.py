@@ -5,7 +5,7 @@ from matplotlib import rc
 rc('font', family="HCR Dotum")
 
 parser = argparse.ArgumentParser(
-    description = 'calculate income tax.'
+    description = 'Calculate income tax.'
 )
 parser.add_argument(
     'salary',

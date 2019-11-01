@@ -1,7 +1,7 @@
 # pip pytnon-barcode
 # pip install qrcode[pil]
-# qr 'https:hoze.tistory.com' > hoze.svg
-import argparse, barcode, qrcode, qrcode.image.svg
+# #>qr 'https:hoze.tistory.com' > hoze.svg
+import argparse, barcode, qrcode, qrcode.image.svg, re, webbrowser
 from pyzbar.pyzbar import decode
 from PIL import Image
 from barcode.writer import ImageWriter
@@ -42,7 +42,7 @@ parser.add_argument(
     dest = 'decode',
     action = 'store_true',
     default = False,
-    help = 'Decode a QR code.'
+    help = 'Decode a QR code of PNG or JPG image.'
 )
 args = parser.parse_args()
 
@@ -90,8 +90,13 @@ def encode_qrcode():
 
 def decode_qrcode():
     for img in args.code:
-        code = decode(Image.open(img))
-        print(code)
+        code = str(decode(Image.open(img)))
+        # print(code)
+        p = re.compile("http.+?(?=\')")
+        result = p.search(code)        
+        url = result.group()
+        print(url)
+        webbrowser.open_new_tab(url)
 
 if args.decode:
     decode_qrcode()

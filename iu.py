@@ -164,17 +164,7 @@ def bitmap_to_bitmap(src, trg):
         cmd = cmd + ' -colorspace gray'
     if trgfmt == ".png":
         cmd = cmd + ' -transparent white'
-    cmd = cmd + ' %s %s' %(src, trg)    
-    # if args.gray:
-    #     if trgfmt == ".png":
-    #         cmd = '\"%s\" %s -colorspace gray -transparent white %s' %(MagickPath, src, trg)
-    #     else:
-    #         cmd = '\"%s\" %s -colorspace gray %s' %(MagickPath, src, trg)
-    # else:
-    #     if trgfmt == ".png":
-    #         cmd = '\"%s\" %s -transparent white %s' %(MagickPath, src, trg)
-    #     else:
-    #         cmd = '\"%s\" %s %s' %(MagickPath, src, trg)
+    cmd = cmd + ' %s %s' %(src, trg)   
     os.system(cmd)
     cnt += 1    
 

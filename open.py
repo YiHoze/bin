@@ -24,11 +24,11 @@ else:
 
 # Get arguments
 parser = argparse.ArgumentParser(
-    description='Open text files and others with an appropriate program.'
+    description='Open text files and others with an appropriate application.'
 )
 parser.add_argument(
     'files',
-    type=str,
+    # type=str,
     nargs='+',
     help='Specify files to open.'
 )
@@ -64,18 +64,19 @@ def DetermineFileType(afile):
     else:
         return(False)
 
-def OpenHere(files):
-    for fnpattern in files:
+def OpenHere():
+    for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
+            print(afile)
             if DetermineFileType(afile):
                 cmd = '\"%s\" %s %s' % (args.editor, args.option, afile)
-                os.system(cmd)
+                os.system(cmd)                
             else:
                 cmd = 'start %s' % (afile)
                 os.system(cmd)
 
-def SearchTeXLive(files):
-    for afile in files:        
+def SearchTeXLive():
+    for afile in args.files:
         try:
             result = subprocess.check_output(['kpsewhich', afile], stderr=subprocess.STDOUT)
             gist = str(result, 'utf-8')
@@ -85,6 +86,6 @@ def SearchTeXLive(files):
                 print('%s is not found in TeX Live.' % (afile))
 
 if args.texlive:
-    SearchTeXLive(args.files)
+    SearchTeXLive()
 else:
-    OpenHere(args.files)
+    OpenHere()

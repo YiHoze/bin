@@ -251,8 +251,9 @@ def create_album():
         content = content.replace('MakeAlbum', 'MakeAlbum*')
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    os.system('powershell -command ltx.py -l -c %s' %(tex))
-    os.system('powershell -command open.py %s' %(pdf))
+    if not args.no_compile:
+        os.system('powershell -command ltx.py -b -c %s' %(tex))    
+        os.system('powershell -command open.py %s' %(pdf))    
     if not args.keep:
         os.remove(list_file)
         os.remove(tex)

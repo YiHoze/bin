@@ -287,21 +287,51 @@ def merge_pdf():
     }
 
 }
+\int_new:N \g_lastximage_int
+\NewDocumentCommand \lastpageofpdf { m }
+{
+    \get_last_page_of_pdf:nN { #1 } \g_lastximage_int
+}
+
+\cs_new_nopar:Npn \get_last_page_of_pdf:nN #1 #2
+{
+    \str_case_e:nn { \c_sys_engine_str }
+    {
+        { xetex } {
+            \int_gset:Nn #2 {
+                \xetex_pdfpagecount:D "#1"
+            }
+        }
+        { pdftex } {
+            \pdfximage{#1}
+            \int_gset:Nn #2 {
+                \pdflastximagepages
+            }
+        }
+        { luatex } {
+            \saveimageresource { #1 }
+            \int_gset:Nn #2 {
+                \lastsavedimageresourcepages
+            }
+        }
+    }
+}
 \NewDocumentCommand \fetchpage { m }
 {
-    \sys_if_engine_xetex:TF
-    {
-        \exp_args:NNx \int_set:Nn \l_tmpb_int { \XeTeXpdfpagecount"#1.pdf" }
-    }{
-        \pdfximage{#1.pdf}
-        \exp_args:NNx \int_set:Nn \l_tmpb_int { \the\pdflastximagepages }
-    }  
-    \int_step_inline:nn { \l_tmpb_int }
+    %\sys_if_engine_xetex:TF
+    %{
+    %    \exp_args:NNx \int_set:Nn \l_tmpb_int { \XeTeXpdfpagecount"#1.pdf" }
+    %}{
+    %    \pdfximage{#1.pdf}
+    %    \exp_args:NNx \int_set:Nn \l_tmpb_int { \the\pdflastximagepages }
+    %}  
+    \lastpageofpdf{#1.pdf}
+    \int_step_inline:nn { \g_lastximage_int }    
     {        
         \includegraphics[width=\paperwidth, page=##1]{#1}
         \bool_if:NTF \g_tmpa_bool 
         {
-            \int_compare:nT { ##1 < \l_tmpb_int }
+            \int_compare:nT { ##1 < \g_lastximage_int }
             {
                 \break
             }            

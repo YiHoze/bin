@@ -21,7 +21,7 @@ parser.add_argument(
     dest = 'qrcode',
     action = 'store_true',
     default = False,
-    help = 'Create a QR code.'
+    help = 'Create QR codes.'
 )
 parser.add_argument(
     '-n',
@@ -91,16 +91,16 @@ def encode_qrcode():
 def decode_qrcode():
     for img in args.code:
         data = decode(Image.open(img))[0][0]    
-        data = data.decode('utf-8')
-        # print(data)
-        data = data.replace(r'\:', ':')
-        data = data.replace(';', '')
+        data = data.decode('utf-8')        
+        link = data.replace(r'\:', ':')
+        link = link.replace(';', '')
         p = re.compile('http.*')
-        result = p.search(data)
+        result = p.search(link)
         if result is not None:
-            url = result.group()
-            print(url)
-            webbrowser.open_new_tab(url)    
+            print(data)            
+            uri = result.group()
+            print(uri)
+            webbrowser.open_new_tab(uri)    
         else:
             print(data)
 

@@ -8,7 +8,7 @@ from barcode.writer import ImageWriter
 from barcode import generate
 
 parser = argparse.ArgumentParser(
-    description = '''Generate barcodes or QR codes in SVG. 
+    description = '''Generate barcodes or QR codes in PNG. 
     The last check digit of barcode will be automatically corrected if it is wrong.'''
 )
 parser.add_argument(
@@ -28,14 +28,14 @@ parser.add_argument(
     dest = 'filename',
     default = 'barcode',
     help = '''Specify a filename. 
-    The default is "barcode" or "qrcode", and it will be sequentially numbered with two or more numbers.'''
+    The default is "barcode" or "qrcode", and it will be sequentially numbered with two digits.'''
 )
 parser.add_argument(
-    '-p',
-    dest = 'png',
+    '-s',
+    dest = 'svg',
     action = 'store_true',
     default = False,
-    help = 'Additionaly generate the barcode in PNG.'
+    help = 'Additionaly generate barcodes or QR codes in SVG.'
 )
 parser.add_argument(
     '-d',
@@ -54,10 +54,10 @@ def encode_barcode():
             filename = "%s_%02d" %(args.filename, counter)
         else:
             filename = args.filename
-        generate('EAN13', code, output=filename)
-        if args.png:
-            ean = EAN(code, writer=ImageWriter())
-            ean.save(filename)
+        ean = EAN(code, writer=ImageWriter())
+        ean.save(filename)
+        if args.svg:
+            generate('EAN13', code, output=filename)
         counter += 1
 
 def encode_qrcode():   
@@ -74,24 +74,26 @@ def encode_qrcode():
         if len(args.code) > 1:
             filename = "%s_%02d" %(args.filename, counter) 
         else:
-            filename = args.filename 
-        factory = qrcode.image.svg.SvgPathImage
-        img = qrcode.make(code, image_factory=factory)
-        svg = filename + '.svg'
-        img.save(svg)
-        if args.png:
-            qr.add_data(code)
-            qr.make(fit=True)
-            img = qr.make_image()
-            png = filename + '.png'
-            img.save(png)        
-            qr.clear()
+            filename = args.filename         
+        qr.add_data(code)
+        qr.make(fit=True)
+        img = qr.make_image()
+        png = filename + '.png'
+        img.save(png)        
+        qr.clear()
+        if args.svg:
+            factory = qrcode.image.svg.SvgPathImage
+            img = qrcode.make(code, image_factory=factory)
+            svg = filename + '.svg'
+            img.save(svg)
         counter +=1 
 
 def decode_qrcode():
     for img in args.code:
-        data = decode(Image.open(img))[0][0].decode('utf-8')
-        data = data.replace('\:', ':')
+        data = decode(Image.open(img))[0][0]    
+        data = data.decode('utf-8')
+        # print(data)
+        data = data.replace(r'\:', ':')
         data = data.replace(';', '')
         p = re.compile('http.*')
         result = p.search(data)

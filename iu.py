@@ -91,6 +91,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 cnt = 0
+srcfmt = ''
 
 def check_TeXLive_exists():
     try:
@@ -116,6 +117,7 @@ def check_ImageMagick_exists():
         sys.exit()
 
 def check_converter(fnpattern):    
+    global srcfmt
     srcfmt = os.path.splitext(fnpattern)[1]
     srcfmt = srcfmt.lower()
     if args.view_info:
@@ -162,11 +164,11 @@ def bitmap_to_bitmap(src, trg):
     cmd = '\"%s\" -units PixelsPerCentimeter -density %d' %(MagickPath, density)
     if args.gray:
         cmd = cmd + ' -colorspace gray'
-    if trgfmt == ".png":
+    if srcfmt != '.gif' and trgfmt == '.png':
         cmd = cmd + ' -transparent white'
     cmd = cmd + ' %s %s' %(src, trg)   
-    os.system(cmd)
-    cnt += 1    
+    os.system(cmd)    
+    cnt += 1       
 
 def vector_to_bitmap(src, trg):
     global cnt
@@ -224,7 +226,10 @@ def get_subdirs(fnpattern):
 def converter(afile):
     basename, srcfmt = os.path.splitext(afile)
     srcfmt = srcfmt.lower()
-    target = basename + trgfmt
+    if srcfmt == '.gif':
+        target = basename + "%03d" + trgfmt
+    else:
+        target = basename + trgfmt    
     if srcfmt == '.eps':
         if trgfmt == '.pdf':
             eps_to_pdf(afile)
@@ -279,6 +284,11 @@ def converter(afile):
         elif trgfmt == '.png':
             bitmap_to_bitmap(afile, target)
     elif srcfmt == '.cr2':
+        if trgfmt == '.jpg':
+            bitmap_to_bitmap(afile, target)
+        elif trgfmt == '.png':
+            bitmap_to_bitmap(afile, target)
+    elif srcfmt == '.gif':
         if trgfmt == '.jpg':
             bitmap_to_bitmap(afile, target)
         elif trgfmt == '.png':

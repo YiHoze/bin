@@ -317,14 +317,7 @@ def merge_pdf():
     }
 }
 \NewDocumentCommand \fetchpage { m }
-{
-    %\sys_if_engine_xetex:TF
-    %{
-    %    \exp_args:NNx \int_set:Nn \l_tmpb_int { \XeTeXpdfpagecount"#1.pdf" }
-    %}{
-    %    \pdfximage{#1.pdf}
-    %    \exp_args:NNx \int_set:Nn \l_tmpb_int { \the\pdflastximagepages }
-    %}  
+{    
     \lastpageofpdf{#1.pdf}
     \int_step_inline:nn { \g_lastximage_int }    
     {        

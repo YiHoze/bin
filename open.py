@@ -15,6 +15,7 @@ if os.path.exists(ini):
         TextEditorPath = config.get('Text Editor', 'path')
         TextEditorOption = config.get('Text Editor', 'option')
         associations = config.get('Text Editor', 'associations')
+        AdobeReaderPath = config.get('Adobe Reader', 'path')
     except:
         print('Make sure to have docenv.ini set properly.')
         sys.exit()
@@ -28,7 +29,6 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     'files',
-    # type=str,
     nargs='+',
     help='Specify files to open.'
 )
@@ -42,35 +42,46 @@ parser.add_argument(
 parser.add_argument(
     '-e',
     dest='editor',
-    type=str,
     default=TextEditorPath,
-    nargs=1,    
-    help='Specify another text editor to use it.'
+    help='Specify a different text editor to use it.'
 )
 parser.add_argument(
     '-o',
     dest='option',
-    type=str,
     default=TextEditorOption,
-    nargs=1,
-    help='Specify another editor option to use it.'
+    help='Specify options for the text editor.'
+)
+parser.add_argument(
+    '-a',
+    dest = 'Adobe',
+    action = 'store_true',
+    help = 'Use Adobe Reader to view PDF.'
 )
 args = parser.parse_args()
 
 def DetermineFileType(afile):
     ext = os.path.splitext(afile)[1]        
     if ext.lower() in associations:
-        return(True)
+        return('txt')
+    elif ext.lower() == '.pdf':
+        return('pdf')
     else:
-        return(False)
+        return('another')
 
 def OpenHere():
     for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
-            print(afile)
-            if DetermineFileType(afile):
+            filetype = DetermineFileType(afile)
+            if filetype == 'txt':
                 cmd = '\"%s\" %s %s' % (args.editor, args.option, afile)
                 os.system(cmd)                
+            elif filetype == 'pdf':
+                if args.Adobe:
+                    cmd = '\"%s\" %s' % (AdobeReaderPath, afile)
+                    os.system(cmd)
+                else:
+                    cmd = 'start %s' % (afile)
+                    os.system(cmd)
             else:
                 cmd = 'start %s' % (afile)
                 os.system(cmd)

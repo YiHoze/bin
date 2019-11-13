@@ -77,8 +77,8 @@ def OpenHere():
                 os.system(cmd)                
             elif filetype == 'pdf':
                 if args.Adobe:
-                    cmd = '\"%s\" %s' % (AdobeReaderPath, afile)
-                    os.system(cmd)
+                    cmd = '\"%s\" %s' % (AdobeReaderPath, afile)                                 
+                    subprocess.Popen(cmd, stdout=subprocess.PIPE)
                 else:
                     cmd = 'start %s' % (afile)
                     os.system(cmd)

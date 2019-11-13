@@ -73,15 +73,12 @@ def show_glyphs():
 def enumerate_fonts():
     if os.path.exists(args.fonts_list):
         os.remove(args.fonts_list)
-    cmd = 'fc-list : -f "%%{fullname} > %%{file}\\n" >> %s' %(args.fonts_list)        
+    cmd = 'fc-list : -f "%%{family[0]} > %%{file}\\n" > %s' %(args.fonts_list) # %%{fullname}  
     os.system(cmd)
     with open(args.fonts_list, mode='r', encoding='utf-8') as f:
-        content = f.readlines()    
-    # for line, item in enumerate(content):
-    #     content[line] = os.path.basename(item)
+        content = f.readlines()        
     content = set(content)
-    content = ''.join(sorted(content, key=str.lower))
-    # content.sort(key=lambda x: x.lower())    
+    content = ''.join(sorted(content, key=str.lower))    
     with open(args.fonts_list, mode='w', encoding='utf-8') as f:
         for line in content:
             f.write(line)

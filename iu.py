@@ -161,13 +161,11 @@ def bitmap_to_bitmap(src, trg):
         density = 100
     else: 
         density = args.density
-    cmd = '\"%s\" -units PixelsPerCentimeter -density %d' %(MagickPath, density)
+    cmd = '\"%s\" %s -units PixelsPerCentimeter -density %d' %(MagickPath, src, density)
     if args.gray:
         cmd = cmd + ' -colorspace gray'
-    if srcfmt != '.gif' and trgfmt == '.png':
-        cmd = cmd + ' -transparent white'
-    cmd = cmd + ' %s %s' %(src, trg)   
-    os.system(cmd)    
+    cmd = cmd + ' %s' %(trg)   
+    os.system(cmd)
     cnt += 1       
 
 def vector_to_bitmap(src, trg):
@@ -179,9 +177,9 @@ def vector_to_bitmap(src, trg):
     cmd = '\"%s\" -density %d %s %s' %(MagickPath, density, src, trg)
     os.system(cmd)        
     multiple = density / 100
-    density = int(density / multiple)
+    density = int(density / multiple)    
     cmd = '\"%s\" %s -units PixelsPerCentimeter -density %d %s' % (MagickPath, trg, density, trg)
-    os.system(cmd)    
+    os.system(cmd)        
     cnt += 1
 
 def get_bitmap_info(img):
@@ -205,11 +203,6 @@ def resize_bitmap(img):
         density = 100
     else: 
         density = args.density    
-    # cmd = '\"%s\" identify -ping -format %%w %s' %(MagickPath, img)
-    # imgwidth = int(subprocess.check_output(cmd, stderr = subprocess.STDOUT))
-    # if imgwidth > args.maxwidth:
-        # widthlimit = args.maxwidth / density
-        # density = imgwidth / widthlimit    
     if args.maxwidth > 0:
         cmd = '\"%s\" %s  -resize %dx%d^> %s' % (MagickPath, img, args.maxwidth, args.maxwidth, img)    
         os.system(cmd)    

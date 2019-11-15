@@ -105,7 +105,7 @@ def generate_pdf():
 			for i=1, #1 do    
 				next_saturday = today + (saturday_index * 86400)				
 				date = os.date(\"\\%%Y-\\%%m-\\%%d\", next_saturday)
-				tex.print(\"\\\\par\\\\textbf{\",date,\"}\\\\par\")
+				tex.print(\"\\\\par\\\\textbf{\",date,\"}\\\\par\\\\nopagebreak\")
 				tex.print(\"\\\\DrawWeek{#2}\")
 				saturday_index = saturday_index + 7
 			end

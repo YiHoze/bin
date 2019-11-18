@@ -21,8 +21,8 @@ parser = argparse.ArgumentParser(
     description ='Configure your environment for LaTeX.'
 )
 parser.add_argument(
-    '-c',
-    dest = 'copy_to_local',
+    '-s',
+    dest = 'store_to_local',
     action = 'store_true',
     default = False,
     help = 'Copy the provided latex style files into the local TeXMF directory.'
@@ -49,25 +49,32 @@ parser.add_argument(
     help = 'Set TEXEDIT as an environment variable.'
 )
 parser.add_argument(
-    '-t',
+    '-home',
     dest = 'texmfhome',
     action = 'store_true',
     default = False,
     help = 'Set TEXMFHOME as an environment variable.'
 )
 parser.add_argument(
-    '-f',
+    '-cnf',
+    dest = 'texmf_cnf',
+    action = 'store_true',
+    default = False,
+    help = "Add user's local font directory to texmf.cnf."
+)
+parser.add_argument(
+    '-local',
+    dest = 'local_conf',
+    action = 'store_true',
+    default = False,
+    help = "Create local.conf that contains user's local font directory."
+)
+parser.add_argument(
+    '-c',
     dest = 'cache_font',
     action = 'store_true',
     default = False,
     help = 'Cache fonts for XeLaTeX.'
-)
-parser.add_argument(
-    '-u',
-    dest = 'update_texlive',
-    action = 'store_true',
-    default = False,
-    help = 'Update TeX Live.'
 )
 parser.add_argument(
     '-l',
@@ -76,17 +83,23 @@ parser.add_argument(
     default = False,
     help = 'Update the font database for LuaLaTeX.'
 )
+parser.add_argument(
+    '-u',
+    dest = 'update_texlive',
+    action = 'store_true',
+    default = False,
+    help = 'Update TeX Live.'
+)
 args = parser.parse_args()
 
-def copy_to_local():
-    print('\n[Copying latex style files]')
-    if not (config.has_option('Sphinx Style', 'latex') and 
-        config.has_option('TeX Live', 'texmflocal')):
-        print('Make sure to have docenv.ini set properly.')
-        sys.exit()
-    else:
+def store_to_local():
+    print('\n[Copying latex style files]')   
+    try:
         latex_style = config.get('Sphinx Style', 'latex')
         texmf_local = config.get('TeX Live', 'texmflocal')
+    except:
+        print('Make sure to have docenv.ini set properly.')
+        return
     answer = input('These files are going to be copied into <%s>\n%s\nEnter Y to proceed, N to abandon, or another directory: ' %(texmf_local, latex_style.replace(', ', '\n')))
     if (answer.lower() == 'n'):
         return
@@ -103,11 +116,12 @@ def copy_to_local():
     os.system('mktexlsr')
 
 def set_docenv():
-    print('\n[Setting DOCENV]')
-    if not config.has_option('DocEnv', 'path'):
+    print('\n[Setting DOCENV]')    
+    try:
+        docenv = config.get('DocEnv', 'path')
+    except:
         print('Make sure to have docenv.ini set properly.')
         return
-    docenv = config.get('DocEnv', 'path')
     answer = input('Are you sure to set the DOCENV environment variable to <%s>?\nEnter [Y] to proceed, [n] to abandon, or another directory: ' %(docenv))
     if answer.lower() == 'n':
         return
@@ -119,11 +133,12 @@ def set_docenv():
     os.system(cmd)
 
 def set_texedit():
-    print('\n[Setting TEXEDIT]')
-    if not config.has_option('TeX Live', 'TEXEDIT'):
+    print('\n[Setting TEXEDIT]')    
+    try:    
+        texedit = config.get('TeX Live', 'TEXEDIT')
+    except:
         print('Make sure to have docenv.ini set properly.')
         return
-    texedit = config.get('TeX Live', 'TEXEDIT')
     answer = input('Are you sure to set the TEXEDIT environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: ' %(texedit))
     if answer.lower() == 'n':
         return
@@ -135,11 +150,12 @@ def set_texedit():
     os.system(cmd)
 
 def set_texmfhome():
-    print('\n[Setting TEXMFHOME]')
-    if not config.has_option('TeX Live', 'TEXMFHOME'):
+    print('\n[Setting TEXMFHOME]')    
+    try:
+        texmfhome = config.get('TeX Live', 'TEXMFHOME')
+    except:
         print('Make sure to have docenv.ini set properly.')
         return
-    texmfhome = config.get('TeX Live', 'TEXMFHOME')
     answer = input('Are you sure to set the TEXMFHOME environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another path: ' %(texmfhome))
     if answer.lower() == 'n':
         return
@@ -151,11 +167,12 @@ def set_texmfhome():
     os.system(cmd)
 
 def update_texlive():
-    print('\n[Updating TeX Live]')
-    if not config.has_option('TeX Live', 'repository'):
+    print('\n[Updating TeX Live]')    
+    try:
+        repository = config.get('TeX Live', 'repository')
+    except:
         print('Make sure to have docenv.ini set properly.')
         return
-    repository = config.get('TeX Live', 'repository')
     answer = input('Are you sure to use the <%s> repository to update the TeX Live?\nEnter [Y] to proceed, [n] to abandon, or another repository: ' %(repository))
     if answer.lower() == 'n':
         return
@@ -168,11 +185,12 @@ def update_texlive():
 
 def set_sumatrapdf():
     print('\n[Setting SumatraPDF')
-    if not (config.has_option('SumatraPDF', 'path') and config.has_option('SumatraPDF', 'inverse-search')):
+    try:
+        sumatra = config.get('SumatraPDF', 'path')
+        editor = config.get('SumatraPDF', 'inverse-search')
+    except:
         print('Make sure to have docenv.ini set properly.')
         return
-    sumatra = config.get('SumatraPDF', 'path')
-    editor = config.get('SumatraPDF', 'inverse-search')
     answer = input('Are you sure to use <%s> to enable the inverse search feature of SumatraPDF?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: ' %(editor))
     if answer.lower() == 'n':
         return
@@ -183,6 +201,41 @@ def set_sumatrapdf():
     cmd.append('-inverse-search')
     cmd.append(editor)    
     subprocess.Popen(cmd)
+
+def modify_texmf_cnf():
+    print('\n[texmf.cnf]')
+    try:
+        texmf_cnf = config.get('TEXMF.CNF', 'path')
+        target = config.get('TEXMF.CNF', 'target')
+        substitute = config.get('TEXMF.CNF', 'substitute')
+    except:
+        print('Make sure to have docenv.ini set properly')
+        return
+    answer = input("'%s' will be replaced with '%s' in <%s>\nEnter [Y] to proceed, [n] to abandon." %(target, substitute, texmf_cnf))
+    if (answer.lower() == 'n'):
+        return
+    with open(texmf_cnf, mode='r') as f:
+        content = f.read()
+        content = content.replace(target, substitute)
+    with open(texmf_cnf, mode='w') as f:
+        f.write(content)
+
+def create_local_conf():
+    print('\n[local.conf]')
+    try:
+        local_conf = config.get('LOCAL.CONF', 'path')
+        content = config.get('LOCAL.CONF', 'content')
+    except:
+        print('Make sure to have docenv.ini set properly')
+        return
+    if os.path.exists(local_conf):
+        print('<%s> already exists' %(local_conf))
+        return
+    answer = input("<%s> will be created to include %s\nEnter [Y] to proceed, [n] to abandon." %(local_conf, content))
+    if (answer.lower() == 'n'):
+        return
+    with open(local_conf, mode='w') as f:
+        f.write(content)
 
 def cache_font():
     print('\n[Caching fonts]')
@@ -197,8 +250,8 @@ def luaotfload():
         cmd = 'luaotfload-tool --update --force --verbose=3'
         os.system(cmd)     
 
-if args.copy_to_local:
-    copy_to_local()
+if args.store_to_local:
+    store_to_local()
 if args.docenv:
     set_docenv()
 if args.update_texlive:
@@ -209,6 +262,10 @@ if args.texmfhome:
     set_texmfhome()
 if args.sumatrapdf:
     set_sumatrapdf()
+if args.texmf_cnf:
+    modify_texmf_cnf()
+if args.local_conf:
+    create_local_conf()
 if args.cache_font:
     cache_font()
 if args.luaotfload:

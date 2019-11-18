@@ -24,13 +24,19 @@ parser.add_argument(
     default = False,
     help = 'Euro'
 )
-
 parser.add_argument(
     '-j',
     dest = 'JPY',
     action = 'store_true',
     default = False,
     help = 'Japanese yen'
+)
+parser.add_argument(
+    '-ca',
+    dest = 'CAD',
+    action = 'store_true',
+    default = False,
+    help = 'Canadian Dollar'
 )
 
 args = parser.parse_args()
@@ -49,6 +55,9 @@ elif args.EUR:
 elif args.JPY:
     country = '일본 엔 JPY'
     currency = 'JPY'
+elif args.CAD:
+    country = '캐나다 달러 CAD'
+    currency = 'CAD'
 else:
     country = '미국 달러 USD'
     currency = 'USD'

@@ -1,7 +1,8 @@
 # pip pytnon-barcode
 # pip install qrcode[pil]
 # #>qr 'https:hoze.tistory.com' > hoze.svg
-import argparse, barcode, qrcode, qrcode.image.svg, codecs, re, webbrowser
+import os, argparse
+import barcode, qrcode, qrcode.image.svg, codecs, re, webbrowser
 from pyzbar.pyzbar import decode
 from PIL import Image
 from barcode.writer import ImageWriter
@@ -90,6 +91,9 @@ def encode_qrcode():
 
 def decode_qrcode():
     for img in args.code:
+        if not os.path.exists(img):
+            print('%s does not exist.' %(img))
+            return
         data = decode(Image.open(img))[0][0]    
         data = data.decode('utf-8')        
         link = data.replace(r'\:', ':')

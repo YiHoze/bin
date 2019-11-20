@@ -266,6 +266,11 @@ def converter(afile):
             bitmap_to_bitmap(afile, target)
         elif trgfmt == '.png':
             bitmap_to_bitmap(afile, target)
+    elif srcfmt == '.tga':
+        if trgfmt == '.jpg':
+            bitmap_to_bitmap(afile, target)
+        elif trgfmt == '.png':
+            bitmap_to_bitmap(afile, target)
     elif srcfmt == '.pbm':
         if trgfmt == '.jpg':
             bitmap_to_bitmap(afile, target)

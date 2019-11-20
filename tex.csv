@@ -62,7 +62,7 @@
 \\newpage,
 \\footnotemark,
 \\image.+?\n,
-\\lineimg\{.+?\},
+\\img\{.+?\},
 \\listimg\{.+?\},
 \\URL.?\{.+?\},
 \\url.?\{.+?\},
@@ -71,6 +71,7 @@
 \\pageref\{.+?\},
 \\titleref\{.+?\},
 \\footnotetext\[.+?\],
+\\part\{(.+?)\},\1
 \\chapter\{(.+?)\},\1
 \\section\{(.+?)\},\1
 \\subsection\{(.+?)\},\1
@@ -80,6 +81,7 @@
 \\ui\{(.+?)\},\1
 \\wrap\{(.+?)\},\1
 \\menu\{(.+?)\}\{(.+?)\},\1 \2
+\\jargon\{(.+?)\}\{(.+?)\},\1(\2)
 \\item\[(.+?)\],\1
 \\item,
 \\FinalizerOn, 

@@ -39,6 +39,7 @@ def age_draw(age):
     # print(dogs, humans)
     plt.xlabel('Dog age')
     plt.ylabel('Human age')
+    plt.title("Dog's age as human")
     plt.plot(dogs, humans)
     plt.show()
 

@@ -21,11 +21,11 @@ parser.add_argument(
     help = 'Dispay rate sections by income.'
 )
 parser.add_argument(
-    '-g',
-    dest = 'graph',
+    '-p',
+    dest = 'plot',
     action = 'store_true',
     default = False,
-    help = 'Draw graphs for rate sections.'
+    help = 'Draw a bar plot for rate sections.'
 )
 
 # 1200만 원 초과 ~ 4600만 원 이하: 15%
@@ -47,7 +47,7 @@ def initialize():
 def rate_section_show():
     if args.show is True:
         rate_section_itemize()
-    if args.graph is True:
+    if args.plot is True:
         rate_section_draw()
 
 def rate_section_itemize():
@@ -116,7 +116,7 @@ if __name__=="__main__":
     args = parser.parse_args()
     initialize()    
     if args.salary is None:
-        if args.show or args.graph:
+        if args.show or args.plot:
             rate_section_show()
         else:
             parser.print_help()

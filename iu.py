@@ -297,6 +297,10 @@ trgfmt = trgfmt.lower()
 if not trgfmt.startswith('.'):
     trgfmt = '.' + trgfmt
 
+# if not args.image:
+#     parser.print_help()    
+#     sys.exit()
+
 for fnpattern in args.image: 
     check_converter(fnpattern)   
     if args.recursive:

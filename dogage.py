@@ -15,10 +15,9 @@ parser.add_argument(
     dest = 'plot',
     action = 'store_true',
     default = False,
-    help = "'Draw a curve plot displaying dog's age rate"
+    help = "Draw a curve plot displaying dog's age rate"
 )
 args = parser.parse_args()
-
 
 def age_print(age):
     dog, human = age_calculate(age)
@@ -30,13 +29,18 @@ def age_calculate(dog):
     return(dog, human)
 
 def age_draw(age):
+    age = float(age)
     dogs, humans = [], []
-    for i in range(age):
-        i = i + 1
+    i = 0
+    if age < 1:
+        incr = 0.1
+    else:
+        incr = 1
+    while i <= age:
+        i = i + incr
         dog, human = age_calculate(i)
         dogs.append(dog)
         humans.append(human)
-    # print(dogs, humans)
     plt.xlabel('Dog age')
     plt.ylabel('Human age')
     plt.title("Dog's age as human")
@@ -44,7 +48,7 @@ def age_draw(age):
     plt.show()
 
 if args.plot:
-    age_draw(int(args.age[0]))
+    age_draw(args.age[0])
 else:
     print('dog year(s) ≈ human year(s)')
     for age in args.age:

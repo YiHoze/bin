@@ -1,4 +1,5 @@
 Attribute VB_Name = "Module1"
+
 Sub SortSheets()
 Dim i As Integer
 Dim j As Integer
@@ -78,6 +79,3 @@ For Column = 2 To 18
     stream.Close
 Next Column
 End Sub
-
-
-출처: http://hoze.tistory.com/1488 [Hoze]

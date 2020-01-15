@@ -15,6 +15,7 @@ if os.path.exists(ini):
         TextEditorPath = config.get('Text Editor', 'path')
         TextEditorOption = config.get('Text Editor', 'option')
         associations = config.get('Text Editor', 'associations')
+        SumatraPDFPath = config.get('SumatraPDF', 'path')
         AdobeReaderPath = config.get('Adobe Reader', 'path')
     except:
         print('Make sure to have docenv.ini set properly.')
@@ -77,13 +78,13 @@ def OpenHere():
                 os.system(cmd)                
             elif filetype == 'pdf':
                 if args.Adobe:
-                    cmd = '\"%s\" %s' % (AdobeReaderPath, afile)                                 
-                    subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                else:
-                    cmd = 'start %s' % (afile)
+                    cmd = '\"%s\" \"%s\"' % (AdobeReaderPath, afile)
+                    subprocess.Popen(cmd, stdout=subprocess.PIPE)                    
+                else:                    
+                    cmd = 'start \"\" \"%s\"' % (afile)
                     os.system(cmd)
             else:
-                cmd = 'start %s' % (afile)
+                cmd = 'start \"\" \"%s\"' % (afile)
                 os.system(cmd)
 
 def SearchTeXLive():

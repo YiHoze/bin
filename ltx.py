@@ -206,7 +206,6 @@ def sort_index():
         os.system(cmd_tex)
 
 def bookmark_index():
-
     if not os.path.exists(ind):
         print('%s is not found' % (ind))
         return

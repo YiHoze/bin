@@ -21,3 +21,5 @@ def test_calculate_tax():
     assert t.calculate_tax(40000) == 13460
     assert t.calculate_tax(50000) == 17460
     assert t.calculate_tax(60000) == 21660
+
+test_calculate_tax()

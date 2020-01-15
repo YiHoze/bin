@@ -43,6 +43,7 @@ def initialize():
         rate = rate_sections[limit]
         accumulated = accumulated + ((limit - preceding) * rate/100)
         preceding = limit
+    # print(accumulated_sections)
 
 def rate_section_show():
     if args.show is True:
@@ -92,22 +93,24 @@ def calculate_tax(salary):
             break
     accumulated = accumulated_sections[corresponding]
     rate = rate_sections[corresponding]
-    tax = int(accumulated + ((salary - preceding) * rate/100))
+    # print(accumulated_sections)
+    # print(accumulated, preceding, corresponding)
+    tax = accumulated + ((salary - preceding) * rate/100)
     return tax
 
 def display_pay(salary):
     tax = calculate_tax(salary)
-    actual_rate = int(tax * 100 /salary)
-    monthly_pay = int(salary/12)
-    monthly_tax = int(monthly_pay * actual_rate/100)
+    actual_rate = tax * 100 / salary
+    monthly_pay = salary/12
+    monthly_tax = monthly_pay * actual_rate/100
     post_tax_pay = monthly_pay - monthly_tax    
     output = """
     salary: %d
-    Actual tax rate: %d%%
+    Actual tax rate: %.2f%%
     Tax: %d
-    Monthly pay: %d
-    Monthly tax: %d
-    Post-tax pay: %d
+    Monthly pay: %.1f
+    Monthly tax: %.1f
+    Post-tax pay: %.1f
     """ %(salary, actual_rate, tax, monthly_pay, monthly_tax, post_tax_pay)
     print(output)
     rate_section_show()

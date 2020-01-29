@@ -18,14 +18,7 @@ else:
 
 # Get arguments
 parser = argparse.ArgumentParser(
-    description ='Configure your environment for LaTeX.'
-)
-parser.add_argument(
-    '-s',
-    dest = 'store_to_local',
-    action = 'store_true',
-    default = False,
-    help = 'Copy the provided latex style files into the local TeXMF directory.'
+    description ='Configure your documentation environment for LaTeX.'
 )
 parser.add_argument(
     '-d',
@@ -35,18 +28,11 @@ parser.add_argument(
     help = 'Specify the directory where executable files and relevant files of this documentation system are located to set the path as an environment variable.'
 )
 parser.add_argument(
-    '-p',
-    dest = 'sumatrapdf',
+    '-s',
+    dest = 'store_to_local',
     action = 'store_true',
     default = False,
-    help = 'Set SumatraPDF to enable inverse search. (jumping back to the corresponding point in the source tex file)'
-)
-parser.add_argument(
-    '-e',
-    dest = 'texedit',
-    action = 'store_true',
-    default = False,
-    help = 'Set TEXEDIT as an environment variable.'
+    help = 'Copy the provided latex class and style files into the local TeXMF directory.'
 )
 parser.add_argument(
     '-home',
@@ -67,7 +53,28 @@ parser.add_argument(
     dest = 'local_conf',
     action = 'store_true',
     default = False,
-    help = "Create local.conf that contains user's local font directory."
+    help = "Create local.conf for which to include user's local font directory."
+)
+parser.add_argument(
+    '-e',
+    dest = 'texedit',
+    action = 'store_true',
+    default = False,
+    help = 'Set TEXEDIT as an environment variable.'
+)
+parser.add_argument(
+    '-p',
+    dest = 'sumatrapdf',
+    action = 'store_true',
+    default = False,
+    help = 'Set SumatraPDF to enable inverse search. (jumping back to the corresponding point in the source tex file)'
+)
+parser.add_argument(
+    '-u',
+    dest = 'update_texlive',
+    action = 'store_true',
+    default = False,
+    help = 'Update TeX Live.'
 )
 parser.add_argument(
     '-c',
@@ -84,13 +91,33 @@ parser.add_argument(
     help = 'Update the font database for LuaLaTeX.'
 )
 parser.add_argument(
-    '-u',
-    dest = 'update_texlive',
+    '-batch',
+    dest = 'batch',
     action = 'store_true',
     default = False,
-    help = 'Update TeX Live.'
+    help = 'Get every option done at once.'
 )
 args = parser.parse_args()
+
+def set_docenv():
+    print('\n[Setting DOCENV]')    
+    try:
+        docenv = config.get('DocEnv', 'path')
+    except:
+        print('Make sure to have docenv.ini set properly.')
+        return
+    answer = input('Are you sure to set the DOCENV environment variable to <%s>?\nEnter [Y] to proceed, [n] to abandon, or another directory: ' %(docenv))
+    if answer.lower() == 'n':
+        return
+    if not (answer.lower() == 'y' or answer == ''):
+        docenv = answer
+        if not os.path.exists(docenv):
+            print('<%s> does not exist.' %(docenv))
+            return
+    cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name DOCENV -value '%s'\"" % (docenv)
+    os.system(cmd)
+    cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'DOCENV'\""
+    os.system(cmd)       
 
 def store_to_local():
     print('\n[Copying latex style files]')   
@@ -110,44 +137,12 @@ def store_to_local():
         src = os.path.join(inipath, afile)
         cmd = 'copy %s %s' %(src, texmf_local) 
         os.system(cmd)        
-    dst = os.path.join(texmf_local, '*.*')
-    for afile in glob.glob(dst):
-        print(afile)
+    # dst = os.path.join(texmf_local, '*.*')
+    # for afile in glob.glob(dst):
+    #     print(afile)
+    cmd = 'dir %s' %(texmf_local)
+    os.system(cmd)
     os.system('mktexlsr')
-
-def set_docenv():
-    print('\n[Setting DOCENV]')    
-    try:
-        docenv = config.get('DocEnv', 'path')
-    except:
-        print('Make sure to have docenv.ini set properly.')
-        return
-    answer = input('Are you sure to set the DOCENV environment variable to <%s>?\nEnter [Y] to proceed, [n] to abandon, or another directory: ' %(docenv))
-    if answer.lower() == 'n':
-        return
-    if not (answer.lower() == 'y' or answer == ''):
-        docenv = answer
-    cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name DOCENV -value '%s'\"" % (docenv)
-    os.system(cmd)
-    cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'DOCENV'\""
-    os.system(cmd)
-
-def set_texedit():
-    print('\n[Setting TEXEDIT]')    
-    try:    
-        texedit = config.get('TeX Live', 'TEXEDIT')
-    except:
-        print('Make sure to have docenv.ini set properly.')
-        return
-    answer = input('Are you sure to set the TEXEDIT environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: ' %(texedit))
-    if answer.lower() == 'n':
-        return
-    if not (answer.lower() == 'y' or answer == ''):
-        texedit = answer
-    cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXEDIT -value '%s'\"" % (texedit)
-    os.system(cmd)
-    cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXEDIT'\""
-    os.system(cmd)
 
 def set_texmfhome():
     print('\n[Setting TEXMFHOME]')    
@@ -166,21 +161,21 @@ def set_texmfhome():
     cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXMFHOME'\""
     os.system(cmd)
 
-def update_texlive():
-    print('\n[Updating TeX Live]')    
-    try:
-        repository = config.get('TeX Live', 'repository')
+def set_texedit():
+    print('\n[Setting TEXEDIT]')    
+    try:    
+        texedit = config.get('TeX Live', 'TEXEDIT')
     except:
         print('Make sure to have docenv.ini set properly.')
         return
-    answer = input('Are you sure to use the <%s> repository to update the TeX Live?\nEnter [Y] to proceed, [n] to abandon, or another repository: ' %(repository))
+    answer = input('Are you sure to set the TEXEDIT environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: ' %(texedit))
     if answer.lower() == 'n':
         return
     if not (answer.lower() == 'y' or answer == ''):
-        repository = answer
-    cmd = 'tlmgr option repository %s' %(repository)
+        texedit = answer
+    cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXEDIT -value '%s'\"" % (texedit)
     os.system(cmd)
-    cmd = 'tlmgr update --self --all'
+    cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXEDIT'\""
     os.system(cmd)
 
 def set_sumatrapdf():
@@ -201,6 +196,7 @@ def set_sumatrapdf():
     cmd.append('-inverse-search')
     cmd.append(editor)    
     subprocess.Popen(cmd)
+
 
 def modify_texmf_cnf():
     print('\n[texmf.cnf]')
@@ -237,6 +233,23 @@ def create_local_conf():
     with open(local_conf, mode='w') as f:
         f.write(content)
 
+def update_texlive():
+    print('\n[Updating TeX Live]')    
+    try:
+        repository = config.get('TeX Live', 'repository')
+    except:
+        print('Make sure to have docenv.ini set properly.')
+        return
+    answer = input('Are you sure to use the <%s> repository to update the TeX Live?\nEnter [Y] to proceed, [n] to abandon, or another repository: ' %(repository))
+    if answer.lower() == 'n':
+        return
+    if not (answer.lower() == 'y' or answer == ''):
+        repository = answer
+    cmd = 'tlmgr option repository %s' %(repository)
+    os.system(cmd)
+    cmd = 'tlmgr update --self --all'
+    os.system(cmd)
+
 def cache_font():
     print('\n[Caching fonts]')
     answer = input('Are you sure to cache fonts?\nEnter [Y] to proceed or [n] to abandon: ')
@@ -250,23 +263,35 @@ def luaotfload():
         cmd = 'luaotfload-tool --update --force --verbose=3'
         os.system(cmd)     
 
-if args.store_to_local:
-    store_to_local()
-if args.docenv:
-    set_docenv()
-if args.update_texlive:
-    update_texlive()
-if args.texedit:
-    set_texedit()
-if args.texmfhome:
-    set_texmfhome()
-if args.sumatrapdf:
-    set_sumatrapdf()
-if args.texmf_cnf:
-    modify_texmf_cnf()
-if args.local_conf:
-    create_local_conf()
-if args.cache_font:
-    cache_font()
-if args.luaotfload:
-    luaotfload()
+if args.batch:
+        set_docenv()
+        store_to_local()
+        set_texmfhome()
+        modify_texmf_cnf()
+        create_local_conf()
+        set_texedit()
+        set_sumatrapdf()
+        update_texlive()
+        cache_font()
+        luaotfload()
+else:    
+    if args.docenv:
+        set_docenv()
+    if args.store_to_local:
+        store_to_local()
+    if args.texmfhome:
+        set_texmfhome()
+    if args.texmf_cnf:
+        modify_texmf_cnf()
+    if args.local_conf:
+        create_local_conf()
+    if args.texedit:
+        set_texedit()
+    if args.sumatrapdf:
+        set_sumatrapdf()
+    if args.update_texlive:
+        update_texlive()
+    if args.cache_font:
+        cache_font()
+    if args.luaotfload:
+        luaotfload()

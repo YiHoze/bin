@@ -80,3 +80,6 @@ if (! $directory) { GetLocalPath; break }
 if ($AppendToPath) { AppendLocalPath; break }
 if ($RemoveFromPath) { RemoveLocalPath; break }
 if ($SetToPath) { SetLocalPath; break }
+
+# userpath.ps1 -a "C:\Program Files\Python37\Scripts\"
+# userpath.ps1 -a "C:\Program Files\Python37\"

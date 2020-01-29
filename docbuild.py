@@ -2,7 +2,7 @@ import os, glob, argparse
 
 # Get arugments.
 parser = argparse.ArgumentParser(
-    description = 'This is a wrapper program to automate the build process using Sphinx and XeLaTeX.'
+    description = 'Let Sphinx generate HTML or PDF with XeLaTeX.'
 )
 parser.add_argument(
     'target',

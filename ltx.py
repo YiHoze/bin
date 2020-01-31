@@ -1,7 +1,6 @@
-import os, sys, glob, argparse, re
+import os, sys, glob, argparse, re, subprocess
 
-# sys.path.append(...)
-# from foo import *
+dirCalled = os.path.dirname(sys.argv[0])
 
 parser = argparse.ArgumentParser(
     description = 'Convert a TeX file to PDF using XeLaTeX or LuaLaTeX.'
@@ -280,4 +279,6 @@ if args.clean_aux:
 
 if args.view:
     if os.path.exists(pdf):        
-        os.system('powershell -command open.py %s' %(pdf))
+        # os.system('powershell -command open.py %s' %(pdf))
+        processor = os.path.join(dirCalled, 'open.py')    
+        subprocess.call(['python', processor, pdf])

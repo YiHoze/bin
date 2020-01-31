@@ -29,13 +29,13 @@ parser.add_argument(
 )
 
 # 1200만 원 초과 ~ 4600만 원 이하: 15%
-rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 0:42}
+rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 50001:42}
 accumulated_sections = {} 
 
 def initialize():
     accumulated = 0
     preceding = 0
-    for limit in rate_sections:
+    for limit in sorted(rate_sections.keys()):
         if preceding == 0:
             accumulated_sections[limit] = 0
         else:        
@@ -43,7 +43,6 @@ def initialize():
         rate = rate_sections[limit]
         accumulated = accumulated + ((limit - preceding) * rate/100)
         preceding = limit
-    # print(accumulated_sections)
 
 def rate_section_show():
     if args.show is True:
@@ -52,8 +51,8 @@ def rate_section_show():
         rate_section_draw()
 
 def rate_section_itemize():
-    for limit in rate_sections:
-        if limit == 0:
+    for limit in sorted(rate_sections.keys()):
+        if limit == 50001:
             salary = '{:,}'.format(preceding)
             print(" Over %6s: %2d %%" %(salary, rate_sections[limit]))
         else:
@@ -63,8 +62,8 @@ def rate_section_itemize():
 
 def rate_section_draw():
     sections, rates = [], []
-    for limit in rate_sections:
-        if limit == 0:
+    for limit in sorted(rate_sections.keys()):
+        if limit == 50001:
             salary = '>'+'{:,}'.format(preceding)
             sections.append(salary)
         else:
@@ -82,9 +81,9 @@ def rate_section_draw():
 
 def calculate_tax(salary):
     corresponding = 0
-    for limit in rate_sections:
+    for limit in sorted(rate_sections.keys()):
         if salary > limit:
-            if limit == 0:
+            if limit == 50001:
                 preceding = corresponding
             corresponding = limit
         else:
@@ -102,16 +101,16 @@ def display_pay(salary):
     tax = calculate_tax(salary)
     actual_rate = tax * 100 / salary
     monthly_pay = salary/12
-    monthly_tax = monthly_pay * actual_rate/100
+    monthly_tax = monthly_pay * actual_rate / 100
     post_tax_pay = monthly_pay - monthly_tax    
     output = """
-    salary: %d
-    Actual tax rate: %.2f%%
+    Salary: %d
     Tax: %d
+    Actual tax rate: %.2f%%
     Monthly pay: %.1f
     Monthly tax: %.1f
     Post-tax pay: %.1f
-    """ %(salary, actual_rate, tax, monthly_pay, monthly_tax, post_tax_pay)
+    """ %(salary, tax, actual_rate, monthly_pay, monthly_tax, post_tax_pay)
     print(output)
     rate_section_show()
 

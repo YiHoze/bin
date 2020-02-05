@@ -16,7 +16,7 @@ parser.add_argument(
     dest = 'batch_mode',
     action = 'store_true',
     default = False,
-    help = 'LaTeX does not halt even with syntax errors. (batch-mode)'
+    help = 'Do not halt even with syntax errors. (batch-mode)'
 )
 parser.add_argument(
     '-s',
@@ -44,14 +44,14 @@ parser.add_argument(
     dest = 'view',
     action = 'store_true',
     default = False,
-    help = 'Open the PDF file to view.'
+    help = 'Open the resulting PDF file to view.'
 )
 parser.add_argument(
     '-n',
     dest = 'no_compile',
     action = 'store_true',
     default = False,
-    help = 'Without compilation, do other processing such as index sorting.'
+    help = 'Pass over compilation but do other processes such as index sorting.'
 )
 parser.add_argument(
     '-i',
@@ -252,7 +252,6 @@ def draft():
     with open(tex, mode = 'w', encoding = 'utf-8') as f:
         f.write(content)
 
-
 if args.finalizer:
     finalizer()
 if args.draft:
@@ -279,6 +278,5 @@ if args.clean_aux:
 
 if args.view:
     if os.path.exists(pdf):        
-        # os.system('powershell -command open.py %s' %(pdf))
         processor = os.path.join(dirCalled, 'open.py')    
         subprocess.call(['python', processor, pdf])

@@ -1,5 +1,6 @@
 import os, sys, glob, argparse, subprocess
 
+# the directory where this script is called out
 dirCalled = os.path.dirname(sys.argv[0])
 
 # Get arugments.
@@ -13,25 +14,30 @@ parser.add_argument(
     help = 'Choose between html and latex. The default is html.'
 )
 parser.add_argument(
+    '-tf',
+    dest = 'tex_filename',
+    help = 'Specify the tex filename.'
+)
+parser.add_argument(
     '-X', 
     dest = 'noCompile',
     action = 'store_true',
     default = False,
-    help = 'Disable latex compilation.'
+    help = 'Pass over latex compilation.'
 )
 parser.add_argument(
     '-j',
     dest = 'AutoJosa',
     action = 'store_true',
     default = False,
-    help = 'Replace with 자동조사.'
+    help = 'Replace with 자동조사 macros.'
 )
 parser.add_argument(
     '-N',
     dest = 'noImage',
     action = 'store_true',
     default = False,
-    help = 'Disable image processing.'
+    help = 'Pass over image processing.'
 )
 parser.add_argument(
     '-r',
@@ -39,6 +45,13 @@ parser.add_argument(
     action = 'store_true',
     default = False,
     help = 'Read and write all files anew.'
+)
+parser.add_argument(
+    '-k',
+    dest = 'keep_collateral',
+    action = 'store_true',
+    default = False,
+    help = "Do not remove unnecessary collateral files, including sphinxmanual.cls."
 )
 parser.add_argument(
     '-cl',
@@ -52,7 +65,7 @@ args, unknown_args = parser.parse_known_args()
 
 def build_html():
     if args.renew:
-        cmd = 'sphinx-build -a -E . _build/html' 
+        cmd = 'sphinx-build -b html -a -E . _build/html' 
     else:
         cmd = 'sphinx-build -M html . _build'     
     os.system(cmd)
@@ -63,59 +76,39 @@ def build_latex():
         os.remove(afile)
 
     if args.renew:
-        cmd = 'sphinx-build -a -E . _build/latex'
+        cmd = 'sphinx-build -b latex -a -E . _build/latex'
     else:
         cmd = 'sphinx-build -M latex . _build'         
     os.system(cmd)
 
     os.chdir('_build/latex')
-    tex = glob.glob('*.tex')[0]
+    # Remove unnecessary files
+    if not args.keep_collateral:
+        files = ['sphinxhowto.cls', 'sphinxmanual.cls', 'python.ist', 'make.bat', 'Makefile', 'LatinRules.xdy', 'LICRcyr2utf8.xdy', 'LICRlatin2utf8.xdy', 'sphinx.xdy', 'latexmkjarc', 'latexmkrc', 'Makefile']
+        for afile in files:
+            if os.path.exists(afile):
+                os.remove(afile)
+    # Replace '을' with '\을'
     if args.AutoJosa:
-        # cmd = 'powershell -command autojosa.py %s' %(tex)
-        # os.system(cmd)
         processor = os.path.join(dirCalled, 'autojosa.py')
-        subprocess.call(['python', processor, tex])
-
+        subprocess.call(['python', processor, args.tex_filename])
+    # Covert SVG images to PDF and crop PDF images
     if not args.noImage:
-        # if os.path.exists('images'):
-        #     cmd = 'svg2pdf.exe images/*.svg'    
-        # os.system(cmd)
         processor = os.path.join(dirCalled, 'iu.py')
-        subprocess.call(['python', processor, '*.svg'])
+        subprocess.call('python %s -t pdf -rec *.svg' %(processor)) 
         for afile in glob.glob('blockdiag-*.pdf'):
             cmd = 'pdfcrop.exe %s %s' %(afile, afile)
             os.system(cmd)    
-
+    # Run xelatex to make PDF
     if not args.noCompile:
         processor = os.path.join(dirCalled, 'ltx.py')
         options = ' '.join(unknown_args)
-        subprocess.call(['python', processor, tex, options])
-    
+        subprocess.call('python %s %s %s' %(processor, options, args.tex_filename))     
     # os.chdir('../..')
 
 def clear_build():
     cmd = 'sphinx-build -M clean . _build'
     os.system(cmd)
-
-# def compile_fully():
-#     os.system(cmd_tex)
-#     os.system(cmd_tex)
-#     if os.path.exists(idx):
-#         cmd = 'texindy -M ' + ind_mod + idx
-#         os.system(cmd)        
-#         if args.BookmarkPython:
-#             cmd = 'powershell -command bmind.py -p ' + ind
-#             os.system(cmd)
-#         os.system(cmd_tex)
-#     os.system(cmd_tex)
-#     if not args.KeepAux:
-#         os.system('texclean.py')
-#         files = ['sphinxhowto.cls', 'sphinxmanual.cls', 'sphinx.sty', 'python.ist', 'Makefile', 'latexmkrc', 'latexmkjarc']        
-#         for afile in files:
-#             if os.path.exists(afile):
-#                 os.remove(afile)
-
-
 
 if args.clear:
     clear_build()      

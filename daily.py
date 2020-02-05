@@ -29,8 +29,6 @@ else:
 
 if os.path.exists(ini):
     config = configparser.ConfigParser()
-    # with open(ini, mode='r', encoding='utf-8') as f:
-    #     config.readfp(f)
     config.read([ini], encoding='utf-8')
     for section in config.sections():
         try:
@@ -42,7 +40,6 @@ if os.path.exists(ini):
         except:
             target = ''
         cmd = '\"%s\" %s' %(app, target.replace('\n', ' '))
-        # cmd.encode(encoding='euc-kr')
         subprocess.Popen(cmd)        
 else:
     print('%s is not found.' %(ini))

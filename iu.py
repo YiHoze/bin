@@ -1,5 +1,7 @@
 import os, sys, glob, argparse, configparser, subprocess
 
+dirCalled = os.path.dirname(sys.argv[0])
+
 # Read the initiation file to get the path to Inkscape.
 try:
     inipath = os.environ['DOCENV'].split(os.pathsep)[0]

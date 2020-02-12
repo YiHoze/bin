@@ -63,11 +63,12 @@ def notebook_convert(afile):
         os.system(cmd)        
         # Compile tex
         if not args.passover:
-            cmd = 'xelatex -interaction=batchmode %s' %(tex)            
-            os.system(cmd)
-            os.system(cmd)
-            processor = os.path.join(dirCalled, 'ltx.py')
-            subprocess.call(['python', processor, '-c'])            
+            if os.path.exists(tex):
+                cmd = 'xelatex -interaction=batchmode %s' %(tex)
+                os.system(cmd)
+                os.system(cmd)
+                processor = os.path.join(dirCalled, 'ltx.py')
+                subprocess.call(['python', processor, '-c'])
     else:
         print('%s is not a Jupyter notebook.' %(afile))
 

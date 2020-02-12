@@ -1,13 +1,13 @@
-import os, sys, re, argparse
+import os, sys, re, argparse, subprocess
 
 try:
-    dir_called = os.environ['DOCENV'].split(os.pathsep)[0]
+    dirCalled = os.environ['DOCENV'].split(os.pathsep)[0]
 except:
-    dir_called = False
-if dir_called is False:
-    dir_called = os.path.dirname(sys.argv[0])
+    dirCalled = False
+if dirCalled is False:
+    dirCalled = os.path.dirname(sys.argv[0])
 
-examfile = os.path.join(dir_called, 'fontglyph.txt')
+examfile = os.path.join(dirCalled, 'fontglyph.txt')
 
 parser = argparse.ArgumentParser(
     description = 'View the list of installed fonts, or see what glyphs a font contains using an example text. This script requires TeX Live.'
@@ -67,13 +67,17 @@ def show_glyphs():
     \\end{document}""" %(args.font, text)
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    os.system('powershell -command ltx.py -c %s' %(tex))
-    os.system('powershell -command open.py %s' %(pdf))
+    # os.system('powershell -command ltx.py -c %s' %(tex))
+    # os.system('powershell -command open.py %s' %(pdf))
+    processor = os.path.join(dirCalled, 'ltx.py')    
+    subprocess.call('python %s -c %s' %(processor, tex))
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call('python %s %s' %(process, pdf))
 
 def enumerate_fonts():
     if os.path.exists(args.fonts_list):
         os.remove(args.fonts_list)
-    cmd = 'fc-list : -f "%%{file} > %%{fullname}\\n" > %s' %(args.fonts_list) 
+    cmd = 'fc-list : -f "%%{file} > %%{family}  \\n" > %s' %(args.fonts_list) # %%{family} %%{fullname} %%{style}
     os.system(cmd)
     with open(args.fonts_list, mode='r', encoding='utf-8') as f:
         content = f.readlines()        
@@ -82,7 +86,9 @@ def enumerate_fonts():
     with open(args.fonts_list, mode='w', encoding='utf-8') as f:
         for line in content:
             f.write(line)
-    os.system("powershell -command open.py %s" %(args.fonts_list))
+    # os.system("powershell -command open.py %s" %(args.fonts_list))
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call("python %s %s" %(processor, args.fonts_list))
 
 if args.font is None:
     enumerate_fonts()

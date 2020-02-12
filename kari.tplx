@@ -71,12 +71,12 @@
     ((* block docclass *))
     ((*- if nb.metadata.latex -*))
         ((*- if nb.metadata.latex.language -*))
-        \documentclass[10pt, language=((( nb.metadata.latex.language )))]{hzguide}
+        \documentclass[10pt, pairquote=false, language=((( nb.metadata.latex.language )))]{hzguide}
         ((*- else -*))
-        \documentclass[10pt, language=korean]{hzguide}
+        \documentclass[10pt, pairquote=false, language=korean]{hzguide}
         ((*- endif -*))    
     ((*- else -*))
-        \documentclass[10pt, language=korean]{hzguide}
+        \documentclass[10pt, pairquote=false, language=korean]{hzguide}
     ((*- endif -*))    
         \usepackage{jupyterkari}
     ((* endblock docclass *))

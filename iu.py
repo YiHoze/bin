@@ -46,7 +46,7 @@ parser.add_argument(
     '-t',
     dest = 'target_format',
     default = 'pdf',
-    help = 'Specify the target format. (default: pdf)'
+    help = 'Specify a target format. (default: pdf)'
 )
 parser.add_argument(
     '-r',

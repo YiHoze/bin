@@ -98,14 +98,14 @@ parser.add_argument(
     dest = 'bookmark_index',
     action = 'store_true',
     default = False,
-    help = 'Bookmark all index entries. This option is available only with full compilation (-f). This feature does not support komkindex.'
+    help = 'Bookmark index entries. This option is available only with -f or -i options. This feature does not support komkindex.'
 )
 parser.add_argument(
     '-p',
     dest = 'bookmark_python',
     action = 'store_true',
     default = False,
-    help = 'Bookmark index entries which are Python functions extracted from docstrings. This option is available only with full compilation (-f).'
+    help = 'Bookmark index entries which are Python functions extracted from docstrings. This option is available only with -f or -i options.'
 )
 parser.add_argument(
     '-c',
@@ -173,7 +173,10 @@ except:
 
 # functions
 def compile_once():
-    os.system(cmd_tex)    
+    if args.index_sort:
+        sort_index()
+    else:
+        os.system(cmd_tex)
 
 def compile_twice():
     os.system(cmd_tex)
@@ -266,12 +269,10 @@ if not args.no_compile:
             compile_twice()
         else:
             compile_once()
-
-if args.tex is not None:
-    if args.index_sort or args.komkindex:
-        sort_index()
-    elif args.bookmark_index or args.bookmark_python:
-        bookmark_index()
+else:
+    if args.tex is not None:
+        if args.index_sort or args.komkindex:
+            sort_index()
 
 if args.clean_aux:
     clean_aux()  

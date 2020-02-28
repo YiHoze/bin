@@ -53,28 +53,28 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-def RenameUppercase():
+def rename_uppercase():
     for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
             filename = os.path.splitext(afile)
             newname = filename[0].upper() +  filename[1].upper()            
             os.rename(afile, newname)
 
-def RenameLowercase():
+def rename_lowercase():
     for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
             filename = os.path.splitext(afile)
             newname = filename[0].lower() +  filename[1].lower()            
             os.rename(afile, newname)
 
-def AppendSuffix():
+def append_suffix():
     for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
             filename = os.path.splitext(afile)
             newname = filename[0] + args.suffix + filename[1]            
             os.rename(afile, newname)
 
-def RemoveSuffix():
+def remove_suffix():
     for fnpattern in args.files:
         for afile in glob.glob(fnpattern):
             newname = re.sub(args.suffix, '', afile)
@@ -86,7 +86,7 @@ def get_subdirs(fnpattern):
         curdir = '.'
     return([x[0] for x in os.walk(curdir)])
 
-def CopyIntoOne():
+def copy_into():
     if not os.path.exists(args.target_folder):
         answer = input('The %s folder is not found. If you want to create it, Enter Y. ' % (args.target_folder))
         if (answer.lower() == 'y'):
@@ -102,12 +102,12 @@ def CopyIntoOne():
                 shutil.copy(afile, args.target_folder)
 
 if args.uppercase:
-    RenameUppercase()
+    rename_uppercase()
 elif args.lowercase:
-    RenameLowercase()
+    rename_lowercase()
 elif args.remove:
-    RemoveSuffix()
+    remove_suffix()
 elif args.copy:
-    CopyIntoOne()
+    copy_into()
 else:
-    AppendSuffix()    
+    append_suffix()    

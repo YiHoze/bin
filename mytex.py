@@ -1,11 +1,11 @@
-import os, sys, glob, argparse
+import os, sys, glob, argparse, subprocess
 
 try:
-    dir_called = os.environ['DOCENV'].split(os.pathsep)[0]
+    dirCalled = os.environ['DOCENV'].split(os.pathsep)[0]
 except:
-    dir_called = False
-if dir_called is False:
-    dir_called = os.path.dirname(sys.argv[0])
+    dirCalled = False
+if dirCalled is False:
+    dirCalled = os.path.dirname(sys.argv[0])
 
 parser = argparse.ArgumentParser(
     description = 'Create a LaTeX file for one of the following purposes.'
@@ -23,11 +23,10 @@ parser.add_argument(
     help = 'Choose one among article, hzbeamer, hzguide, memoir, oblivoir. (default: hzguide)'
 )
 parser.add_argument(
-    '-alb',
-    dest = 'album',
+    '-f',
+    dest = 'font_glyph',
     action = 'store_true',
-    default = False,
-    help = 'Create an album with all the image files in the current directory.'
+    help = "Create one to view a font's glyphs."
 )
 parser.add_argument(
     '-tpl',
@@ -35,6 +34,13 @@ parser.add_argument(
     action = 'store_true',
     default = False,
     help = 'Create the manual template.' 
+)
+parser.add_argument(
+    '-alb',
+    dest = 'album',
+    action = 'store_true',
+    default = False,
+    help = 'Create an album with all the image files in the current directory.'
 )
 parser.add_argument(
     '-s',
@@ -68,7 +74,7 @@ parser.add_argument(
     dest = 'no_compile',
     action = 'store_true',
     default = False,
-    help = 'Pass over latex compilation.'
+    help = 'Do not compile for album or template'
 )
 parser.add_argument(
     '-m',
@@ -150,7 +156,59 @@ def create_tex():
         content = tex_hzguide()
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    os.system('powershell -command open.py %s' %(tex))
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call(['python', processor, tex])
+
+def create_font_glyph():
+    if check_to_remove(tex) is False:
+        return
+    content = r"""\documentclass[12pt]{article}
+\usepackage{fontspec}
+\usepackage{xparse}
+\ExplSyntaxOn
+\int_new:N \l_glyph_number
+\tl_new:N \l_glyph_code 
+\int_new:N \l_glyph_slot
+\NewDocumentCommand \ShowGlyphs { mm } 
+{
+	\group_begin:			
+	\int_set:Nn \l_tmpa_int { \int_from_hex:n {#1} }
+	\int_set:Nn \l_glyph_number { \int_from_hex:n {#2} }
+		\linespread{1.25}		
+		\int_do_while:nn {	\l_tmpa_int < \l_glyph_number } 
+		{
+			\int_incr:N \l_tmpa_int		
+			\tl_set:Nn \l_glyph_code { \int_to_Hex:n {\l_tmpa_int} }
+			\int_set:Nn \l_glyph_slot {\the\XeTeXcharglyph"\l_glyph_code} 
+			\int_compare:nT { \l_glyph_slot != 0 }
+			{
+				\parbox{1.5em}{
+					\centering 			
+					\raisebox{-1ex}{ \tiny \int_use:N \l_glyph_slot} \\
+					\char"\l_glyph_code \\
+					\raisebox{1ex}{ \tiny \l_glyph_code }
+				}
+			}
+			\int_set:Nn \l_tmpb_int {\int_mod:nn {\l_tmpa_int} {16} }
+			\int_compare:nT { \l_tmpb_int = 0 }
+				{ \newline }
+				{ \hskip .25em }
+		}	
+	\group_end:
+	\par
+}
+\ExplSyntaxOff
+\setlength\parindent{0pt}
+\begin{document} 
+\setmainfont{Noto Serif CJK KR}
+\ShowGlyphs{1100}{11FF}
+\ShowGlyphs{A960}{A97C}
+\ShowGlyphs{D7B0}{D7FB}
+\end{document}"""
+    with open(tex, mode='w', encoding='utf-8') as f:
+        f.write(content)    
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call(['python', processor, tex])
 
 def create_template():
     if check_to_remove(tex) is False:
@@ -207,10 +265,13 @@ def create_template():
 \end{document}"""
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    os.system('powershell -command open.py %s' %(tex))
-    if not args.no_compile:
-        os.system('powershell -command ltx.py -b -w %s' %(tex))    
-        os.system('powershell -command open.py %s' %(pdf))
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call(['python', processor, tex])
+    if not args.no_compile:        
+        processor = os.path.join(dirCalled, 'ltx.py')    
+        subprocess.call(['python', processor, '-b', '-w', tex])          
+        processor = os.path.join(dirCalled, 'open.py')    
+        subprocess.call(['python', processor, pdf])
 
 def create_album():
     if check_to_remove(pdf) is False:
@@ -251,9 +312,11 @@ def create_album():
         content = content.replace('MakeAlbum', 'MakeAlbum*')
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    if not args.no_compile:
-        os.system('powershell -command ltx.py -b -c %s' %(tex))    
-        os.system('powershell -command open.py %s' %(pdf))    
+    if not args.no_compile:        
+        processor = os.path.join(dirCalled, 'ltx.py')    
+        subprocess.call(['python', processor, '-b', '-c', tex])          
+        processor = os.path.join(dirCalled, 'open.py')    
+        subprocess.call(['python', processor, pdf])
     if not args.keep:
         os.remove(list_file)
         os.remove(tex)
@@ -339,22 +402,27 @@ def merge_pdf():
 \end{document}"""
     with open(tex, mode='w', encoding='utf-8') as f:
         f.write(content)
-    os.system('powershell -command open.py %s' %(tex))
+    processor = os.path.join(dirCalled, 'open.py')    
+    subprocess.call(['python', processor, tex])
 
 if args.output is None:
     if args.template:
-        output = 'manual'
+        basename = 'manual'
     elif args.album:
-        output = 'album'
+        basename = 'album'
     else:
-        output = 'mytex'
+        basename = 'mytex'
 else:
-    output = args.output
-tex = output + '.tex'
-pdf = output + '.pdf'
+    filename = os.path.basename(args.output)
+    basename = os.path.splitext(filename)[0]
+
+tex = basename + '.tex'
+pdf = basename + '.pdf'
 
 if args.template:
     create_template()
+elif args.font_glyph:
+    create_font_glyph()
 elif args.album:
     create_album()
 elif args.merge:

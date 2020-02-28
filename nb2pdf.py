@@ -44,6 +44,13 @@ parser.add_argument(
     default = False,
     help = 'Pass over latex compilation.'
 )
+parser.add_argument(
+    '-v',
+    dest = 'view',
+    action = 'store_true',
+    default = False,
+    help = 'Open the resulting PDF file to view.'
+)
 
 args = parser.parse_args()
 
@@ -69,6 +76,10 @@ def notebook_convert(afile):
                 os.system(cmd)
                 processor = os.path.join(dirCalled, 'ltx.py')
                 subprocess.call(['python', processor, '-c'])
+                if args.view:
+                    if os.path.exists(pdf):        
+                        processor = os.path.join(dirCalled, 'open.py')    
+                        subprocess.call(['python', processor, pdf])
     else:
         print('%s is not a Jupyter notebook.' %(afile))
 

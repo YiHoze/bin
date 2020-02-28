@@ -7,13 +7,13 @@ try:
 except:
     inipath = False
 if inipath is False:
-    inipath = os.path.dirname(sys.argv[0])
+    inipath = os.path.dirname(sys.argv[0])    
 ini = os.path.join(inipath, 'docenv.ini')
 if os.path.exists(ini):
     config = configparser.ConfigParser()
     config.read(ini)
 else:
-    print('Docenv.ini is not found. Set the DOCENV environment variable to the directory containing docenv.ini.')
+    print('docenv.ini is not found. Set the DOCENV environment variable to the directory containing docenv.ini.')
     sys.exit()
 
 # Get arguments
@@ -32,7 +32,7 @@ parser.add_argument(
     dest = 'store_to_local',
     action = 'store_true',
     default = False,
-    help = 'Copy the provided latex class and style files into the local TeXMF directory.'
+    help = 'Copy the provided latex class and style files into the local TEXMF directory.'
 )
 parser.add_argument(
     '-home',
@@ -102,7 +102,7 @@ args = parser.parse_args()
 def set_docenv():
     print('\n[Setting DOCENV]')    
     try:
-        docenv = config.get('DocEnv', 'path')
+        docenv = config.get('DOCENV', 'path')
     except:
         print('Make sure to have docenv.ini set properly.')
         return
@@ -114,10 +114,19 @@ def set_docenv():
         if not os.path.exists(docenv):
             print('<%s> does not exist.' %(docenv))
             return
+    # Setting DOCENV permanently
     cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name DOCENV -value '%s'\"" % (docenv)
     os.system(cmd)
+    print('DOCENV =')
     cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'DOCENV'\""
-    os.system(cmd)       
+    os.system(cmd)
+    # Adding to PATH permanently
+    pathenv = docenv + os.pathsep + os.environ["PATH"]
+    cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name PATH -value '%s'\"" % (pathenv)
+    os.system(cmd)
+    print('PATH =')
+    cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'PATH'\""
+    os.system(cmd)    
 
 def store_to_local():
     print('\n[Copying latex style files]')   
@@ -135,11 +144,11 @@ def store_to_local():
     files = latex_style.split()
     for afile in files:        
         src = os.path.join(inipath, afile)
-        cmd = 'copy %s %s' %(src, texmf_local) 
-        os.system(cmd)        
-    # dst = os.path.join(texmf_local, '*.*')
-    # for afile in glob.glob(dst):
-    #     print(afile)
+        if os.path.exists(src):
+            cmd = 'copy %s %s' %(src, texmf_local) 
+            os.system(cmd)
+        else:
+            print("%s is not found." %(src))
     cmd = 'dir %s' %(texmf_local)
     os.system(cmd)
     os.system('mktexlsr')
@@ -263,17 +272,34 @@ def luaotfload():
         cmd = 'luaotfload-tool --update --force --verbose=3'
         os.system(cmd)     
 
+def ToContinue():
+    answer = input('Do you want to continue this batch process?')
+    if (answer.lower() == 'y'):
+        return True
+    else:
+        sys.exit()
+
 if args.batch:
-        set_docenv()
-        store_to_local()
-        set_texmfhome()
-        modify_texmf_cnf()
-        create_local_conf()
-        set_texedit()
-        set_sumatrapdf()
-        update_texlive()
-        cache_font()
-        luaotfload()
+        if (ToContinue()):
+            set_docenv()
+        if (ToContinue()):
+            store_to_local()
+        if (ToContinue()):
+            set_texmfhome()
+        if (ToContinue()):
+            modify_texmf_cnf()
+        if (ToContinue()):
+            create_local_conf()
+        if (ToContinue()):
+            set_texedit()
+        if (ToContinue()):
+            set_sumatrapdf()
+        if (ToContinue()):
+            update_texlive()
+        if (ToContinue()):
+            cache_font()
+        if (ToContinue()):
+            luaotfload()
 else:    
     if args.docenv:
         set_docenv()

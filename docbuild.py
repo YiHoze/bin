@@ -19,7 +19,7 @@ parser.add_argument(
     help = 'Specify the tex filename.'
 )
 parser.add_argument(
-    '-X', 
+    '-n', 
     dest = 'noCompile',
     action = 'store_true',
     default = False,
@@ -33,7 +33,7 @@ parser.add_argument(
     help = 'Replace with 자동조사 macros.'
 )
 parser.add_argument(
-    '-N',
+    '-x',
     dest = 'noImage',
     action = 'store_true',
     default = False,

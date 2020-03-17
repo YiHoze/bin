@@ -147,10 +147,10 @@ class ImageUtility(object):
             return False
 
     def check_format(self, img):
-        if img.startswith('.'):
+        basename = os.path.basename(img)
+        ext = os.path.splitext(basename)[1]
+        if not ext:        
             ext = img
-        else:
-            ext = os.path.splitext(img)[1]
         ext = ext.lower()
         if ext in self.bitmaps:
             return('bitmap')

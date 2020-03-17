@@ -116,7 +116,16 @@
     ((* endblock predoc *))
     ((( super() )))
     ((* block postdoc *))
-    ((* block bibliography *))((* endblock bibliography *))
+    ((* block bibliography *))
+    \makeatletter
+    \if@hangul
+        \def\refname{참고 문헌}
+        \def\bibname{참고 문헌}
+    \fi
+    \makeatother
+        \bibliographystyle{apacite}
+        \bibliography{references}
+    ((* endblock bibliography *))
     ((* endblock postdoc *))
     \end{document}
 ((* endblock body *))
@@ -130,3 +139,27 @@
     ((* endif *))
     \end{Verbatim}
 ((* endblock input *))
+
+((* block execute_result scoped *))
+    ((*- for type in output.data | filter_data_type -*))
+        ((*- if resources.global_content_filter.include_output_prompt -*))
+            ((*- if type in ['text/plain'] *))
+((( add_prompt(output.data['text/plain'], cell, 'Out') )))
+            ((*- else -*))
+\verb+Out[((( cell.execution_count )))]:+((( super() )))
+            ((*- endif -*))
+        ((*- endif -*))
+    ((*- endfor -*))
+((* endblock execute_result *))
+
+((* macro add_prompt(text, cell, prompt) -*))
+    ((*- if cell.execution_count is defined -*))
+    ((*- set execution_count = "" ~ (cell.execution_count | replace(None, " ")) -*))
+    ((*- else -*))
+    ((*- set execution_count = " " -*))
+    ((*- endif -*))
+    ((*- set indentation = " " * (execution_count | length + 7) -*))
+\begin{verbatim}
+(((- text | add_prompts(first=prompt ~ '[' ~ execution_count ~ ']: ', cont=indentation) -)))
+\end{verbatim}
+((*- endmacro *))

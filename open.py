@@ -149,7 +149,7 @@ class FileOpener(object):
             else:
                 self.OpenHere(files)
 
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     opener = FileOpener()    
     opener.parse_args()    
     opener.open()

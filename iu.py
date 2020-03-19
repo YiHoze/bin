@@ -217,14 +217,22 @@ class ImageUtility(object):
     def count_pdf_pages(self, img):
         ext = os.path.splitext(img)[1]
         if ext.lower() == '.pdf':
-            cmd = '\"%s\" identify -format \"%%n,\" %s' %(self.Magick, img)
+            # cmd = '\"%s\" identify -format \"%%n,\" %s' %(self.Magick, img)
+            # result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            # result = str(result).split(',')            
+            # return(int(result[1]))
+            cmd = 'pdfinfo.exe ' + img
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            result = str(result).split(',')            
-            return(int(result[1]))
+            result = str(result).split('\\r\\n')
+            for i in result:
+                if 'Pages:' in i:
+                    tmp = i.replace('Pages:', '')                    
+                    return(int(tmp))
         else:
             return(0)        
 
     def vector_to_bitmap(self, img):
+        page_count = self.count_pdf_pages(img)
         trg = self.name_target(img)
         cmd = '\"%s\" -density 254 %s %s' %(self.Magick, img, trg)        
         os.system(cmd)        
@@ -280,8 +288,12 @@ class ImageUtility(object):
                     self.run_recursive(self.bitmap_to_bitmap)
         elif recipe['source type'] == 'vector':
             if recipe['target type'] == 'bitmap':
-                if self.check_ImageMagick():
-                    self.run_recursive(self.vector_to_bitmap)
+                if recipe['source format'] == 'pdf':
+                    if self.check_TeXLive() and self.check_ImageMagick():
+                        self.run_recursive(self.vector_to_bitmap)
+                else:
+                    if self.check_ImageMagick():
+                        self.run_recursive(self.vector_to_bitmap)
             elif recipe['target type'] == 'vector':
                 if recipe['source format'] == '.eps' and recipe['target format'] == '.pdf':
                     if self.check_TeXLive():

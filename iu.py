@@ -180,11 +180,11 @@ class ImageUtility(object):
         if self.check_format(img) is 'bitmap':
             cmd = '\"%s\" identify -verbose %s' %(self.Magick, img)
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            gist = str(result).split('\\r\\n')
-            line = 4
+            result = str(result).split('\\r\\n')
             print('\n %s' %(img))
+            line = 4
             while line < 8:
-                print(gist[line])
+                print(result[line])
                 line += 1  
 
     def resize_bitmap(self, img):
@@ -214,12 +214,27 @@ class ImageUtility(object):
         os.system(cmd)
         self.cnt += 1 
 
+    def count_pdf_pages(self, img):
+        ext = os.path.splitext(img)[1]
+        if ext.lower() == '.pdf':
+            cmd = '\"%s\" identify -format \"%%n,\" %s' %(self.Magick, img)
+            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            result = str(result).split(',')            
+            return(int(result[1]))
+        else:
+            return(0)        
+
     def vector_to_bitmap(self, img):
         trg = self.name_target(img)
-        cmd = '\"%s\" -density 254 %s %s' %(self.Magick, img, trg)
+        cmd = '\"%s\" -density 254 %s %s' %(self.Magick, img, trg)        
         os.system(cmd)        
-        cmd = '\"%s\" %s -units PixelsPerCentimeter -density 100 %s' % (self.Magick, trg, trg)
-        os.system(cmd)        
+        page_count = self.count_pdf_pages(img)
+        if page_count > 1:
+            basename, ext = os.path.splitext(trg)
+            trg = basename + '*' + ext
+        for i in glob.glob(trg):        
+            cmd = '\"%s\" %s -units PixelsPerCentimeter -density 100 %s' % (self.Magick, i, i)
+            os.system(cmd)        
         self.cnt += 1
 
     def eps_to_pdf(self, img):

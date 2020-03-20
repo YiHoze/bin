@@ -11,6 +11,7 @@ class FileOpener(object):
         self.files = files
         self.Adobe = Adobe
         self.texlive = texlive
+        self.edopt = ''
 
     def initialize(self):        
         inipath = os.path.dirname(__file__) 

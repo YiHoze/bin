@@ -217,10 +217,6 @@ class ImageUtility(object):
     def count_pdf_pages(self, img):
         ext = os.path.splitext(img)[1]
         if ext.lower() == '.pdf':
-            # cmd = '\"%s\" identify -format \"%%n,\" %s' %(self.Magick, img)
-            # result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            # result = str(result).split(',')            
-            # return(int(result[1]))
             cmd = 'pdfinfo.exe ' + img
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = str(result).split('\\r\\n')

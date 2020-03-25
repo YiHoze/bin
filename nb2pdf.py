@@ -6,11 +6,11 @@ import glob
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
-from ltx import TeXCompiler
+from ltx import LatexCompiler
 
 class ipynb_to_pdf(object):
     def __init__(self, ipynb=None):
-        self.ini = self.initialize()
+        self.ini_bool = self.initialize()
         self.ipynb = ipynb
 
     def check_template(self):
@@ -51,11 +51,11 @@ class ipynb_to_pdf(object):
             dest = 'template',
             help = 'To use another latex template, specify the path to it.'
         )
-        args, self.texopt = parser.parse_known_args()
+        args, self.compile_option = parser.parse_known_args()
         self.ipynb = args.ipynb
         if args.template is not None:
             self.template = args.template
-            self.ini = self.check_template()
+            self.ini_bool = self.check_template()
 
     def convert_each(self, afile):
         basename, ext = os.path.splitext(afile)
@@ -66,16 +66,16 @@ class ipynb_to_pdf(object):
             os.system(cmd)        
             # Compile tex
             if os.path.exists(tex):                
-                texer = TeXCompiler(tex)                
-                if len(self.texopt) == 0:
-                     self.texopt.append('-w')                
-                texer.parse_args(self.texopt)
+                texer = LatexCompiler(tex)                
+                if len(self.compile_option) == 0:
+                     self.compile_option.append('-w')                
+                texer.parse_args(self.compile_option)
                 texer.compile()         
         else:            
             print('%s is not a Jupyter notebook.' %(afile))
 
     def convert(self):
-        if self.ini:           
+        if self.ini_bool:
             for fnpattern in self.ipynb:
                 for afile in glob.glob(fnpattern):
                     self.convert_each(afile)

@@ -2,7 +2,7 @@ import os, sys, re, argparse, subprocess
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
-from ltx import TeXCompiler
+from ltx import LatexCompiler
 from open import FileOpener
 
 class FontUtility(object):
@@ -73,7 +73,7 @@ class FontUtility(object):
         \\end{document}""" %(self.font, text)
         with open(tex, mode='w', encoding='utf-8') as f:
             f.write(content)
-        texer = TeXCompiler(tex)
+        texer = LatexCompiler(tex)
         texer.parse_args(['-b', '-v'])        
         texer.compile()
 

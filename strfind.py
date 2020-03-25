@@ -1,174 +1,201 @@
-import os, sys, glob, argparse, csv, re, codecs
+import os
+import sys
+import glob
+import argparse
+import csv
+import re
+import codecs
 
-parser = argparse.ArgumentParser(
-    description = 'Search a text file to find or replace some strings with others.'
-)
-parser.add_argument(
-    'files',
-    nargs = '+',
-    help = 'Specify one or more text files.'
-)
-parser.add_argument(
-    '-t',
-    dest = 'target',
-    default = None,
-    help = 'Specify a string to find.'
+dirCalled = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(dirCalled))
+from open import FileOpener
 
-)
-parser.add_argument(
-    '-s',
-    dest = 'substitute',
-    default = None,
-    help = 'Specify a string with which to replace found strings.'
+class StringFinder(object):
+    def __init__(self, files=None, target=None, substitute=None, backup=False, suffix=None, pattern=None, recursive=False, detex=False):
+        self.files = files
+        self.target = target
+        self.substitute = substitute
+        self.backup_bool = recursive
+        self.suffix = suffix
+        self.pattern = pattern
+        self.recursive_bool = recursive
+        self.detex_bool = detex
+        self.pattern_for_detex()
 
-)
-parser.add_argument(
-    '-b',
-    dest = 'backup',
-    action = 'store_true',
-    default = False,
-    help = 'Make a backup copy.'
-)
-parser.add_argument(
-    '-o',
-    dest = 'output',
-    default = None,
-    help = 'Specify a filename for output.'
-)
-parser.add_argument(
-    '-p',
-    dest = 'pattern',
-    default = None,
-    help = 'Specify a file that includes substitution patterns. (foo.csv/tsv)'
-)
-parser.add_argument(
-    '-r',
-    dest = 'recursive',
-    action = 'store_true',
-    default = False,
-    help = 'Process ones in all subdirectories.'
-)
-parser.add_argument(
-    '-d',
-    dest = 'detex',
-    action = 'store_true',
-    default = False,
-    help = 'Remove macros from a TeX file.'
-)
-args = parser.parse_args()
+    def pattern_for_detex(self):
+        if self.detex_bool and self.pattern is None:
+            self.pattern = os.path.join(dirCalled, 'tex.csv')
 
-def check_to_remove(afile):
-    if os.path.exists(afile):
-        answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
-        if answer.lower() == 'y':
-            os.remove(afile)
-            return True
-        else:
-            return False
-    else:
-        return True
+    def parse_args(self):
+        parser = argparse.ArgumentParser(
+            description = 'Search a text file to find or replace some strings with others.'
+        )
+        parser.add_argument(
+            'files',
+            nargs = '+',
+            help = 'Specify one or more text files.'
+        )
+        parser.add_argument(
+            '-t',
+            dest = 'target',
+            default = None,
+            help = 'Specify a string to find.'
 
-def get_subdirs(fnpattern):
-    curdir = os.path.dirname(fnpattern)
-    if curdir == '':
-        curdir = '.'
-    return([x[0] for x in os.walk(curdir)])
+        )
+        parser.add_argument(
+            '-s',
+            dest = 'substitute',
+            default = None,
+            help = 'Specify a string with which to replace found strings.'
 
-def find_to_display():
-    for fnpattern in args.files:
-        for afile in glob.glob(fnpattern):
-            find_to_display_sub(afile)
-        if args.recursive:
-            basename = os.path.basename(fnpattern)
-            subdirs = get_subdirs(fnpattern)
-            for subdir in subdirs:   
-                subfile = os.path.join(subdir, basename)
-                for afile in glob.glob(subfile):
-                    find_to_display_sub(afile)
+        )
+        parser.add_argument(
+            '-b',
+            dest = 'backup',
+            action = 'store_true',
+            default = False,
+            help = 'Make a backup copy.'
+        )
+        parser.add_argument(
+            '-x',
+            dest = 'suffix',
+            default = None,
+            help = 'Specify a suffix for output. This is incompatible with -b.'
+        )
+        parser.add_argument(
+            '-p',
+            dest = 'pattern',
+            default = None,
+            help = 'Specify a file that includes substitution patterns. (foo.csv/tsv)'
+        )
+        parser.add_argument(
+            '-r',
+            dest = 'recursive',
+            action = 'store_true',
+            default = False,
+            help = 'Process ones in all subdirectories.'
+        )
+        parser.add_argument(
+            '-d',
+            dest = 'detex',
+            action = 'store_true',
+            default = False,
+            help = 'Remove macros from TeX files.'
+        )
+        args = parser.parse_args()
+        self.files = args.files
+        self.target = args.target
+        self.substitute = args.substitute
+        self.backup_bool = args.backup
+        self.suffix = args.suffix
+        self.pattern = args.pattern
+        self.recursive_bool = args.recursive
+        self.detex_bool = args.detex
+        self.pattern_for_detex()
 
-def find_to_display_sub(afile):
-    print(afile)    
-    try:
-        with open(afile, mode='r', encoding='utf-8') as f:        
-                for num, line in enumerate(f):                
-                    if re.search(args.target, line):
-                        print('%5d:\t%s' %(num, line.replace('\n', ' ')))
-    except:
-        print('is not encoded in UTF-8.')
-        return
-
-def replace_to_write():    
-    for fnpattern in args.files:
-        for afile in glob.glob(fnpattern):
-            replace_to_write_sub(afile)
-        if args.recursive:            
-            basename = os.path.basename(fnpattern)
-            subdirs = get_subdirs(fnpattern)
-            for subdir in subdirs:   
-                subfile = os.path.join(subdir, basename)
-                for afile in glob.glob(subfile):
-                    replace_to_write_sub(afile)  
-
-def replace_to_write_sub(afile):
-    tmp = 't@mp.t@mp'
-    try:
-        with open(afile, mode='r', encoding='utf-8') as f:
-            content = f.read() 
-    except:
-        print('%s is not encoded in UTF-8.' %(afile))
-        return        
-    if args.pattern is None:
-        content = re.sub(args.target, args.substitute, content)
-    else:
-        ptrn_ext = os.path.splitext(args.pattern)[1].lower()
-        with open(args.pattern, mode='r', encoding='utf-8') as ptrn:
-            if ptrn_ext == '.tsv':
-                reader = csv.reader(ptrn, delimiter='\t')
-            else:
-                reader = csv.reader(ptrn)
-            for row in reader:            
-                content = re.sub(row[0], row[1], content)                 
-    with open(tmp, mode='w', encoding='utf-8') as f:
-        f.write(content)
-    if args.detex:
-        basename = os.path.splitext(afile)[0]
-        output = basename + '_clean.txt'
-        if check_to_remove(output) is False:
-            return
-        else:
-            os.rename(tmp, output)
-            os.system('powershell -command open.py %s' %(output))
-    else:
-        if args.backup:
-            backup = os.path.splitext(afile)[0] + '_bak' + os.path.splitext(afile)[1]
-            if os.path.exists(backup):
-                os.remove(backup)
-            os.rename(afile, backup)
-        if args.output is None:
-            if os.path.exists(afile):
+    def check_to_remove(self, afile):
+        if os.path.exists(afile):
+            answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
+            if answer.lower() == 'y':
                 os.remove(afile)
-            os.rename(tmp, afile)
+                return True
+            else:
+                return False
         else:
-            if os.path.exists(args.output):
-                os.remove(args.output)
-            os.rename(tmp, args.output)
+            return True
 
-if args.detex:
-    if args.pattern is None:
-        args.pattern = "tex.csv"        
-        if not os.path.exists(args.pattern):
-            args.pattern =  os.path.join(os.path.dirname(sys.argv[0]), args.pattern)            
+    def get_subdirs(self):
+        return([x[0] for x in os.walk('.')])
 
-if args.pattern is None:        
-    if args.target is None:
-        parser.print_help()
-        sys.exit()
-    elif args.substitute is None:
-        find_to_display()
-    else:
-        replace_to_write()
-else:
-    if os.path.exists(args.pattern):
-        replace_to_write()
-    else:
-        print('%s is not found.' %(args.pattern))
+    def run_recursive(self, func):
+        if self.recursive_bool:
+            subdirs = self.get_subdirs()
+            for subdir in subdirs:
+                for fnpattern in self.files:
+                    fnpattern = os.path.join(subdir, fnpattern)
+                    for afile in glob.glob(fnpattern):                        
+                        func(afile)
+        else:
+            for fnpattern in self.files:
+                for afile in glob.glob(fnpattern):
+                    func(afile)
+
+    def find(self, afile):
+        print(afile)    
+        try:
+            with open(afile, mode='r', encoding='utf-8') as f:        
+                    for num, line in enumerate(f):                
+                        if re.search(self.target, line):
+                            print('%5d:\t%s' %(num, line.replace('\n', ' ')))
+        except:
+            print('is not encoded in UTF-8.')
+            return
+
+    def replace(self, afile):
+        tmp = 't@mp.t@mp'
+        try:
+            with open(afile, mode='r', encoding='utf-8') as f:
+                content = f.read() 
+        except:
+            print('%s is not encoded in UTF-8.' %(afile))
+            return        
+        if self.pattern is None:
+            content = re.sub(self.target, self.substitute, content)
+        else:
+            ptrn_ext = os.path.splitext(self.pattern)[1].lower()
+            with open(self.pattern, mode='r', encoding='utf-8') as ptrn:
+                if ptrn_ext == '.tsv':
+                    reader = csv.reader(ptrn, delimiter='\t')
+                else:
+                    reader = csv.reader(ptrn)
+                for row in reader:            
+                    content = re.sub(row[0], row[1], content)                 
+        with open(tmp, mode='w', encoding='utf-8') as f:
+            f.write(content)
+        if self.detex_bool:            
+            filename = os.path.splitext(afile)[0]
+            output = filename + '_clean.txt'
+            if self.check_to_remove(output) is False:
+                return
+            else:
+                os.rename(tmp, output)
+                opener = FileOpener()
+                opener.OpenTxt(output)                
+        else:
+            if self.backup_bool:
+                filename, ext = os.path.splitext(afile)
+                backup = filename + '_bak' + ext
+                if os.path.exists(backup):
+                    os.remove(backup)
+                os.rename(afile, backup)
+                os.rename(tmp, afile)
+            else:
+                if self.suffix is None:
+                    if os.path.exists(afile):
+                        os.remove(afile)
+                    os.rename(tmp, afile)
+                else:
+                    filename, ext = os.path.splitext(afile)
+                    output = filename + '_' + self.suffix + ext
+                    if os.path.exists(output):
+                        os.remove(output)
+                    os.rename(tmp, output)
+
+    def find_replace(self):        
+        if self.pattern is None:        
+            if self.target is None:
+                return
+            elif self.substitute is None:
+                self.run_recursive(self.find)
+            else:
+                self.run_recursive(self.replace)
+        else:
+            if os.path.exists(self.pattern):
+                self.run_recursive(self.replace)
+            else:
+                print('%s is not found.' %(self.pattern))
+
+if __name__ == '__main__':
+    strfind = StringFinder()
+    strfind.parse_args()
+    strfind.find_replace()

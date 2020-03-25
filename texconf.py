@@ -8,7 +8,7 @@ import subprocess
 class TeXLiveConf(object):
     def __init__(self, confirmation=True, answer='y'):
         self.ini = self.initialize()
-        self.confirmation = confirmation
+        self.confirmation_bool = confirmation
         self.answer = answer
 
     def initialize(self):
@@ -19,7 +19,7 @@ class TeXLiveConf(object):
             self.config.read(ini)
             return True
         else:
-            print('docenv.ini is not found. Set the DOCENV environment variable to the directory containing docenv.ini.')
+            print('docenv.ini is not found.')
             return False
 
     def create_parser(self):
@@ -106,7 +106,7 @@ class TeXLiveConf(object):
         return(parser)   
 
     def confirm(self, msg):
-        if self.confirmation:
+        if self.confirmation_bool:
             answer = input(msg)
             return(answer)
         else:
@@ -263,7 +263,7 @@ class TeXLiveConf(object):
             os.system(cmd)     
 
     def ToContinue(self, func):
-        if self.confirmation:
+        if self.confirmation_bool:
             query = '\nDo you want to continue this batch configuration? [Y/n] '
             answer = self.confirm(query)
         else:
@@ -319,5 +319,5 @@ if __name__ == '__main__':
     parser = texconf.create_parser()
     texconf.args = parser.parse_args()
     if texconf.args.confirmation:
-        texconf.confirmation = True
+        texconf.confirmation_bool = True
     texconf.configure()

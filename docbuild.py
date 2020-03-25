@@ -6,7 +6,7 @@ import subprocess
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
-from ltx import TeXCompiler
+from ltx import LatexCompiler
 from iu import ImageUtility
 from autojosa import AutoJosa
 
@@ -71,7 +71,7 @@ class DocBuilder(object):
             default = False,
             help = 'Clear the build directory.'
         )
-        self.args, self.texopt = parser.parse_known_args()        
+        self.args, self.compile_option = parser.parse_known_args()        
 
     def build_html(self):
         if self.args.renew:
@@ -110,8 +110,8 @@ class DocBuilder(object):
                 os.system(cmd)    
         # Run xelatex to make PDF
         if not self.args.noCompile:
-            texer = TeXCompiler(self.args.tex)
-            texer.parse_args(self.texopt)
+            texer = LatexCompiler(self.args.tex)
+            texer.parse_args(self.compile_option)
             texer.compile()
         os.chdir('../..')
 

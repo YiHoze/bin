@@ -13,13 +13,13 @@ class ImageUtility(object):
         self.images = images
         self.Magick = Magick
         self.Inkscape = Inkscape
-        self.info = info
+        self.info_bool = info
         self.trgfmt = target
-        self.resize = resize
+        self.resize_bool = resize
         self.density = density
         self.maxwidth = maxwidth
         self.scale = scale
-        self.gray = gray
+        self.gray_bool = gray
         self.recursive = recursive
         self.vectors = ('.eps', '.pdf', '.svg')
         self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.pbm', '.png', '.ppm', '.tga', '.webp')
@@ -66,6 +66,7 @@ class ImageUtility(object):
         parser.add_argument(
             '-t',
             dest = 'trgfmt',
+            default = 'pdf',
             help = 'Specify a target format. (default: pdf)'
         )
         parser.add_argument(
@@ -79,18 +80,21 @@ class ImageUtility(object):
             '-d',
             dest = 'density',
             type = int,
+            default = 100,
             help = 'Pixel density for bitmap images (default: 100 pixels per centimeter)'
         )
         parser.add_argument(
             '-m',
             dest = 'maxwidth',
             type = int,
+            default = 0,
             help = 'Specify a max width to reduce bigger ones than it.'
         )
         parser.add_argument(
             '-s',
             dest = 'scale',
             type = int,
+            default = 100,
             help = "Scale, applied after checked with the max width (default: 100 %%). If an image's width is 800 pixels and 50 is given for scale, the image is reduced to 400 pixels."
         )
         parser.add_argument(
@@ -109,18 +113,14 @@ class ImageUtility(object):
         )
         args = parser.parse_args()
         self.images = args.images
-        self.info = args.info
-        if args.trgfmt is not None:
-            self.trgfmt = args.trgfmt
-        self.resize = args.resize
-        if args.density is not None:
-            self.density = args.density
-        if args.maxwidth is not None:
-            self.maxwidth = args.maxwidth
-        if args.scale is not None:
-            self.scale = args.scale
+        self.info_bool = args.info
+        self.trgfmt = args.trgfmt
+        self.resize_bool = args.resize
+        self.density = args.density
+        self.maxwidth = args.maxwidth
+        self.scale = args.scale
         self.recursive = args.recursive
-        self.gray = args.gray 
+        self.gray_bool = args.gray 
 
     def check_TeXLive(self):
         try:
@@ -197,18 +197,18 @@ class ImageUtility(object):
             self.cnt += 1
 
     def name_target(self, img):
-        basename, ext = os.path.splitext(img)
+        filename, ext = os.path.splitext(img)
         ext = ext.lower()
         if ext == '.gif':
-            trg = basename + "%03d" + self.trgfmt
+            trg = filename + "%03d" + self.trgfmt
         else:
-            trg = basename + self.trgfmt
+            trg = filename + self.trgfmt
         return(trg)
     
     def bitmap_to_bitmap(self, img):
         trg = self.name_target(img)
         cmd = '\"%s\" %s -units PixelsPerCentimeter -density %d' %(self.Magick, img, self.density)
-        if self.gray:
+        if self.gray_bool:
             cmd = cmd + ' -colorspace gray'
         cmd = cmd + ' %s' %(trg)   
         os.system(cmd)
@@ -234,8 +234,8 @@ class ImageUtility(object):
         os.system(cmd)        
         page_count = self.count_pdf_pages(img)
         if page_count > 1:
-            basename, ext = os.path.splitext(trg)
-            trg = basename + '*' + ext
+            filename, ext = os.path.splitext(trg)
+            trg = filename + '*' + ext
         for i in glob.glob(trg):        
             cmd = '\"%s\" %s -units PixelsPerCentimeter -density 100 %s' % (self.Magick, i, i)
             os.system(cmd)        
@@ -306,16 +306,16 @@ class ImageUtility(object):
                                 self.run_recursive(self.svg_to_pdf)    
 
     def count(self):
-        if self.resize:
+        if self.resize_bool:
             print('%d file(s) have been resized.' %(self.cnt))
-        elif not self.info:
+        elif not self.info_bool:
             print('%d file(s) have been converted.' %(self.cnt))
 
     def diverge(self):
-        if self.info:
+        if self.info_bool:
             if self.check_ImageMagick():
                 self.run_recursive(self.get_info)
-        elif self.resize:
+        elif self.resize_bool:
             if self.check_ImageMagick(): 
                 self.run_recursive(self.resize_bitmap)
         else:

@@ -124,9 +124,9 @@ class StringFinder(object):
         print(afile)    
         try:
             with open(afile, mode='r', encoding='utf-8') as f:        
-                    for num, line in enumerate(f):                
-                        if re.search(self.target, line):
-                            print('%5d:\t%s' %(num, line.replace('\n', ' ')))
+                for num, line in enumerate(f):                
+                    if re.search(self.target, line):
+                        print('%5d:\t%s' %(num, line.replace('\n', ' ')))
         except:
             print('is not encoded in UTF-8.')
             return

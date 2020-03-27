@@ -58,52 +58,101 @@ tex:   \documentclass{oblivoir}
 
 [glyph]
 output: myfont
-tex:   \documentclass[12pt]{article}
+tex:    \documentclass{article}
 
+        \usepackage[a4paper, margin=2cm]{geometry}
         \usepackage{fontspec}
         \usepackage{xparse}
+        \usepackage{xcolor}
+
+        \XeTeXuseglyphmetrics=0
 
         \ExplSyntaxOn
         \int_new:N \l_glyph_number
-        \tl_new:N \l_glyph_code 
         \int_new:N \l_glyph_slot
-        \NewDocumentCommand \ShowGlyphs { mm } 
+        \tl_new:N \l_glyph_code 
+        \int_new:N \l_linebreak_int
+        \int_new:N \l_pagebreak_int
+
+        \cs_new:Npn \line_page_break:nnn #1 #2 #3
         {
-            \group_begin:			
-            \int_set:Nn \l_tmpa_int { \int_from_hex:n {#1} }
-            \int_set:Nn \l_glyph_number { \int_from_hex:n {#2} }
-            \linespread{1.25}		
-            \int_do_while:nn {	\l_tmpa_int < \l_glyph_number } 
+            \int_set:Nn \l_linebreak_int { \int_mod:nn { #1 }{ #2 } }
+            \int_set:Nn \l_pagebreak_int { \int_mod:nn { #1 }{ #3 } }
+            \int_compare:nTF { \l_linebreak_int = 0 }
             {
-                \int_incr:N \l_tmpa_int		
+                \int_compare:nTF { \l_pagebreak_int = 0 }
+                {
+                    \clearpage
+                }{
+                    \par
+                }
+            }{
+                \hspace{.5em}
+            }
+        }
+
+        \NewDocumentCommand \ShowGlyphsByUnicode { m m m } 
+        {
+            \setlength\parskip{-2ex}
+            \setmainfont{#1}\fontsize{11pt}{13pt}\selectfont
+            \group_begin:			
+            \int_set:Nn \l_tmpa_int { \int_from_hex:n {#2} }
+            \int_set:Nn \l_glyph_number { \int_from_hex:n {#3} }	
+            \int_do_while:nn {	\l_tmpa_int <= \l_glyph_number } 
+            {                
                 \tl_set:Nn \l_glyph_code { \int_to_Hex:n {\l_tmpa_int} }
                 \int_set:Nn \l_glyph_slot {\the\XeTeXcharglyph"\l_glyph_code} 
-                \int_compare:nT { \l_glyph_slot != 0 }
+                \int_compare:nTF { \l_glyph_slot != 0 }
                 {
                     \parbox{1.5em}{
-                    \centering 			
-                    \raisebox{-1ex}{ \tiny \int_use:N \l_glyph_slot} \\
-                    \char"\l_glyph_code \\
-                    \raisebox{1ex}{ \tiny \l_glyph_code }
-                }
-            }
-            \int_set:Nn \l_tmpb_int {\int_mod:nn {\l_tmpa_int} {16} }
-            \int_compare:nT { \l_tmpb_int = 0 }
-                { \newline }
-                { \hskip .25em }
+                        \centering 			
+                        \raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \\
+                        \char"\l_glyph_code \\
+                        \raisebox{2ex}{\sffamily\color{darkgray} \tiny \l_glyph_code }
+                    }
+                }{
+                    \parbox{1.5em}{
+                        \centering
+                        \raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \\
+                        \fbox{\parbox{0.75em}{\rule{0pt}{2ex}}} \\
+                        \raisebox{2ex}{\sffamily\color{darkgray} \tiny \l_glyph_code }
+                    }
+                }       
+                \line_page_break:nnn {  \l_tmpa_int }{ 16 }{ 256 }		         
+                \int_incr:N \l_tmpa_int
             }	
             \group_end:
             \par
         }
+        \NewDocumentCommand \ShowGlyphsBySlot { m O{1} d() }
+        {
+            \setlength\parskip{.1ex}
+            \font\MyFont="#1"~at~11pt \MyFont
+            \IfValueTF{ #3 }
+            {
+                \int_set:Nn \l_tmpa_int { #3 }
+            }{
+                \int_set:Nn \l_tmpa_int { \the\XeTeXcountglyphs\MyFont }
+            }
+            \int_decr:N \l_tmpa_int	
+            \int_step_inline:nnn { #2 }{ \l_tmpa_int }
+            {
+                \parbox{1.5em}{
+                    \centering
+                    \raisebox{-2ex}{\sffamily\color{gray} \tiny ##1} \\
+                    \XeTeXglyph##1
+                }
+                \line_page_break:nnn { ##1 }{ 20 }{ 400 }		
+            }	
+        }
         \ExplSyntaxOff
 
+        \linespread{1}
         \setlength\parindent{0pt}
 
-        \begin{document} 
-        \setmainfont{Noto Serif CJK KR}
-        \ShowGlyphs{1100}{11FF}
-        \ShowGlyphs{A960}{A97C}
-        \ShowGlyphs{D7B0}{D7FB}
+        \begin{document}     
+        \ShowGlyphsBySlot{Noto Serif CJK KR}%%(10000)
+        \ShowGlyphsByUnicode{Noto Serif CJK KR}{0020}{FFFF}
         \end{document}
 
 [manual]

@@ -62,7 +62,6 @@ class ExchangeRate(object):
         for i in sorted(self.currencies.values()):
             print(i)
 
-    
     def calcurate(self):
         self.currency = self.currency.upper()
         try:
@@ -71,20 +70,20 @@ class ExchangeRate(object):
             print('Make sure the currency abbreviation is correct.')
             return
         basis = self.soup.find('option', text=self.currencies[self.currency]).attrs['label']
-
+        # foreign : KRW for the basis
         exchange_rate = float(exchange_rate)
         basis = float(basis)
         won = basis * exchange_rate
         won = '{:,.2f}'.format(won)
         basis = '{:,.2f}'.format(basis)
         print('%s %s = %s KRW' %(basis, self.currency, won))
-
+        # foreign : KRW for the given
         won_amount = self.amount * exchange_rate
         foreign_amount = self.amount
         won_amount = '{:,.2f}'.format(won_amount)
         foreign_amount = '{:,.2f}'.format(foreign_amount)
         print('%s %s = %s KRW' %(foreign_amount, self.currency, won_amount))
-
+        # KRW : foreign for the given
         won_amount = self.amount
         foreign_amount = self.amount / exchange_rate
         won_amount = '{:,.2f}'.format(won_amount)

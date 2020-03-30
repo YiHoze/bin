@@ -30,7 +30,7 @@ class LatexTemplate(object):
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
-            description = 'Create a LaTeX file for one of the following purposes.'
+            description = 'Create a LaTeX file from several templates.'
         )
         parser.add_argument(
             'template',
@@ -64,7 +64,7 @@ class LatexTemplate(object):
         self.list_bool = args.list
         self.compile_bool = args.compile
 
-    def check_to_remove(self, afile):
+    def confirm_to_remove(self, afile):
         if os.path.exists(afile):
             answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
             if answer.lower() == 'y':
@@ -93,16 +93,21 @@ class LatexTemplate(object):
         except:
             print('Make sure to have latex.tpl set properly.')
             return False
-        if self.check_to_remove(image_list_file) is False:
-            return False
+        if os.path.exists(image_list_file):
+            os.remove(image_list_file)
+        if os.path.exists(self.pdf):
+            os.remove(self.pdf)
         # Make a file the contains a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
         for img in image_type:
             for afile in glob.glob('*.' + img):
                 images.append(afile)
+        if len(images) == 0:
+            print('No image files are found.')
+            return False
         images.sort()
-        images = '\n'.join(images)
+        images = '\n'.join(images)        
         with open(image_list_file, mode='w') as f:
             f.write(images)
         return True
@@ -117,12 +122,13 @@ class LatexTemplate(object):
             f.write(content)
 
     def write_from_template(self):  
+        if not self.confirm_to_remove(self.tex):
+            return False
         try:
             content = self.templates.get(self.template, 'tex')
+            content = content.replace('`', '')
         except:
             print('Make sure to have latex.tpl set properly.')
-            return False
-        if not self.check_to_remove(self.tex):
             return False
         with open(self.tex, mode='w', encoding='utf-8') as f:
             f.write(content)
@@ -144,9 +150,7 @@ class LatexTemplate(object):
 
     def make(self):
         self.determine_filename()
-        if self.template == 'album':
-            if self.check_to_remove(self.pdf) is False:
-                return
+        if self.template == 'album':            
             if self.make_image_list() is False:
                 return 
         if self.write_from_template():

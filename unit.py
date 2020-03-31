@@ -1,7 +1,6 @@
 import math
 import argparse
 
-
 class ConvertUnit(object):
 
     def __init__(self, numeral=0, unit_type=None, until=None):
@@ -47,6 +46,9 @@ class ConvertUnit(object):
             except:
                 self.until = None
             unit.convert()
+
+    def show_unit_list(self):
+        print(', '.join(self.unit_types))
 
     def verify_unit(self):
         if self.unit_type in self.unit_types:
@@ -103,10 +105,6 @@ class ConvertUnit(object):
         print('%6.2f %s = %6.2f %s \t %6.2f %s = %6.2f %s' % (
             numeral, self.nonmetric_unit, metric_value, self.metric_unit, numeral, 
             self.metric_unit, nonmetric_value, self.nonmetric_unit))
-
-    def show_unit_list(self):
-        print(', '.join(self.unit_types))
-
 
 if __name__ == '__main__':
     unit = ConvertUnit()

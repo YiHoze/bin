@@ -227,8 +227,7 @@ class ImageUtility(object):
         else:
             return(0)        
 
-    def vector_to_bitmap(self, img):
-        page_count = self.count_pdf_pages(img)
+    def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
         cmd = '\"%s\" -density 254 %s %s' %(self.Magick, img, trg)        
         os.system(cmd)        

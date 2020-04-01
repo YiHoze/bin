@@ -140,7 +140,7 @@ class StringFinder(object):
             print('%s is not encoded in UTF-8.' %(afile))
             return        
         if self.pattern is None:
-            content = re.sub(self.target, self.substitute, content)
+            content = re.sub(self.target, self.substitute, content)            
         else:
             ptrn_ext = os.path.splitext(self.pattern)[1].lower()
             with open(self.pattern, mode='r', encoding='utf-8') as ptrn:

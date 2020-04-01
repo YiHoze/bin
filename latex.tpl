@@ -13,7 +13,7 @@ output: mytex
 tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 
 		\usepackage{csquotes}
-		\MakeOuterQuote{\"}
+		\MakeOuterQuote{"}
 
 		\title{}
 		\author{}
@@ -58,6 +58,9 @@ tex:   \documentclass{oblivoir}
 
 [glyph]
 output: myfont
+placeholders: 3
+defaults: Noto Serif CJK KR, 0020, FFFF
+compile_option: -b, -c
 tex:    `\documentclass{article}
 		`
 		`\usepackage[a4paper, margin=2cm]{geometry}
@@ -106,15 +109,15 @@ tex:    `\documentclass{article}
 		`		{
 		`			\parbox{1.5em}{
 		`				\centering 			
-		`				\raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \\
-		`				\char"\l_glyph_code \\
+		`				\raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \
+		`				\char"\l_glyph_code \
 		`				\raisebox{2ex}{\sffamily\color{darkgray} \tiny \l_glyph_code }
 		`			}
 		`		}{
 		`			\parbox{1.5em}{
 		`				\centering
-		`				\raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \\
-		`				\fbox{\parbox{0.75em}{\rule{0pt}{2ex}}} \\
+		`				\raisebox{-2ex}{\sffamily\color{gray} \tiny \int_use:N \l_glyph_slot} \
+		`				\fbox{\parbox{0.75em}{\rule{0pt}{2ex}}} \
 		`				\raisebox{2ex}{\sffamily\color{darkgray} \tiny \l_glyph_code }
 		`			}
 		`		}       
@@ -139,7 +142,7 @@ tex:    `\documentclass{article}
 		`	{
 		`		\parbox{1.5em}{
 		`			\centering
-		`			\raisebox{-2ex}{\sffamily\color{gray} \tiny ##1} \\
+		`			\raisebox{-2ex}{\sffamily\color{gray} \tiny ##1} \
 		`			\XeTeXglyph##1
 		`		}
 		`		\line_page_break:nnn { ##1 }{ 20 }{ 400 }		
@@ -151,8 +154,8 @@ tex:    `\documentclass{article}
 		`\setlength\parindent{0pt}
 		`
 		`\begin{document}     
-		`\ShowGlyphsBySlot{Noto Serif CJK KR}%%(10000)
-		`\ShowGlyphsByUnicode{Noto Serif CJK KR}{0020}{FFFF}
+		`%%\ShowGlyphsBySlot{Noto Serif CJK KR}%%[1](10000)
+		`\ShowGlyphsByUnicode{\1}{\2}{\3}
 		`\end{document}
 
 [manual]
@@ -217,18 +220,20 @@ tex:	`\documentclass[10pt, openany]{hzguide}
 [album]
 output: album
 image_list: im@ges.txt
+placeholders: 2
+defaults: 2, 1
 compile_option: -b, -c
 tex:	`\documentclass{hzguide}
 		`
-		`%%\usepackge{multicol}
+		`\usepackge{multicol}
 		`\LayoutSetup{ulmargin=15mm, lrmargin=15mm}
 		`\HeadingSetup{type=article}
 		`
 		`\begin{document}
-		`%%\begin{multicols}{2}
-		`\MakeAlbum[1]{%(image_list)s}
-		`%%\MakeAlbum* to hide image names
-		`%%\end{multicols}
+		`\begin{multicols}{\1}
+		`\MakeAlbum[\2]{%(image_list)s}
+		`\MakeAlbum* to hide image names
+		`\end{multicols}
 		`\end{document}
 
 [merge]
@@ -338,3 +343,138 @@ tex:	`\documentclass{hzguide}
 		`\begin{document}
 		`\numbers{20}
 		`\end{document}
+
+[permute]
+output:	permute
+placeholders: 1
+defaults: adei
+compile_option: -l, -b, -c
+tex:	`\documentclass{article}
+		`\usepackage{kotex}
+		`\usepackage{xparse,expl3}
+		`\ExplSyntaxOn
+		`\tl_new:N \l_out_tl
+		`\NewDocumentCommand \PermuteWord { m }
+		`{
+		`	\v_permute_word:nno { #1 } { 1 } { \tl_count:n { #1 } }
+		`}
+		`\cs_new:Npn \v_permute_word:nnn #1 #2 #3
+		`{
+		`	\int_compare:nTF { #2 == #3 }
+		`	{
+		`		\v_print_swapped_word:n { #1 }
+		`	}
+		`	{
+		`		\int_step_inline:nnn { #2 } { #3 }
+		`		{
+		`			\v_tlswap_fn:nnnN { #2 } { ##1 } { #1 } \l_out_tl
+		`			\v_permute_word:Von \l_out_tl { \int_eval:n { #2 + 1 } } { #3 }
+		`		}
+		`	}
+		`}
+		`\cs_generate_variant:Nn \v_permute_word:nnn { Von, nno }
+		`\cs_new:Npn \v_tlswap_fn:nnnN #1 #2 #3 #4
+		`{
+		`	\tl_clear:N #4
+		`	\tl_set:Nx \l_tmpa_tl { #3 }
+		`
+		`	\int_step_inline:nn { \tl_count:N \l_tmpa_tl }
+		`	{
+		`		\int_case:nnF { ##1 }
+		`		{
+		`			{ #1 } { \tl_put_right:Nx #4 { \tl_item:Nn \l_tmpa_tl { #2 } } }
+		`			{ #2 } { \tl_put_right:Nx #4 { \tl_item:Nn \l_tmpa_tl { #1 } } }
+		`		}
+		`		{
+		`			\tl_put_right:Nx #4 { \tl_item:Nn \l_tmpa_tl { ##1 } }
+		`		}
+		`	}
+		`}
+		`\cs_new:Npn \v_print_swapped_word:n #1
+		`{
+		`	\mbox{ #1 }
+		`	\space\space
+		`}
+		`\ExplSyntaxOff
+		`\setlength\parindent{0pt}
+		`\begin{document}
+		`\PermuteWord{\1}
+		`\end{document}
+
+[lotto]
+output:	lotto
+compile_option: -l, -b, -c
+placeholders: 2
+defaults: 8, 5
+tex:	`\documentclass[12pt, twocolumn]{article}
+		`\usepackage[a5paper,margin=1.5cm]{geometry}
+		`\usepackage{xparse, expl3}
+		`\usepackage{luacode}
+		`\usepackage{tikz}
+		`\newcommand\DrawBalls{
+		`	\luaexec{
+		`		local m, n = 6, 45
+		`		local balls = {}
+		`		local tmps = {}
+		`		for i = n-m+1, n do
+		`			local drawn = math.random(i)
+		`			if not tmps[drawn] then
+		`				tmps[drawn] = drawn	   
+		`			else
+		`				tmps[i] = i
+		`				drawn = i
+		`			end
+		`			balls[\#balls+1] = drawn
+		`		end
+		`		table.sort(balls)
+		`		for i=1,\#balls do
+		`			tex.print("\\LottoBall{", balls[i], "}")
+		`		end
+		`	}
+		`}
+		`\newcommand*\LottoBall[1]{%%
+		`	\GetBallColor
+		`	\tikz\node[
+		`			circle,shade,draw=white,thin,inner sep=1pt,
+		`			ball color=ball,
+		`			text width=1em,
+		`			font=\sffamily,text badly centered,white
+		`	]{#1};%%
+		`}
+		`\ExplSyntaxOn    	
+		`\tl_new:N \l_R_tl
+		`\tl_new:N \l_G_tl
+		`\tl_new:N \l_B_tl
+		`\NewDocumentCommand \GetBallColor { }
+		`{
+		`	\tl_set:Nx \l_R_tl { \int_rand:nn {0}{255} }
+		`	\tl_set:Nx \l_G_tl { \int_rand:nn {0}{255} }
+		`	\tl_set:Nx \l_B_tl { \int_rand:nn {0}{255} }
+		`	\definecolor{ball}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}		
+		`}
+		`\NewDocumentCommand \DrawWeek { m }
+		`{
+		`	\int_step_inline:nn {#1}
+		`	{
+		`		\DrawBalls\\
+		`	}
+		`}	
+		`\ExplSyntaxOff
+		`\newcommand*\lotto[2]{
+		`	\luaexec{
+		`		today = os.time{year=os.date("\%%Y"), month=os.date("\%%m"), day=os.date("\%%d")}
+		`		saturday_index = 6 - (os.date("\%%w"))
+		`		for i=1, #1 do    
+		`			next_saturday = today + (saturday_index * 86400)				
+		`			date = os.date("\%%Y-\%%m-\%%d", next_saturday)
+		`			tex.print("\\par\\textbf{",date,"}\\par\\nopagebreak")
+		`			tex.print("\\DrawWeek{#2}")
+		`			saturday_index = saturday_index + 7
+		`		end
+		`	}              
+		`}	
+		`\setlength\parindent{0pt}
+		`\setlength\parskip{.5ex}
+		`\begin{document}
+		`\lotto{\1}{\2}
+		`\end{document}  

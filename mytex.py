@@ -1,8 +1,11 @@
+#>mytex.py template -s foo1 foo2 foo3 
+
 import os
 import sys
 import glob
 import argparse
 import configparser
+import re
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -11,8 +14,9 @@ from ltx import LatexCompiler
 
 class LatexTemplate(object):
 
-    def __init__(self, template='hzguide', output=None, compile=True):
+    def __init__(self, template='hzguide', substitutes=None, output=None, compile=True):
         self.template = template
+        self.substitutes = substitutes
         self.output = output
         self.compile_bool = compile
         self.list_bool = False
@@ -40,6 +44,12 @@ class LatexTemplate(object):
             help = 'Choose a template.'
         )
         parser.add_argument(
+            '-s',
+            dest = 'substitutes',
+            nargs = '*',
+            help = 'Specify strings which to replace the tex file with.'
+        )
+        parser.add_argument(
             '-o',
             dest = 'output',
             help = 'Specify a filename for output.'
@@ -60,6 +70,7 @@ class LatexTemplate(object):
         )
         args = parser.parse_args()
         self.template = args.template
+        self.substitutes = args.substitutes
         self.output = args.output
         self.list_bool = args.list
         self.compile_bool = args.compile
@@ -121,12 +132,32 @@ class LatexTemplate(object):
         with open('circled_numbers.cmd', mode='w', encoding='utf-8') as f:
             f.write(content)
 
+    def fill_placeholders(self, content):
+        content = re.sub('^`', '', content, flags=re.MULTILINE)
+        try:
+            placeholders = int(self.templates.get(self.template, 'placeholders'))
+            defaults = self.templates.get(self.template, 'defaults')
+            defaults = defaults.split(', ')
+        except:
+            return content
+        if self.substitutes is not None:
+            for index, value in enumerate(self.substitutes):
+                if index > placeholders:
+                    break
+                else:
+                    defaults[index] = value
+        cnt = 1
+        for i in defaults:
+            content = content.replace('\\' + str(cnt), i)
+            cnt += 1
+        return content
+
     def write_from_template(self):  
         if not self.confirm_to_remove(self.tex):
             return False
         try:
             content = self.templates.get(self.template, 'tex')
-            content = content.replace('`', '')
+            content = self.fill_placeholders(content)
         except:
             print('Make sure to have latex.tpl set properly.')
             return False
@@ -155,7 +186,7 @@ class LatexTemplate(object):
                 return 
         if self.write_from_template():
             if self.compile_bool:
-                self.compile()
+                self.compile()                
             if self.template == 'number':
                 self.make_command_for_numbers()
 

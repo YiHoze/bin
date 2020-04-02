@@ -26,7 +26,7 @@ class LatexTemplate(object):
         tpl = os.path.join(dirCalled, 'latex.tpl')
         if os.path.exists(tpl):
             self.templates = configparser.ConfigParser()
-            self.templates.read(tpl)
+            self.templates.read(tpl, encoding='utf-8')
             return True
         else:
             print('latex.tpl is not found.')

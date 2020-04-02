@@ -5,7 +5,7 @@ import sys
 import glob
 import argparse
 import configparser
-import re
+# import re
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -88,10 +88,7 @@ class LatexTemplate(object):
 
     def determine_filename(self):
         if self.output is None:
-            try:                
-                filename = self.templates.get(self.template, 'output')
-            except:                
-                filename = 'mytex'
+            filename = self.templates.get(self.template, 'output', fallback='mytex')
         else:
             filename = self.output
             filename = os.path.splitext(filename)[0]
@@ -99,11 +96,7 @@ class LatexTemplate(object):
         self.pdf = filename + '.pdf'
 
     def make_image_list(self):
-        try:
-            image_list_file = self.templates.get('album', 'image_list')
-        except:
-            print('Make sure to have latex.tpl set properly.')
-            return False
+        image_list_file = self.templates.get('album', 'image_list', fallback='im@ges.txt')
         if os.path.exists(image_list_file):
             os.remove(image_list_file)
         if os.path.exists(self.pdf):
@@ -133,7 +126,8 @@ class LatexTemplate(object):
             f.write(content)
 
     def fill_placeholders(self, content):
-        content = re.sub('^`', '', content, flags=re.MULTILINE)
+        # content = re.sub('`', '', content, flags=re.MULTILINE)
+        content = content.replace('`', '')
         try:
             placeholders = int(self.templates.get(self.template, 'placeholders'))
             defaults = self.templates.get(self.template, 'defaults')
@@ -168,12 +162,10 @@ class LatexTemplate(object):
         return True
 
     def compile(self):
-        try:
-            compile_option = self.templates.get(self.template, 'compile_option')
-            compile_option = compile_option.split(', ')
-        except:
-            compile_option = None
+        # try:
+        compile_option = self.templates.get(self.template, 'compile_option', fallback=None)
         if compile_option is not None:
+            compile_option = compile_option.split(', ')
             texer = LatexCompiler(self.tex)
             compile_option.append('-v')
             texer.parse_args(compile_option)
@@ -191,7 +183,8 @@ class LatexTemplate(object):
                 self.make_command_for_numbers()
 
     def show_templates(self):
-        templates = ', '.join(self.templates.sections())
+
+        templates = ', '.join(sorted(self.templates.sections()))
         print(templates)
  
 if __name__ == '__main__':

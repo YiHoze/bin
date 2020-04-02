@@ -315,6 +315,8 @@ tex:	`\documentclass{minimal}
 
 [number]
 output: circled_numbers
+placeholders: 1
+defaults: 20
 tex:	`\documentclass{hzguide}
 		`
 		`\LayoutSetup{}
@@ -341,7 +343,7 @@ tex:	`\documentclass{hzguide}
 		`\pagestyle{empty}
 		`
 		`\begin{document}
-		`\numbers{20}
+		`\numbers{\1}
 		`\end{document}
 
 [permute]

@@ -136,10 +136,10 @@ class LatexTemplate(object):
             return content
         if self.substitutes is not None:
             for index, value in enumerate(self.substitutes):
-                if index > placeholders:
-                    break
-                else:
+                if index < placeholders:
                     defaults[index] = value
+                else:
+                    break
         cnt = 1
         for i in defaults:
             content = content.replace('\\' + str(cnt), i)
@@ -162,7 +162,6 @@ class LatexTemplate(object):
         return True
 
     def compile(self):
-        # try:
         compile_option = self.templates.get(self.template, 'compile_option', fallback=None)
         if compile_option is not None:
             compile_option = compile_option.split(', ')

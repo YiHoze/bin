@@ -60,7 +60,6 @@ tex:   \documentclass{oblivoir}
 output: myfont
 placeholders: 3
 defaults: Noto Serif CJK KR, 0020, FFFF
-compile_option: -b, -c
 tex:    `\documentclass{article}
 		`
 		`\usepackage[a4paper, margin=2cm]{geometry}
@@ -159,7 +158,7 @@ tex:    `\documentclass{article}
 
 [manual]
 output: manual
-compile_option: -b, -w
+compile_option: -w
 tex:	`\documentclass[10pt, openany]{hzguide}
 		`
 		`\LayoutSetup{}
@@ -221,7 +220,7 @@ output: album
 image_list: im@ges.txt
 placeholders: 2
 defaults: 2, 1
-compile_option: -b, -c
+compile_option: -c
 tex:	`\documentclass{hzguide}
 		`
 		`\usepackge{multicol}
@@ -237,10 +236,13 @@ tex:	`\documentclass{hzguide}
 
 [merge]
 output: merged
+placeholders: 3
+defaults: 210mm, 297mm, foo
 tex:	`\documentclass{minimal}
 		`
+		`\usepackage{xparse}
 		`\usepackage[a4paper]{geometry}
-		`\geometry{paperwidth=216mm, paperheight=303mm, margin={0pt, 0pt}}
+		`\geometry{paperwidth=\1, paperheight=\2, margin={0pt, 0pt}}
 		`\usepackage{graphicx}
 		`
 		`\ExplSyntaxOn
@@ -308,7 +310,7 @@ tex:	`\documentclass{minimal}
 		`\ExplSyntaxOff
 		`
 		`\begin{document}
-		`\mergepdf{A, B, C}
+		`\mergepdf{\3}
 		`\end{document}
 
 [number]
@@ -348,7 +350,7 @@ tex:	`\documentclass{hzguide}
 output:	permute
 placeholders: 1
 defaults: adei
-compile_option: -l, -b, -c
+compile_option: -l, -c
 tex:	`\documentclass{article}
 		`\usepackage{kotex}
 		`\ExplSyntaxOn
@@ -402,11 +404,12 @@ tex:	`\documentclass{article}
 
 [lotto]
 output:	lotto
-compile_option: -l, -b, -c
+compile_option: -l, -c
 placeholders: 2
 defaults: 8, 5
 tex:	`\documentclass[12pt, twocolumn]{article}
 		`\usepackage[a5paper,margin=1.5cm]{geometry}
+		`\usepackage{xparse}
 		`\usepackage{luacode}
 		`\usepackage{tikz}
 		`\newcommand\DrawBalls{
@@ -479,7 +482,6 @@ tex:	`\documentclass[12pt, twocolumn]{article}
 
 [tys]
 output:	mytys
-compile_option: -b
 placeholders: 1
 defaults: 12.86,302.9534,-8276.1,5.1064,389.56
 tex:	`\documentclass[a4paper]{article}
@@ -619,16 +621,16 @@ tex:	`\documentclass[a4paper]{article}
 		`		}{
 		`			\bool_if:NTF \l_tys_horizon_bool
 		`			{         
-		`				\tys*{##1}
+		`				\tyschar*{##1}
 		`				\bool_set_false:N \l_tys_horizon_bool
 		`			}{
 		`				\int_compare:nTF { \l_tys_cnt_int = 1 }
 		`				{
 		`					\bool_if:NTF \l_tys_minus_bool
-		`					{ \tys|{##1} }
-		`					{ \tys{##1} }
+		`					{ \tyschar|{##1} }
+		`					{ \tyschar{##1} }
 		`				}{
-		`					\tys{##1}
+		`					\tyschar{##1}
 		`				}
 		`				\bool_set_true:N \l_tys_horizon_bool 
 		`			}
@@ -665,7 +667,7 @@ tex:	`\documentclass[a4paper]{article}
 		`
 		`%% 1D360 = 119648 : 1, 100, ...
 		`%% 1D369 = 119657 : 10, 1000, ...
-		`\NewDocumentCommand \tys { s t{|} m }
+		`\NewDocumentCommand \tyschar { s t{|} m }
 		`{  
 		`	\group_begin:  
 		`	\l_tys_font_size_tl

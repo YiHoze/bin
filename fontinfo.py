@@ -1,4 +1,8 @@
-import os, sys, re, argparse, subprocess
+import os
+import sys 
+import re
+import argparse
+import subprocess
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -6,9 +10,10 @@ from ltx import LatexCompiler
 from open import FileOpener
 from mytex import LatexTemplate
 
-class FontUtility(object):
-    def __init__(self, font=None, list='fonts_list.txt'):
+class FontInfo(object):
+    def __init__(self, font=None, info=False, list='fonts_list.txt'):
         self.font = font
+        self.info_bool = info
         self.fonts_list = list
 
     def parse_args(self):
@@ -21,6 +26,13 @@ class FontUtility(object):
             help = 'Specify a font name or filename.'
         )
         parser.add_argument(
+            '-i',
+            dest = 'info',
+            action = 'store_true',
+            default = False,
+            help = 'Show the font name.'
+        )
+        parser.add_argument(
             '-l',
             dest = 'fonts_list',    
             default = 'fonts_list.txt',
@@ -28,6 +40,7 @@ class FontUtility(object):
         )
         args = parser.parse_args()
         self.font = args.font
+        self.info_bool = args.info
         self.fonts_list = args.fonts_list
 
     def multilingual(self):
@@ -52,10 +65,27 @@ class FontUtility(object):
         opener = FileOpener()
         opener.OpenTxt(self.fonts_list)
 
+    def get_info(self):        
+        cmd = 'fc-list -f "%{{file}}, " {}'.format(self.font)
+        fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        fonts = str(fonts)
+        fonts = fonts.replace("b'", "")
+        fonts = fonts.split(', ')
+        for i in fonts:
+            if self.font in i:
+                font = i
+                break
+        print(font)        
+        cmd = 'otfinfo -i {}'.format(font)
+        os.system(cmd)
+
 if __name__ == '__main__':
-    fu = FontUtility()
-    fu.parse_args()
-    if fu.font is None:
-        fu.enumerate_fonts()
+    fi = FontInfo()
+    fi.parse_args()
+    if fi.font is None:
+        fi.enumerate_fonts()
     else:
-        fu.multilingual()
+        if fi.info_bool:
+            fi.get_info()
+        else:
+            fi.multilingual()

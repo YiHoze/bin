@@ -65,7 +65,6 @@ tex:    `\documentclass{article}
 		`
 		`\usepackage[a4paper, margin=2cm]{geometry}
 		`\usepackage{fontspec}
-		`\usepackage{xparse}
 		`\usepackage{xcolor}
 		`
 		`\XeTeXuseglyphmetrics=0
@@ -243,7 +242,6 @@ tex:	`\documentclass{minimal}
 		`\usepackage[a4paper]{geometry}
 		`\geometry{paperwidth=216mm, paperheight=303mm, margin={0pt, 0pt}}
 		`\usepackage{graphicx}
-		`\usepackage{xparse}
 		`
 		`\ExplSyntaxOn
 		`\sys_if_engine_pdftex:T { \pdfminorversion=6 }
@@ -353,7 +351,6 @@ defaults: adei
 compile_option: -l, -b, -c
 tex:	`\documentclass{article}
 		`\usepackage{kotex}
-		`\usepackage{xparse,expl3}
 		`\ExplSyntaxOn
 		`\tl_new:N \l_out_tl
 		`\NewDocumentCommand \PermuteWord { m }
@@ -410,7 +407,6 @@ placeholders: 2
 defaults: 8, 5
 tex:	`\documentclass[12pt, twocolumn]{article}
 		`\usepackage[a5paper,margin=1.5cm]{geometry}
-		`\usepackage{xparse, expl3}
 		`\usepackage{luacode}
 		`\usepackage{tikz}
 		`\newcommand\DrawBalls{
@@ -480,3 +476,238 @@ tex:	`\documentclass[12pt, twocolumn]{article}
 		`\begin{document}
 		`\lotto{\1}{\2}
 		`\end{document}  
+
+[tys]
+output:	mytys
+compile_option: -b
+placeholders: 1
+defaults: 12.86,302.9534,-8276.1,5.1064,389.56
+tex:	`\documentclass[a4paper]{article}
+		`
+		`\usepackage{fontspec}
+		`\usepackage{xcolor}
+		`\usepackage{cancel}
+		`\usepackage{varwidth}
+		`
+		`\providecommand\disablekoreanfonts{}
+		`
+		`\ExplSyntaxOn
+		`\keys_define:nn { tys }
+		`{
+		`	tysfont          .tl_set:N = \l_tys_font_tys_tl,
+		`	otherfont        .tl_set:N = \l_tys_font_other_tl,
+		`	fontsize         .tl_set:N = \l_tys_font_size_tl,
+		`	charwidth        .dim_set:N = \l_tys_char_width_dim,
+		`	decimalsymbol    .tl_set:N = \l_tys_decimal_symbol_tl,
+		`	zerosymbol       .tl_set:N = \l_tys_zero_symbol_tl,
+		`	linespacing      .tl_set:N = \l_tys_linespacing_tl,
+		`	poscolor         .tl_set:N = \l_tys_positive_color_tl,
+		`	negcolor         .tl_set:N = \l_tys_negative_color_tl,
+		`}
+		`
+		`\NewDocumentCommand \TysSetup { m }
+		`{
+		`	\keys_set:nn { tys }{ #1  }
+		`}
+		`
+		`\bool_new:N \l_tys_minus_bool
+		`\bool_new:N \l_tys_before_decimal_bool
+		`\bool_new:N \l_tys_after_decimal_bool
+		`\bool_new:N \l_tys_horizon_bool
+		`\tl_new:N \l_tys_absolute_tl
+		`\int_new:N \l_tys_decimal_position_int
+		`\int_new:N \l_tys_digits_before_decimal_int
+		`\int_new:N \l_tys_digits_after_decimal_int
+		`\int_new:N \l_tys_cnt_int
+		`\int_new:N \l_tys_digit_int
+		`\int_new:N \l_tys_space_int
+		`
+		`\NewDocumentCommand \Tys { o >{\SplitList{,}} m }
+		`{
+		`	\group_begin:
+		`	\IfValueT {#1} { 
+		`		\keys_set:nn { tys }{ #1 } 
+		`	}
+		`	\begin{varwidth}{\linewidth}
+		`	\disablekoreanfonts
+		`	\setlength\parindent{0pt}
+		`	\tl_set:Nn \baselinestretch {\l_tys_linespacing_tl}
+		`	\int_zero:N \l_tys_decimal_position_int
+		`	\int_zero:N \l_tys_digits_before_decimal_int
+		`	\int_zero:N \l_tys_digits_after_decimal_int
+		`	\ProcessList{#2}{ \tys_get_decimal_position:n }
+		`	\ProcessList{#2}{ \tys_process:n }
+		`	\vspace{-\baselineskip}  
+		`	\end{varwidth}
+		`	\group_end:
+		`}
+		`
+		`\cs_new:Npn \tys_get_decimal_position:n #1
+		`{
+		`	\exp_args:Nx \tl_if_eq:nnTF { \tl_head:n {#1} }{-}
+		`	{ 
+		`		\tl_set:Nn \l_tys_absolute_tl { \tl_tail:n {#1} } 
+		`	}{ 
+		`		\tl_set:Nn \l_tys_absolute_tl {#1} 
+		`	}
+		`	\int_zero:N \l_tys_cnt_int
+		`	\exp_args:Nx \tl_map_inline:nn { \l_tys_absolute_tl }
+		`	{
+		`		\int_incr:N \l_tys_cnt_int
+		`		\tl_if_eq:nnT {##1}{.}
+		`		{
+		`			\int_compare:nT { \l_tys_decimal_position_int < \l_tys_cnt_int  }
+		`			{
+		`				\int_set:Nn \l_tys_decimal_position_int { \l_tys_cnt_int }
+		`			}
+		`		}    
+		`	}
+		`}
+		`
+		`\cs_new:Npn \tys_process:n #1
+		`{
+		`	\fp_compare:nTF { #1 < 0 } 
+		`	{ 
+		`		\bool_set_true:N \l_tys_minus_bool 
+		`	}{ 
+		`		\bool_set_false:N \l_tys_minus_bool 
+		`	}
+		`	\exp_args:Nx \tl_if_eq:nnTF { \tl_head:n {#1} }{-}
+		`	{
+		`		\tl_set:Nn \l_tys_absolute_tl { \tl_tail:n {#1} } 
+		`	}{
+		`		\tl_set:Nn \l_tys_absolute_tl {#1} 
+		`	}
+		`
+		`	\int_zero:N \l_tys_cnt_int
+		`	\exp_args:Nx \tl_map_inline:nn { \l_tys_absolute_tl }
+		`	{
+		`		\int_incr:N \l_tys_cnt_int    
+		`		\tl_if_eq:nnT {##1}{.}
+		`		{
+		`			\int_set:Nn \l_tys_space_int { \l_tys_decimal_position_int - \l_tys_cnt_int }
+		`		}
+		`	}
+		`	\int_step_inline:nnnn {1}{1}{ \l_tys_space_int } { \hspace*{\l_tys_char_width_dim} }
+		`	\exp_args:Nx \tys_convert:n { \l_tys_absolute_tl }
+		`}
+		`
+		`\cs_new:Npn \tys_convert:n #1
+		`{ 
+		`	\bool_if:NTF \l_tys_minus_bool
+		`	{ 
+		`		\color{\l_tys_negative_color_tl} 
+		`	}{ 
+		`		\color{\l_tys_positive_color_tl} 
+		`	}
+		`	\tys_get_digit_numbers:n {#1}
+		`	\int_if_even:nTF { \l_tys_digits_before_decimal_int }
+		`	{ 
+		`		\bool_set_true:N \l_tys_horizon_bool 
+		`	}{ 
+		`		\bool_set_false:N \l_tys_horizon_bool 
+		`	}
+		`	\int_set:Nn \l_tys_cnt_int { \l_tys_digits_before_decimal_int }
+		`	\tl_map_inline:nn {#1} 
+		`	{ 
+		`		\tl_if_eq:nnTF {##1}{.}
+		`		{ 
+		`			\fontspec{\l_tys_font_other_tl}
+		`			\l_tys_font_size_tl
+		`			\l_tys_decimal_symbol_tl      
+		`			\bool_set_true:N \l_tys_horizon_bool
+		`		}{
+		`			\bool_if:NTF \l_tys_horizon_bool
+		`			{         
+		`				\tys*{##1}
+		`				\bool_set_false:N \l_tys_horizon_bool
+		`			}{
+		`				\int_compare:nTF { \l_tys_cnt_int = 1 }
+		`				{
+		`					\bool_if:NTF \l_tys_minus_bool
+		`					{ \tys|{##1} }
+		`					{ \tys{##1} }
+		`				}{
+		`					\tys{##1}
+		`				}
+		`				\bool_set_true:N \l_tys_horizon_bool 
+		`			}
+		`		}
+		`		\int_decr:N \l_tys_cnt_int
+		`	}
+		`	\newline
+		`}
+		`
+		`\cs_new:Npn \tys_get_digit_numbers:n #1
+		`{
+		`	\bool_set_true:N \l_tys_before_decimal_bool
+		`	\bool_set_false:N \l_tys_after_decimal_bool
+		`	\int_zero:N \l_tys_cnt_int
+		`	\tl_map_inline:nn {#1}
+		`	{
+		`		\int_incr:N \l_tys_cnt_int
+		`		\tl_if_eq:nnT {##1}{.}
+		`		{
+		`			\int_zero:N \l_tys_cnt_int
+		`			\bool_set_false:N \l_tys_before_decimal_bool
+		`			\bool_set_true:N \l_tys_after_decimal_bool
+		`		}
+		`		\bool_if:NT \l_tys_before_decimal_bool
+		`		{ 
+		`			\int_set:Nn \l_tys_digits_before_decimal_int { \l_tys_cnt_int }
+		`		}
+		`		\bool_if:NT \l_tys_after_decimal_bool
+		`		{ 
+		`			\int_set:Nn \l_tys_digits_after_decimal_int { \l_tys_cnt_int }
+		`		}
+		`	}
+		`}
+		`
+		`%% 1D360 = 119648 : 1, 100, ...
+		`%% 1D369 = 119657 : 10, 1000, ...
+		`\NewDocumentCommand \tys { s t{|} m }
+		`{  
+		`	\group_begin:  
+		`	\l_tys_font_size_tl
+		`	\tl_if_eq:nnTF {#3}{0}
+		`	{
+		`		\fontspec{\l_tys_font_other_tl}
+		`		\makebox[\l_tys_char_width_dim]{
+		`			\l_tys_zero_symbol_tl
+		`		}
+		`	}{
+		`		\IfBooleanTF {#1}
+		`		{ 
+		`			\int_set:Nn \l_tys_digit_int { #3 + 119656 } 
+		`		}{ 
+		`			\int_set:Nn \l_tys_digit_int { #3 + 119647 } 
+		`		}
+		`		\fontspec{\l_tys_font_tys_tl}
+		`		\makebox[\l_tys_char_width_dim]{
+		`			\IfBooleanTF {#2} 
+		`			{ 
+		`				\cancel{\char"\int_to_Hex:n{\l_tys_digit_int} } 
+		`			}{ 
+		`				\char"\int_to_Hex:n{\l_tys_digit_int} 
+		`			}
+		`		}
+		`	}  
+		`	\group_end:
+		`}
+		`\ExplSyntaxOff
+		`
+		`\TysSetup{
+		`	linespacing=1,
+		`	tysfont={Apple Symbols},
+		`	otherfont={Arial},
+		`	fontsize=\normalsize,
+		`	charwidth=0.5em,
+		`	decimalsymbol=.,
+		`	zerosymbol={\char"25CB},
+		`	poscolor=black,
+		`	negcolor=black
+		`}
+		`
+		`\begin{document}
+		`\Tys{\1}
+		`\end{document}

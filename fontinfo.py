@@ -6,7 +6,6 @@ import subprocess
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
-from ltx import LatexCompiler
 from open import FileOpener
 from mytex import LatexTemplate
 

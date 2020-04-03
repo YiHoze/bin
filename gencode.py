@@ -1,4 +1,4 @@
-# pip pytnon-barcode
+# pip python-barcode
 # pip install qrcode[pil]
 
 import os, argparse
@@ -81,7 +81,7 @@ class GenerateCode(object):
             counter += 1
 
     def encode_qrcode(self):   
-        if self.filename is 'barcode':
+        if self.filename == 'barcode':
             self.filename = 'qrcode'
         counter = 1 
         qr = qrcode.QRCode(
@@ -112,12 +112,10 @@ class GenerateCode(object):
                 return
             data = decode(Image.open(img))[0][0]    
             data = data.decode('utf-8')        
-            link = data.replace(r'\:', ':')
+            link = data.replace('\\:', ':')
             link = link.replace(';', '')
-            p = re.compile('http.*')
-            result = p.search(link)
+            result = re.search('http.*', link)
             if result is not None:
-                print(data)            
                 uri = result.group()
                 print(uri)
                 webbrowser.open_new_tab(uri)    

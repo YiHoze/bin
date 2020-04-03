@@ -53,31 +53,56 @@ class FontInfo(object):
     def enumerate_fonts(self):
         if os.path.exists(self.fonts_list):
             os.remove(self.fonts_list)
-        cmd = 'fc-list : -f "%%{file} > %%{family}  \\n" > %s' %(self.fonts_list) # %%{family} %%{fullname} %%{style}
+        cmd = 'fc-list -f "%%{file} : %%{family} \\n" > %s' %(self.fonts_list) # %%{family} %%{fullname} %%{style}
         os.system(cmd)
         with open(self.fonts_list, mode='r', encoding='utf-8') as f:
-            content = f.readlines()        
+            content = f.readlines()                    
         content = set(content)
         content = ''.join(sorted(content, key=str.lower))    
         with open(self.fonts_list, mode='w', encoding='utf-8') as f:
-            for line in content:
-                f.write(line)
+            f.write(content)
         opener = FileOpener()
         opener.OpenTxt(self.fonts_list)
 
-    def get_info(self):        
-        cmd = 'fc-list -f "%{{file}}, " {}'.format(self.font)
+    def find_path(self, fonts):
+        p = '.*' + self.font
+        font = re.search(p, fonts)
+        if font is not None:
+            return(font.group())
+        else:
+            fonts = fonts.split('\n')
+            print('')
+            i = 1
+            while i < len(fonts):        
+                print('{}: {}'.format(i, fonts[i-1]))
+                i = i + 1 
+            index = input('\nSelect a font by entering its number to see the details: ')
+            try:
+                index = int(index)
+            except:
+                return False
+            index = index - 1
+            if index < len(fonts):
+                return(fonts[index])
+            else:
+                return False
+
+    def get_info(self):  
+        # ext = os.path.splitext(self.font)[1]
+        # if ext == '':
+        cmd = 'fc-list -f "%{{file}}\n" "{}"'.format(self.font)
         fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        fonts = str(fonts)
-        fonts = fonts.replace("b'", "")
-        fonts = fonts.split(', ')
-        for i in fonts:
-            if self.font in i:
-                font = i
-                break
-        print(font)        
-        cmd = 'otfinfo -i {}'.format(font)
-        os.system(cmd)
+        fonts = fonts.decode(encoding='utf-8')        
+        if fonts == '':
+            print('No relevant fonts are found.')
+            return
+        else:
+            font = self.find_path(fonts)
+            if font is not False:
+                cmd = 'otfinfo -i {}'.format(font)
+                print('')
+                os.system(cmd)
+                print('')
 
 if __name__ == '__main__':
     fi = FontInfo()

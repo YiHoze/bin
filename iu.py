@@ -177,10 +177,11 @@ class ImageUtility(object):
                     func(img)
 
     def get_info(self, img):
-        if self.check_format(img) is 'bitmap':
+        if self.check_format(img) == 'bitmap':
             cmd = '\"%s\" identify -verbose %s' %(self.Magick, img)
-            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            result = str(result).split('\\r\\n')
+            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)   
+            result = result.decode(encoding='utf-8')            
+            result = result.split('\r\n')
             print('\n %s' %(img))
             line = 4
             while line < 8:
@@ -188,7 +189,7 @@ class ImageUtility(object):
                 line += 1  
 
     def resize_bitmap(self, img):
-        if self.check_format(img) is 'bitmap':
+        if self.check_format(img) == 'bitmap':
             if self.maxwidth > 0:
                 cmd = '\"%s\" %s  -resize %dx%d^> %s' % (self.Magick, img, self.maxwidth, self.maxwidth, img)
                 os.system(cmd)    

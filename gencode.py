@@ -12,7 +12,7 @@ class GenerateCode(object):
     def __init__(self, code=None, qrcode=False, filename='barcode', svg=False, decode=False):
         self.code = code
         self.qrcode_bool = qrcode
-        self.filename = filename
+        self.output = filename
         self.svg_bool = svg
         self.decode_bool = decode
 
@@ -34,10 +34,10 @@ class GenerateCode(object):
             help = 'Create QR codes.'
         )
         parser.add_argument(
-            '-n',
-            dest = 'filename',
+            '-o',
+            dest = 'output',
             default = 'barcode',
-            help = '''Specify a filename. 
+            help = '''Specify a filename for output. 
             The default is "barcode" or "qrcode", and it will be sequentially numbered with two digits.'''
         )
         parser.add_argument(
@@ -57,12 +57,12 @@ class GenerateCode(object):
         args = parser.parse_args()
         self.code = args.code
         self.qrcode_bool = args.qrcode
-        self.filename = args.filename
+        self.output = args.output
         self.svg_bool = args.svg
         self.decode_bool = args.decode
 
     def name_file(self, counter):
-        basename = os.path.splitext(self.filename)[0]
+        basename = os.path.splitext(self.output)[0]
         if len(self.code) > 1:
             filename = "%s_%02d" %(basename, counter)
         else:
@@ -81,8 +81,8 @@ class GenerateCode(object):
             counter += 1
 
     def encode_qrcode(self):   
-        if self.filename == 'barcode':
-            self.filename = 'qrcode'
+        if self.output == 'barcode':
+            self.output = 'qrcode'
         counter = 1 
         qr = qrcode.QRCode(
             version=1,

@@ -23,11 +23,11 @@ class DailyBusiness(object):
         parser.add_argument(
             'list',
             nargs = '?',
+            default = self.list,
             help = 'Specify another daily to-do list.'
         )
         args = parser.parse_args()
-        if args.list is not None:
-            self.list = args.list
+        self.list = args.list
 
     def enumerate_tasks(self):
         if os.path.exists(self.list):
@@ -39,8 +39,8 @@ class DailyBusiness(object):
                     target = config.get(section, 'target')
                 except:
                     target = ''
-                cmd = '\"%s\" %s' %(app, target.replace('\n', ' '))
-                subprocess.Popen(cmd)        
+                cmd = '"{0}" {1}'.format(app, target.replace('\n', ' '))                
+                subprocess.Popen(cmd)
         else:
             print('%s is not found.' %(self.list))
 

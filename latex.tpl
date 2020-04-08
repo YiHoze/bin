@@ -1,5 +1,5 @@
 [article]
-output: mytex
+output: mydoc
 tex:   \documentclass[a4paper]{article}
 
 		\usepackage{fontspec}
@@ -9,7 +9,7 @@ tex:   \documentclass[a4paper]{article}
 		\end{document}
 
 [hzbeamer]
-output: mytex
+output: mydoc
 tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 
 		\usepackage{csquotes}
@@ -27,7 +27,7 @@ tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 		\end{document}
 
 [hzguide]
-output: mytex
+output: mydoc
 tex:    \documentclass{hzguide}
 		\LayoutSetup{}
 
@@ -36,7 +36,7 @@ tex:    \documentclass{hzguide}
 		\end{document}
 
 [memoir]
-output: mytex
+output: mydoc
 tex:   \documentclass[a4paper]{memoir} 
 
 		\usepackage{fontspec}
@@ -46,7 +46,7 @@ tex:   \documentclass[a4paper]{memoir}
 		\end{document}
 
 [oblivoir]
-output: mytex
+output: mydoc
 tex:   \documentclass{oblivoir} 
 
 		\usepackage{fapapersize}
@@ -790,3 +790,102 @@ tex:	\documentclass{minimal}
 		turkish TÜRKÇE: 
 		Bu kılavuzu daha sonra kullanmak üzere saklayın.
 		\end{document}
+
+[leaflet]
+output: myleaflet
+placeholders: 3
+defaults: foo.pdf, 3, 12
+tex:	`\documentclass{minimal}
+		`
+		`\usepackage{xparse, expl3}
+		`\usepackage{graphicx}
+		`\usepackage[a4paper]{geometry}
+		`\usepackage{pdfpages}
+		`
+		`\setlength\fboxsep{0pt}
+		`\setlength\parindent{0pt}
+		`
+		`\ExplSyntaxOn
+		`\tl_new:N \leaflet_target_file_tl
+		`\int_new:N \leaflet_logic_number
+		`\int_new:N \leaflet_real_number
+		`\int_new:N \leaflet_back_position
+		`\dim_new:N \leaflet_vspace_dim
+		`\keys_define:nn { leaflet }
+		`{
+		`	scale	.tl_set:N = \leaflet_scale_tl,
+		`	column	.int_set:N = \leaflet_column_int,
+		`	last	.int_set:N = \leaflet_last_page_int,
+		`	hspace	.dim_set:N = \leaflet_hspace_dim,
+		`	vspace	.code:n = { \dim_set:Nn \leaflet_vspace_dim { #1 -\baselineskip - 0.01pt} },
+		`	frame	.bool_set:N	= \leaflet_frame_bool,
+		`}
+		`
+		`\NewDocumentCommand \LeafletSetup { m }
+		`{
+		`	\keys_set:nn { leaflet } {#1}
+		`}
+		`
+		`\cs_new:Npn \leaflet_impose:n #1
+		`{
+		`	\hspace{\leaflet_hspace_dim}
+		`	\bool_if:NTF \leaflet_frame_bool
+		`		{ \fbox{\includegraphics[scale=\leaflet_scale_tl, page=#1]{\leaflet_target_file_tl}} }
+		`		{ \includegraphics[scale=\leaflet_scale_tl, page=#1]{\leaflet_target_file_tl} }
+		`	\int_compare:nTF { \int_mod:nn {\leaflet_logic_number}{\leaflet_column_int} = 0 }	
+		`	{
+		`		\int_compare:nT { \leaflet_logic_number < \leaflet_last_page_int }
+		`			{ \vspace{\leaflet_vspace_dim} \newline }
+		`	}{
+		`		\hspace{\leaflet_hspace_dim}
+		`	}
+		`
+		`}
+		`
+		`\NewDocumentCommand \LeafletImpose { s O{} m }
+		`{
+		`	\LeafletSetup{#2}
+		`	\tl_set:Nn \leaflet_target_file_tl {#3}
+		`
+		`	\int_compare:nTF { \leaflet_last_page_int = 4 }
+		`	{ 
+		`		\int_set:Nn \leaflet_back_position {1} 
+		`	}{ 
+		`		\int_set:Nn \leaflet_back_position { \leaflet_column_int + 1 } 
+		`	}
+		`
+		`	\int_do_until:nn { \leaflet_logic_number = \leaflet_last_page_int }
+		`	{
+		`		\int_incr:N \leaflet_logic_number
+		`		\int_incr:N \leaflet_real_number
+		`		\IfBooleanT {#1}
+		`		{
+		`			\int_compare:nT { \leaflet_logic_number = \leaflet_back_position } 
+		`			{ 
+		`				\leaflet_impose:n { \leaflet_last_page_int }
+		`				\int_incr:N \leaflet_logic_number
+		`			}
+		`		}
+		`		\leaflet_impose:n { \leaflet_real_number }		
+		`	}
+		`}
+		`\ExplSyntaxOff
+		`
+		`\geometry{
+		`	papersize={464mm, 440mm}, 
+		`	layoutsize={444mm, 420mm},
+		`	margin={0pt, 0pt},
+		`	layoutoffset={10mm, 10mm}, 
+		`	showcrop
+		`}
+		`
+		`\LeafletSetup{
+		`	frame=false,
+		`	scale=1, 
+		`	hspace=0pt, 
+		`	vspace=0pt
+		`}
+		`
+		`\begin{document}
+		`\LeafletImpose*[column=\2, last=\3]{\1}
+		`\end{document}

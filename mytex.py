@@ -5,7 +5,6 @@ import sys
 import glob
 import argparse
 import configparser
-# import re
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -88,7 +87,7 @@ class LatexTemplate(object):
 
     def determine_filename(self):
         if self.output is None:
-            filename = self.templates.get(self.template, 'output', fallback='mytex')
+            filename = self.templates.get(self.template, 'output', fallback='mydoc')
         else:
             filename = self.output
             filename = os.path.splitext(filename)[0]
@@ -125,8 +124,7 @@ class LatexTemplate(object):
         with open('circled_numbers.cmd', mode='w', encoding='utf-8') as f:
             f.write(content)
 
-    def fill_placeholders(self, content):
-        # content = re.sub('`', '', content, flags=re.MULTILINE)
+    def fill_placeholders(self, content):        
         content = content.replace('`', '')
         try:
             placeholders = int(self.templates.get(self.template, 'placeholders'))
@@ -146,7 +144,17 @@ class LatexTemplate(object):
             cnt += 1
         return content
 
-    def write_from_template(self):  
+    def write_from_template(self):      
+        content = self.templates.get(self.template, 'style', fallback=None)
+        if content is not None:
+            content = content.replace('`', '')
+            style = self.template + '.sty'
+            if self.confirm_to_remove(style):
+                with open(style, mode='w', encoding='utf-8') as f:
+                    f.write(content)
+            else:
+                return False   
+        
         if not self.confirm_to_remove(self.tex):
             return False
         try:
@@ -157,6 +165,7 @@ class LatexTemplate(object):
             return False
         with open(self.tex, mode='w', encoding='utf-8') as f:
             f.write(content)
+
         opener = FileOpener()
         opener.OpenTxt(self.tex)
         return True
@@ -176,10 +185,10 @@ class LatexTemplate(object):
             if self.make_image_list() is False:
                 return 
         if self.write_from_template():
-            if self.compile_bool:
-                self.compile()                
             if self.template == 'number':
                 self.make_command_for_numbers()
+            if self.compile_bool:
+                self.compile()                
 
     def show_templates(self):
 

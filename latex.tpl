@@ -891,26 +891,24 @@ tex:	`\documentclass{minimal}
 		`%%\includepdf[pages={6-11}, nup=3x2]{\1}
 		`\end{document}
 
-[colorful]
-output: colorful
+[lettercolor]
+output: lettercolor
 placeholders:1 
 defaults: Noto Serif CJK KR
 compile_option: -l
-tex:	`\documentclass{article}
-		`
-		`\usepackage{kotex}
-		`\usepackage{tikz}
-		`\usepackage{environ}
+style:	`\RequirePackage{kotex}
+		`\RequirePackage{tikz}
+		`\RequirePackage{environ}
 		`
 		`\ExplSyntaxOn
 		`\sys_if_engine_luatex:TF
 		`{
-		`	\usepackage{colorjamo} %% https://github.com/dohyunkim/colorjamo
+		`	\RequirePackage{colorjamo} %% https://github.com/dohyunkim/colorjamo
 		`}{
 		`	\XeTeXuseglyphmetrics=0
 		`}
 		`\ExplSyntaxOff
-		`\setmainhangulfont[Script=Hangul,Language=Korean]{\1}
+		`\setmainhangulfont[Script=Hangul,Language=Korean]{Noto Serif CJK KR}
 		`
 		`\ExplSyntaxOn
 		`\cs_generate_variant:Nn \tl_if_eq:nnTF { V }
@@ -930,13 +928,14 @@ tex:	`\documentclass{article}
 		`\keys_define:nn { LetterColor }
 		`{
 		`	effect			.tl_set:N = 	\l_lettercolor_effect_tl,
+		`	letters			.int_set:N = 	\l_lettercolor_letters_int,
 		`	font			.tl_set:N = 	\l_lettercolor_font_tl,
 		`	foreground		.tl_set:N = 	\l_lettercolor_fg_color_tl,
 		`	background		.tl_set:N = 	\l_lettercolor_bg_color_tl,
 		`	transition		.tl_set:N = 	\l_lettercolor_transition_tl,
-		`	rand-min 		.tl_set:N = 	\l_lettercolor_rand_min_tl, 
-		`	rand-max		.tl_set:N = 	\l_lettercolor_rand_max_tl, 	
-		`	grad-continue	.bool_set:N = 	\l_lettercolor_gradient_cont_bool,	
+		`	rand-min 		.tl_set:N = 	\l_lettercolor_rand_min_tl,
+		`	rand-max		.tl_set:N = 	\l_lettercolor_rand_max_tl,
+		`	grad-continue	.bool_set:N = 	\l_lettercolor_gradient_cont_bool,
 		`	grad-RGB		.tl_set:N = 	\l_lettercolor_gradient_RGB_tl,
 		`	grad-step		.int_set:N = 	\l_lettercolor_gradient_step_int,
 		`	cho				.tl_set:N = 	\l_lettercolor_cho_color_tl,
@@ -945,13 +944,13 @@ tex:	`\documentclass{article}
 		`}
 		`
 		`\cs_new:Npn \lettercolor_RGB_decompose:N #1
-		`{			
+		`{
 		`	\tl_set:Nx \l_R_tl { \str_range:Nnn #1 { 1 }{ 2 } }
 		`	\tl_set:Nx \l_G_tl { \str_range:Nnn #1 { 3 }{ 4 } }
-		`	\tl_set:Nx \l_B_tl { \str_range:Nnn #1 { 5 }{ 6 } }		
+		`	\tl_set:Nx \l_B_tl { \str_range:Nnn #1 { 5 }{ 6 } }
 		`	\int_set:Nn \l_R_int { \exp_args:NV \int_from_hex:n \l_R_tl }
 		`	\int_set:Nn \l_G_int { \exp_args:NV \int_from_hex:n \l_G_tl }
-		`	\int_set:Nn \l_B_int { \exp_args:NV \int_from_hex:n \l_B_tl }	
+		`	\int_set:Nn \l_B_int { \exp_args:NV \int_from_hex:n \l_B_tl }
 		`}
 		`
 		`\NewDocumentCommand \LetterColorSetup { s m }
@@ -961,7 +960,7 @@ tex:	`\documentclass{article}
 		`	\colorlet{background}{\l_lettercolor_bg_color_tl}
 		`	\IfBooleanT { #1 }
 		`	{
-		`		\lettercolor_RGB_decompose:N \l_lettercolor_gradient_RGB_tl 
+		`		\lettercolor_RGB_decompose:N \l_lettercolor_gradient_RGB_tl
 		`	}
 		`	\int_set_eq:NN \l_R_incr_int \l_lettercolor_gradient_step_int
 		`	\int_set_eq:NN \l_G_incr_int \l_lettercolor_gradient_step_int
@@ -969,7 +968,7 @@ tex:	`\documentclass{article}
 		`}
 		`
 		`\NewDocumentCommand \lettercolor { o +m }
-		`{	
+		`{
 		`	\IfValueT { #1 }
 		`	{
 		`		\keys_set:nn { LetterColor }{ #1 }
@@ -977,33 +976,53 @@ tex:	`\documentclass{article}
 		`	\bool_if:NF \l_lettercolor_gradient_cont_bool
 		`	{
 		`		\lettercolor_RGB_decompose:N \l_lettercolor_gradient_RGB_tl
-		`	}	
+		`	}
 		`	\seq_set_split:Nnn \l_tmpa_seq { \par }{ #2 }
-		`	\seq_map_function:NN \l_tmpa_seq \lettercolor_split_lines:n	
+		`	\seq_map_function:NN \l_tmpa_seq \lettercolor_split_lines:n
 		`}
 		`
 		`\int_new:N \l_seq_count_int
 		`
 		`\cs_new:Npn \lettercolor_split_lines:n #1
 		`{
-		`	\seq_set_split:Nnn \l_tmpb_seq { \\ }{ #1 }		
+		`	\seq_set_split:Nnn \l_tmpb_seq { \\ }{ #1 }
 		`	\int_set:Nn \l_seq_count_int { \seq_count:N \l_tmpb_seq }
 		`
 		`	\seq_map_inline:Nn \l_tmpb_seq
 		`	{
 		`		\seq_set_split:Nnn \l_tmpc_seq { ~ }{ ##1 }
-		`		\tl_if_eq:VnTF \l_lettercolor_effect_tl { initial }
+		`		\str_case:VnF \l_lettercolor_effect_tl
 		`		{
-		`			\seq_map_function:NN \l_tmpc_seq \lettercolor_initial:n 
+		`			{ initial }{
+		`				\seq_map_function:NN \l_tmpc_seq \lettercolor_initial:n
+		`			}
+		`			{ count }{
+		`				\seq_map_function:NN \l_tmpc_seq \lettercolor_count_letters:n
+		`			}
 		`		}{
 		`			\seq_map_function:NN \l_tmpc_seq \lettercolor_split_words:n
-		`		}		
+		`		}
 		`		\int_decr:N \l_seq_count_int
 		`		\int_compare:nT { \l_seq_count_int > 0 }
 		`		{
 		`			\newline
 		`		}
 		`	}\par
+		`}
+		`
+		`\cs_new:Npn \lettercolor_count_letters:n #1
+		`{
+		`	\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
+		`	{
+		`		\lettercolor_assign_color:
+		`	}
+		`	\exp_args:NNx \int_set:Nn \l_tmpa_int { \tl_count:n { #1 } }	
+		`	\int_compare:nTF { \l_tmpa_int >= \l_lettercolor_letters_int }
+		`	{
+		`		\textcolor{letter}{\l_lettercolor_font_tl #1}
+		`	}{
+		`		#1
+		`	}\space
 		`}
 		`
 		`\cs_new:Npn \lettercolor_initial:n #1
@@ -1042,19 +1061,19 @@ tex:	`\documentclass{article}
 		`
 		`\cs_new:Npn \lettercolor_letter:n #1
 		`{
-		`	\sys_if_engine_xetex:TF	
+		`	\sys_if_engine_xetex:TF
 		`	{
 		`		\textcolor{letter}{#1}
-		`	}{					
+		`	}{
 		`		\begin{colorjamo}
 		`			\textcolor{letter}{#1}
 		`		\end{colorjamo}
-		`	}	
+		`	}
 		`}
 		`
-		`\cs_new:Nn \lettercolor_assign_color: 
-		`{	
-		`	\str_case:Vn \l_lettercolor_transition_tl 
+		`\cs_new:Nn \lettercolor_assign_color:
+		`{
+		`	\str_case:Vn \l_lettercolor_transition_tl
 		`	{
 		`		{ random }{ \lettercolor_assign_color_rand: }
 		`		{ gradient }{ \lettercolor_assign_color_grad: }
@@ -1062,14 +1081,14 @@ tex:	`\documentclass{article}
 		`}
 		`\cs_new:Nn \lettercolor_assign_color_grad:
 		`{
-		`	\tl_set:Nx \l_R_tl { \int_use:N \l_R_int } 
-		`	\tl_set:Nx \l_G_tl { \int_use:N \l_G_int } 
+		`	\tl_set:Nx \l_R_tl { \int_use:N \l_R_int }
+		`	\tl_set:Nx \l_G_tl { \int_use:N \l_G_int }
 		`	\tl_set:Nx \l_B_tl { \int_use:N \l_B_int }
-		`	\definecolor{letter}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}	
+		`	\definecolor{letter}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
 		`	\lettercolor_complementary:N \l_R_tl
 		`	\lettercolor_complementary:N \l_G_tl
 		`	\lettercolor_complementary:N \l_B_tl
-		`	\definecolor{background}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}		
+		`	\definecolor{background}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
 		`	\lettercolor_grad_incr:NN \l_R_int \l_R_incr_int
 		`	\lettercolor_grad_incr:NN \l_G_int \l_G_incr_int
 		`	\lettercolor_grad_incr:NN \l_B_int \l_B_incr_int
@@ -1077,7 +1096,7 @@ tex:	`\documentclass{article}
 		`	{
 		`		\sys_if_engine_luatex:T
 		`		{
-		`			\lettercolor_jamo_color_grad:NN \l_lettercolor_cho_color_tl \jamocolorcho 
+		`			\lettercolor_jamo_color_grad:NN \l_lettercolor_cho_color_tl \jamocolorcho
 		`			\lettercolor_jamo_color_grad:NN \l_lettercolor_jung_color_tl \jamocolorjung
 		`			\lettercolor_jamo_color_grad:NN \l_lettercolor_jong_color_tl \jamocolorjong
 		`		}
@@ -1086,12 +1105,12 @@ tex:	`\documentclass{article}
 		`
 		`\cs_new:Npn \lettercolor_jamo_color_grad:NN #1 #2
 		`{
-		`	\exp_args:NV #2 #1 
+		`	\exp_args:NV #2 #1
 		`	\lettercolor_RGB_decompose:N #1
 		`	\lettercolor_grad_incr:NN \l_R_int \l_R_incr_int
 		`	\lettercolor_grad_incr:NN \l_G_int \l_G_incr_int
-		`	\lettercolor_grad_incr:NN \l_B_int \l_B_incr_int	
-		`	\tl_clear:N \l_tmpa_tl	
+		`	\lettercolor_grad_incr:NN \l_B_int \l_B_incr_int
+		`	\tl_clear:N \l_tmpa_tl
 		`	\clist_set:Nn \l_tmpa_clist { \l_R_int, \l_G_int, \l_B_int }
 		`	\clist_map_inline:Nn \l_tmpa_clist
 		`	{
@@ -1104,7 +1123,7 @@ tex:	`\documentclass{article}
 		`		}
 		`		\tl_put_right:Nx \l_tmpa_tl { \l_tmpb_tl }
 		`	}
-		`	\tl_set:NV #1 \l_tmpa_tl	
+		`	\tl_set:NV #1 \l_tmpa_tl
 		`}
 		`
 		`\cs_new:Nn \lettercolor_assign_color_rand:
@@ -1121,16 +1140,16 @@ tex:	`\documentclass{article}
 		`	{
 		`		\sys_if_engine_luatex:T
 		`		{
-		`			\lettercolor_assign_rand_hex:N \jamocolorcho 
+		`			\lettercolor_assign_rand_hex:N \jamocolorcho
 		`			\lettercolor_assign_rand_hex:N \jamocolorjung
 		`			\lettercolor_assign_rand_hex:N \jamocolorjong
 		`		}
 		`	}
 		`}
-		`\cs_new:Npn \lettercolor_complementary:N #1 
+		`\cs_new:Npn \lettercolor_complementary:N #1
 		`{
 		`	\exp_args:NNx \int_set:Nn \l_tmpa_int { 255 - #1 }
-		`	\tl_set:Nx #1 { \int_use:N \l_tmpa_int }	
+		`	\tl_set:Nx #1 { \int_use:N \l_tmpa_int }
 		`}
 		`\cs_new:Npn \lettercolor_grad_incr:NN #1 #2
 		`{
@@ -1144,16 +1163,16 @@ tex:	`\documentclass{article}
 		`	{
 		`		\int_gset:Nn #2 { \l_lettercolor_gradient_step_int }
 		`		\int_gset:Nn #1 { 0 }
-		`	}	
+		`	}
 		`}
 		`\cs_new:Npn \lettercolor_assign_rand_hex:N #1
-		`{	
-		`	\tl_clear:N \l_tmpa_tl	
+		`{
+		`	\tl_clear:N \l_tmpa_tl
 		`	\int_step_inline:nn { 3 }
 		`	{
-		`		\tl_set:Nx \l_tmpb_tl { 
-		`			\int_to_Hex:n { 
-		`				\int_rand:nn {\l_lettercolor_rand_min_tl}{\l_lettercolor_rand_max_tl} 
+		`		\tl_set:Nx \l_tmpb_tl {
+		`			\int_to_Hex:n {
+		`				\int_rand:nn {\l_lettercolor_rand_min_tl}{\l_lettercolor_rand_max_tl}
 		`			}
 		`		}
 		`		\exp_args:NNx \int_set:Nn \l_tmpb_int { \tl_count:N \l_tmpb_tl }
@@ -1165,9 +1184,9 @@ tex:	`\documentclass{article}
 		`		\tl_put_right:Nx \l_tmpa_tl { \l_tmpb_tl }
 		`	}
 		`	\exp_args:NV #1 \l_tmpa_tl
-		`} 
+		`}
 		`\cs_new:Npn \lettercolor_assign_rand_dec:N #1
-		`{	
+		`{
 		`	\pgfmathparse { random (\l_lettercolor_rand_min_tl, \l_lettercolor_rand_max_tl) }
 		`	\tl_set:No #1 \pgfmathresult
 		`}
@@ -1190,8 +1209,9 @@ tex:	`\documentclass{article}
 		`\ExplSyntaxOff
 		`
 		`\LetterColorSetup*{
-		`	effect = letter, %% ball, initial
-		`	font = \bfseries,	
+		`	effect = letter, %% ball, initial, count
+		`	letters = 5,
+		`	font = \bfseries,
 		`	foreground = orange,
 		`	background = blue,
 		`	transition = none, %% gradient, random
@@ -1204,9 +1224,11 @@ tex:	`\documentclass{article}
 		`	jung = 00FF00,
 		`	jong = 0000FF
 		`}
-
+tex:	\documentclass{article}
+		\usepackage{lettercolor}
+		\setlength\parskip{.5\baselineskip}
+		\setlength\parindent{0pt}
 		\begin{document}
-
 		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
 
 		우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
@@ -1240,12 +1262,11 @@ tex:	`\documentclass{article}
 		\end{LetterColor}
 
 		\begin{LetterColor}[effect=ball, transition=gradient]
-		그 중대한 법령은 억압적 불평등의 불길에 타들어가던 수백만 흑인 노예들에게 위대한 희망의 횃불로서 다가왔습니다.
+		그 중대한 법령은 억압적 불평등의 불길에 타들어가던 수백만 흑인 노예들에게 위대한 희망의 횃불로서 다가왔습니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=ball, transition=random]
+		\begin{LetterColor}[effect=count, letters=5, transition=none]
 		It came as a joyous daybreak to end the long night of their captivity.
-		\end{LetterColor}
 
 		그 법령은 그들의 길었던 구속의 밤을 종식하는 기쁨의 새벽이었습니다.
 
@@ -1256,15 +1277,19 @@ tex:	`\documentclass{article}
 		One hundred years later, the life of the Negro is still sadly crippled by the manacles of segregation and the chains of discrimination.
 
 		백년이 지난 후에도, 분리의 수갑과 차별의 쇠사슬에 의해 흑인들의 삶은 여전히 슬픈 불구의 상태입니다.
+		\end{LetterColor}
 
+		\begin{LetterColor}[effect=count, letters=4, transition=gradient, grad-step=10, font=\itshape]
 		One hundred years later, the Negro lives on a lonely island of poverty in the midst of a vast ocean of material prosperity.
-
+			
 		백년이 지난 후에도, 물질적 번영이라는 거대한 대양의 한가운데 홀로 떨어진 빈곤의 섬에서 흑인들은 살아가고 있습니다.
-
+			
 		One hundred years later, the Negro is still languished in the corners of American society and finds himself an exile in his own land.
-
+			
 		백년이 지난 후에도, 흑인들은 미국사회의 한 구석에서 여전히 풀이 죽고 자신의 땅에서 유배당한 자신을 보게 됩니다.
+		\end{LetterColor}
 
+		\begin{LetterColor}[effect=count, letters=3, transition=random]
 		And so we’ve come here today to dramatize a shameful condition.
 
 		그래서 이 수치스런 상황을 알리고 바꾸고자 우리는 오늘 이 자리에 나온 것입니다.
@@ -1276,8 +1301,9 @@ tex:	`\documentclass{article}
 		When the architects of our republic wrote the magnificent words of the Constitution and the Declaration of Independence, they were signing a promissory note to which every American was to fall heir.
 
 		우리나라를 건국한 사람들은 헌법과 독립선언문에 숭고한 단어들을 써넣었으며, 모든 미국인들이 상속받게 될 약속어음에 서명하였습니다.
+		\end{LetterColor}
 
-		This note was a promise that all men, yes, black men as well as white men, would be guaranteed the “unalienable Rights” of “Life, Liberty and the pursuit of Happiness.”
+		This note was a promise that all men, yes, black men as well as white men, would be guaranteed the “unalienable Rights” of “Life, Liberty and the pursuit of Happiness.”
 
 		그 약속어음은 모든 사람들에게, 예, 백인들처럼 흑인들에게도, 생존, 자유, 그리고 행복추구라는 양도할 수 없는 권리가 보장된다는 하나의 약속이었습니다.
 
@@ -1307,7 +1333,7 @@ tex:	`\documentclass{article}
 
 		This is no time to engage in the luxury of cooling off or to take the tranquilizing drug of gradualism.
 
-		지금은 ‘냉정하자’ 라는 사치스런 말이나 점진주의라는 안정제를 취할 때가 아닙니다.
+		지금은 ‘냉정하자’ 라는 사치스런 말이나 점진주의라는 안정제를 취할 때가 아닙니다.
 
 		Now is the time to make real the promises of democracy.
 
@@ -1341,7 +1367,7 @@ tex:	`\documentclass{article}
 
 		흑인들이 흥분을 가라앉힐 필요가 있고 적당히 만족할 것을 바라는 사람들은 만약 이 나라가 예전의 그 일상으로 되돌아 가려고 한다면, 거친 깨달음을 얻게 될 것 입니다.
 
-		And there will be neither rest nor tranquility in America until the Negro is granted his citizenship rights.
+		And there will be neither rest nor tranquility in America until the Negro is granted his citizenship rights.
 
 		흑인들이 그들의 시민권을 인정받기 전까지 미국에는 휴식도 평온도 없을 것입니다.
 
@@ -1371,7 +1397,7 @@ tex:	`\documentclass{article}
 
 		Again and again, we must rise to the majestic heights of meeting physical force with soul force.
 
-		계속, 계속해서, 우리는 영혼의 힘과 물리적 힘을 함께 만날 수 있는 저 장엄한 고지를 올라가야 합니다.
+		계속, 계속해서, 우리는 영혼의 힘과 물리적 힘을 함께 만날 수 있는 저 장엄한 고지를 올라가야 합니다.
 
 		The marvelous new militancy which has engulfed the Negro community must not lead us to a distrust of all white people.
 
@@ -1403,7 +1429,7 @@ tex:	`\documentclass{article}
 
 		We can never be satisfied as long as the Negro is the victim of the unspeakable horrors of police brutality.
 
-		우리는 절대 만족할 수 없습니다, 흑인들이 경찰들의 만행에 아무런 말도 할 수 없는 두려움의 희생자가 되는 한.
+		우리는 절대 만족할 수 없습니다, 흑인들이 경찰들의 만행에 아무런 말도 할 수 없는 두려움의 희생자가 되는 한.
 
 		We can never be satisfied as long as our bodies, heavy with the fatigue of travel, cannot gain lodging in the motels of the highways and the hotels of the cities.
 
@@ -1429,11 +1455,11 @@ tex:	`\documentclass{article}
 
 		여러분들 중 일부는 거대한 시련과 고통으로부터 벗어나 여기에 왔다는 것을 나는 주목하고 있습니다.
 
-		Some of you have come fresh from narrow jail cells. 
+		Some of you have come fresh from narrow jail cells.
 
 		여러분들 중 일부는 좁은 감방에서 이제 막 나왔습니다.
 
-		And some of you have come from areas where your quest for freedom left you battered by the storms of persecution and staggered by the winds of police brutality.
+		And some of you have come from areas where your quest for freedom left you battered by the storms of persecution and staggered by the winds of police brutality.
 
 		여러분들 중 일부는 자유에 대한 당신의 요구가 당신을 박해의 폭풍 앞에서 부서지게 하고 공권력의 만행이란 바람에 비틀거리게 했던 곳에서 왔습니다.
 
@@ -1538,4 +1564,4 @@ tex:	`\documentclass{article}
 		Thank God Almighty, we are free at last.
 
 		전능하신 하느님 감사합니다, 저희는 마침내 자유가 되었습니다.
-		\end{document}
+		\end{document}	

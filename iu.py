@@ -284,7 +284,7 @@ class ImageUtility(object):
                     self.run_recursive(self.bitmap_to_bitmap)
         elif recipe['source type'] == 'vector':
             if recipe['target type'] == 'bitmap':
-                if recipe['source format'] == 'pdf':
+                if recipe['source format'] == '.pdf':
                     if self.check_TeXLive() and self.check_ImageMagick():
                         self.run_recursive(self.vector_to_bitmap)
                 else:

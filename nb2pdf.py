@@ -62,7 +62,7 @@ class ipynb_to_pdf(object):
         if ext == '.ipynb':
             tex = basename + '.tex'
             # Convert to tex
-            cmd = 'jupyter nbconvert --to=latex --template=%s --SVG2PDFPreprocessor.enabled=True %s' %(self.template, afile)
+            cmd = 'jupyter-nbconvert --to=latex --template=%s --SVG2PDFPreprocessor.enabled=True %s' %(self.template, afile)
             os.system(cmd)        
             # Compile tex
             if os.path.exists(tex):                

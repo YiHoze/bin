@@ -1012,13 +1012,13 @@ style:	`\RequirePackage{kotex}
 		`
 		`\cs_new:Npn \lettercolor_count_letters:n #1
 		`{
-		`	\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
-		`	{
-		`		\lettercolor_assign_color:
-		`	}
 		`	\exp_args:NNx \int_set:Nn \l_tmpa_int { \tl_count:n { #1 } }	
 		`	\int_compare:nTF { \l_tmpa_int >= \l_lettercolor_letters_int }
 		`	{
+		`		\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
+		`		{
+		`			\lettercolor_assign_color:
+		`		}
 		`		\textcolor{letter}{\l_lettercolor_font_tl #1}
 		`	}{
 		`		#1

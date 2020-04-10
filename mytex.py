@@ -151,9 +151,7 @@ class LatexTemplate(object):
             style = self.template + '.sty'
             if self.confirm_to_remove(style):
                 with open(style, mode='w', encoding='utf-8') as f:
-                    f.write(content)
-            else:
-                return False   
+                    f.write(content)            
         
         if not self.confirm_to_remove(self.tex):
             return False

@@ -1229,39 +1229,43 @@ tex:	\documentclass{article}
 		\setlength\parskip{.5\baselineskip}
 		\setlength\parindent{0pt}
 		\begin{document}
-		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
-
-		우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
-
 		\begin{LetterColor}[effect=letter, transition=None]
-		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation. This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.
+		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
 		\end{LetterColor}
-
+		
 		\begin{LetterColor}[effect=letter, transition=gradient]
-		백 년 전, 위대한 어느 미국인이 노예해방령에 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 노예들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
+		우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
 		\end{LetterColor}
 
 		\begin{LetterColor}[effect=letter, transition=random]
+		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation. This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.
+		\end{LetterColor}
+		
+		\begin{LetterColor}[effect=letter, transition=gradient]
+		백 년 전, 위대한 어느 미국인이 노예해방령에 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 노예들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
+		\end{LetterColor}
+		
+		\begin{LetterColor}[effect=initial, transition=none]
 		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=initial, transition=none]
+		\begin{LetterColor}[effect=initial, transition=gradient]
 		우리나라 역사상 자유를 위한 가장 위대한 시위가 있었던 날로서 역사에 기록될 오늘 나는 여러분과 함께 하게 되어 행복합니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=initial, transition=gradient]
+		\begin{LetterColor}[effect=initial, transition=random]
 		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=initial, transition=random]
+		\begin{LetterColor}[effect=ball, transition=none]
 		백년 전, 오늘 우리가 서있는 자리의 상징적 그림자의 주인공인, 한 위대한 미국인이, 노예해방선언문에 서명하였습니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=ball, transition=none]
+		\begin{LetterColor}[effect=ball, transition=gradient]
 		This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice.
 		\end{LetterColor}
-
-		\begin{LetterColor}[effect=ball, transition=gradient]
+	
+		\begin{LetterColor}[effect=ball, transition=random]
 		그 중대한 법령은 억압적 불평등의 불길에 타들어가던 수백만 흑인 노예들에게 위대한 희망의 횃불로서 다가왔습니다.
 		\end{LetterColor}
 

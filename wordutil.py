@@ -125,7 +125,7 @@ class WordUtility(object):
             else:
                 self.suffix = 'extracted'
         if self.tex_bool and self.gather_tex_bool:            
-            return(self.check_to_remove(self.tex_picked))
+            return self.check_to_remove(self.tex_picked)
         else:
             return True                
 
@@ -221,15 +221,15 @@ class WordUtility(object):
             if self.check_TeXLive():
                 txt = filename + '.txt'
                 if self.check_to_remove(txt) is False:
-                    return(None)   
+                    return None
                 else:
                     cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 %s' % (afile)
                     os.system(cmd)            
-                    return(txt)
+                    return txt
             else:
-                return(None)
+                return None
         else:
-            return(afile)
+            return afile
 
     def pick_tex_macro(self, afile):
         found = []

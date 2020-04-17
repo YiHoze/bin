@@ -105,7 +105,7 @@ class StringFinder(object):
             return True
 
     def get_subdirs(self):
-        return([x[0] for x in os.walk('.')])
+        return [x[0] for x in os.walk('.')]
 
     def run_recursive(self, func):
         if self.recursive_bool:

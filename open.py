@@ -97,11 +97,11 @@ class FileOpener(object):
     def DetermineFileType(self, afile):
         ext = os.path.splitext(afile)[1]        
         if ext.lower() in self.associations:
-            return('txt')
+            return 'txt'
         elif ext.lower() ==  '.pdf':
-            return('pdf')
+            return 'pdf'
         else:
-            return('another')
+            return 'another'
 
     def OpenHere(self, files):
         for fnpattern in files:

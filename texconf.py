@@ -10,6 +10,8 @@ class TeXLiveConf(object):
         self.ini = self.initialize()
         self.confirmation_bool = confirmation
         self.answer = answer
+        if self.ini:
+            self.ini= self.check_TeXLive()
 
     def initialize(self):
         self.inipath = os.path.dirname(__file__) 
@@ -20,6 +22,14 @@ class TeXLiveConf(object):
             return True
         else:
             print('docenv.ini is not found.')
+            return False
+
+    def check_TeXLive(self):
+        try:
+            subprocess.check_call('mktexlsr.exe --version')
+            return True
+        except OSError:
+            print("Make sure TeX Live is included in PATH.")
             return False
 
     def create_parser(self):
@@ -103,14 +113,14 @@ class TeXLiveConf(object):
             default = False,
             help = 'Proceed without asking for confirmation.'
         )
-        return(parser)   
+        return parser
 
     def confirm(self, msg):
         if self.confirmation_bool:
             answer = input(msg)
-            return(answer)
+            return answer
         else:
-            return(self.answer)
+            return self.answer
 
     def store_to_local(self):
         print('\n[Copying latex style files]')   
@@ -120,7 +130,7 @@ class TeXLiveConf(object):
         except:
             print('Make sure to have docenv.ini set properly.')
             return
-        query = 'These files are going to be copied into <%s>\n%s\nEnter Y to proceed, N to abandon, or another directory: ' %(texmf_local, latex_style.replace(', ', '\n'))
+        query = 'These files are going to be copied into <%s>\n%s\nEnter [Y] to proceed, [n] to abandon, or another directory: ' %(texmf_local, latex_style.replace(', ', '\n'))
         answer = self.confirm(query)
         if answer.lower() == 'n':
             return
@@ -134,7 +144,7 @@ class TeXLiveConf(object):
                 os.system(cmd)
         cmd = 'dir %s' %(texmf_local)
         os.system(cmd)
-        os.system('mktexlsr')
+        os.system('mktexlsr.exe')
 
     def set_texmfhome(self):
         print('\n[Setting TEXMFHOME]')    
@@ -242,9 +252,9 @@ class TeXLiveConf(object):
         else:
             if not (answer.lower() == 'y' or answer == ''):
                 repository = answer
-            cmd = 'tlmgr option repository %s' %(repository)
+            cmd = 'tlmgr.bat option repository %s' %(repository)
             os.system(cmd)
-            cmd = 'tlmgr update --self --all'
+            cmd = 'tlmgr.bat update --self --all'
             os.system(cmd)
 
     def cache_font(self):
@@ -252,7 +262,7 @@ class TeXLiveConf(object):
         query = 'Are you sure to cache fonts for XeLaTeX?\nEnter [Y] to proceed or [n] to abandon: '
         answer = self.confirm(query)
         if (answer.lower() == 'y' or answer == ''):
-            cmd = 'fc-cache -v -r'
+            cmd = 'fc-cache.exe -v -r'
             os.system(cmd)     
 
     def luaotfload(self):    
@@ -278,21 +288,21 @@ class TeXLiveConf(object):
         if self.ini:
             if self.args.batch:
                 if not self.ToContinue(self.store_to_local):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.set_texmfhome):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.modify_texmf_cnf):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.create_local_conf):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.set_texedit):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.set_sumatrapdf):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.update_texlive):
-                    return(None)
+                    return None
                 if not self.ToContinue(self.cache_font):
-                    return(None)
+                    return None
                 self.ToContinue(self.luaotfload)                
             else:    
                 if self.args.store_to_local:

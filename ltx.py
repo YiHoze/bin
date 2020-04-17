@@ -260,7 +260,7 @@ class LatexCompiler(object):
             self.clear_aux()
 
     def run_bibtex(self):    
-        os.system('bibtex %s' %(self.aux))
+        os.system('bibtex.exe %s' %(self.aux))
 
     def sort_index(self):
         if not os.path.exists(self.idx):
@@ -296,7 +296,7 @@ class LatexCompiler(object):
             for i in range(len(page)):
                 append +=  '\t\\bookmark[level=2, page=%s]{%s}\n' %(page[i], entry.group(1))                    
             line +=  append
-        return(line)  
+        return line
 
     def clear_aux(self):
         extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb")

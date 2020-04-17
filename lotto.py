@@ -52,7 +52,7 @@ class Lotto(object):
             dest = 'wordnet',
             action = 'store_true',
             default = False,
-            help = 'Show only ones close to word. Note that it takes a rather long time.'
+            help = 'Show only meaningful words. Note that it takes a rather long time.'
         )
         parser.add_argument(
             '-f',

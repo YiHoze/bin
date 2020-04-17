@@ -64,12 +64,12 @@ class ConvertUnit(object):
     def gradient(self, numeral=0):
         degree = math.degrees(math.atan(numeral/100))
         percent = math.tan(math.radians(numeral)) * 100
-        return(degree, percent)
+        return degree, percent
 
     def temperature(self, numeral=0):
         fahrenheit = numeral * 9 / 5 + 32
         celsius = (numeral - 32) * 5 / 9
-        return(fahrenheit, celsius)
+        return fahrenheit, celsius
 
     def convert(self):
         if not self.verify_unit():

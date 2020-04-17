@@ -924,11 +924,13 @@ style:	`\RequirePackage{kotex}
 		`\int_new:N \l_R_incr_int
 		`\int_new:N \l_G_incr_int
 		`\int_new:N \l_B_incr_int
+		`\seq_new:N \l_lettercolor_words_seq
 		`
 		`\keys_define:nn { LetterColor }
 		`{
 		`	effect			.tl_set:N = 	\l_lettercolor_effect_tl,
 		`	letters			.int_set:N = 	\l_lettercolor_letters_int,
+		`	words			.clist_set:N = 	\l_lettercolor_words_clist,
 		`	font			.tl_set:N = 	\l_lettercolor_font_tl,
 		`	foreground		.tl_set:N = 	\l_lettercolor_fg_color_tl,
 		`	background		.tl_set:N = 	\l_lettercolor_bg_color_tl,
@@ -956,7 +958,7 @@ style:	`\RequirePackage{kotex}
 		`\NewDocumentCommand \LetterColorSetup { s m }
 		`{
 		`	\keys_set:nn { LetterColor }{ #2 }
-		`	\colorlet{letter}{\l_lettercolor_fg_color_tl}
+		`	\colorlet{foreground}{\l_lettercolor_fg_color_tl}
 		`	\colorlet{background}{\l_lettercolor_bg_color_tl}
 		`	\IfBooleanT { #1 }
 		`	{
@@ -965,13 +967,36 @@ style:	`\RequirePackage{kotex}
 		`	\int_set_eq:NN \l_R_incr_int \l_lettercolor_gradient_step_int
 		`	\int_set_eq:NN \l_G_incr_int \l_lettercolor_gradient_step_int
 		`	\int_set_eq:NN \l_B_incr_int \l_lettercolor_gradient_step_int
+		`	\seq_clear:N \l_lettercolor_words_seq
+		`	\clist_map_inline:Nn \l_lettercolor_words_clist
+		`	{
+		`		\seq_put_right:Nx \l_lettercolor_words_seq { \str_foldcase:n { ##1 }}
+		`	}
+		`}
+		`
+		`
+		`\LetterColorSetup*{
+		`	effect = letter, %% ball, initial, count, word
+		`	letters = 5,
+		`	font = \bfseries,
+		`	foreground = orange,
+		`	background = blue,
+		`	transition = none, %% gradient, random
+		`	rand-min = 0, %% greater than or equal to 0
+		`	rand-max = 255, %% less than or equal to 255
+		`	grad-continue = false,
+		`	grad-RGB = FF0000,
+		`	grad-step = 5,
+		`	cho = FF0000,
+		`	jung = 00FF00,
+		`	jong = 0000FF
 		`}
 		`
 		`\NewDocumentCommand \lettercolor { o +m }
 		`{
 		`	\IfValueT { #1 }
 		`	{
-		`		\keys_set:nn { LetterColor }{ #1 }
+		`		\LetterColorSetup{#1}
 		`	}
 		`	\bool_if:NF \l_lettercolor_gradient_cont_bool
 		`	{
@@ -999,6 +1024,9 @@ style:	`\RequirePackage{kotex}
 		`			{ count }{
 		`				\seq_map_function:NN \l_tmpc_seq \lettercolor_count_letters:n
 		`			}
+		`			{ word }{
+		`				\seq_map_function:NN \l_tmpc_seq \lettercolor_emphasize_words:n
+		`			}
 		`		}{
 		`			\seq_map_function:NN \l_tmpc_seq \lettercolor_split_words:n
 		`		}
@@ -1010,19 +1038,57 @@ style:	`\RequirePackage{kotex}
 		`	}\par
 		`}
 		`
+		`\NewDocumentCommand\textlc{m}{
+		`	\textcolor{foreground}{\l_lettercolor_font_tl #1}
+		`}
+		`
+		`
 		`\cs_new:Npn \lettercolor_count_letters:n #1
 		`{
-		`	\exp_args:NNx \int_set:Nn \l_tmpa_int { \tl_count:n { #1 } }	
+		`	\exp_args:NNx \int_set:Nn \l_tmpa_int { \tl_count:n { #1 } }
 		`	\int_compare:nTF { \l_tmpa_int >= \l_lettercolor_letters_int }
 		`	{
 		`		\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
 		`		{
 		`			\lettercolor_assign_color:
 		`		}
-		`		\textcolor{letter}{\l_lettercolor_font_tl #1}
+		`		\textlc{#1}
 		`	}{
 		`		#1
 		`	}\space
+		`}
+		`
+		`\cs_new:Npn \lettercolor_emphasize_words:n #1
+		`{
+		`	\tl_set:Nn \l_tmpa_tl { #1 }
+		`	\tl_set:Nn \l_tmpb_tl { #1 }
+		`	\regex_replace_all:nnN { ['":;,.!?(){}\[\]] }{} \l_tmpb_tl
+		`	%% for Latin
+		`	\exp_args:NNx \regex_set:Nn \l_tmpa_regex { \l_tmpb_tl }
+		`	\seq_if_in:NxTF \l_lettercolor_words_seq { \str_foldcase:V \l_tmpb_tl }
+		`	{
+		`		\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
+		`		{
+		`			\lettercolor_assign_color:
+		`		}
+		`		\regex_replace_once:NnN \l_tmpa_regex { \c{textlc}\cB\{ \0 \cE\} } \l_tmpa_tl
+		`	}{	%% for Hangul
+		`		\tl_if_head_eq_catcode:oNT { \l_tmpb_tl } \c_catcode_other_token
+		`		{
+		`			\seq_map_inline:Nn \l_lettercolor_words_seq
+		`			{
+		`				\tl_if_in:NnT \l_tmpa_tl { ##1 }
+		`				{
+		`					\tl_if_eq:VnF \l_lettercolor_transition_tl { none }
+		`					{
+		`						\lettercolor_assign_color:
+		`					}
+		`					\regex_replace_once:nnN { ##1 }{ \c{textlc}\cB\{ \0 \cE\} } \l_tmpa_tl
+		`				}
+		`			}
+		`		}
+		`	}	
+		`	\l_tmpa_tl\space
 		`}
 		`
 		`\cs_new:Npn \lettercolor_initial:n #1
@@ -1033,8 +1099,7 @@ style:	`\RequirePackage{kotex}
 		`	{
 		`		\lettercolor_assign_color:
 		`	}
-		`	\textcolor{letter}{\l_lettercolor_font_tl\l_tmpa_str}
-		`	\l_tmpb_str\space
+		`	\textlc{\l_tmpa_str}\l_tmpb_str\space
 		`}
 		`
 		`\cs_new:Npn \lettercolor_split_words:n #1
@@ -1063,10 +1128,10 @@ style:	`\RequirePackage{kotex}
 		`{
 		`	\sys_if_engine_xetex:TF
 		`	{
-		`		\textcolor{letter}{#1}
+		`		\textcolor{foreground}{#1}
 		`	}{
 		`		\begin{colorjamo}
-		`			\textcolor{letter}{#1}
+		`			\textcolor{foreground}{#1}
 		`		\end{colorjamo}
 		`	}
 		`}
@@ -1084,7 +1149,7 @@ style:	`\RequirePackage{kotex}
 		`	\tl_set:Nx \l_R_tl { \int_use:N \l_R_int }
 		`	\tl_set:Nx \l_G_tl { \int_use:N \l_G_int }
 		`	\tl_set:Nx \l_B_tl { \int_use:N \l_B_int }
-		`	\definecolor{letter}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
+		`	\definecolor{foreground}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
 		`	\lettercolor_complementary:N \l_R_tl
 		`	\lettercolor_complementary:N \l_G_tl
 		`	\lettercolor_complementary:N \l_B_tl
@@ -1131,7 +1196,7 @@ style:	`\RequirePackage{kotex}
 		`	\lettercolor_assign_rand_dec:N \l_R_tl
 		`	\lettercolor_assign_rand_dec:N \l_G_tl
 		`	\lettercolor_assign_rand_dec:N \l_B_tl
-		`	\definecolor{letter}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
+		`	\definecolor{foreground}{RGB}{\l_R_tl, \l_G_tl, \l_B_tl}
 		`	\lettercolor_complementary:N \l_R_tl
 		`	\lettercolor_complementary:N \l_G_tl
 		`	\lettercolor_complementary:N \l_B_tl
@@ -1198,102 +1263,121 @@ style:	`\RequirePackage{kotex}
 		`		ball~color=background,
 		`		text~width=1em,
 		`		font=\l_lettercolor_font_tl,text~badly~centered
-		`	]{\textcolor{letter}{#1}};
+		`	]{\textcolor{foreground}{#1}};
 		`}
 		`
 		`\NewEnviron{LetterColor}[1][]
 		`{
-		`	\keys_set:nn { LetterColor }{ #1 }
+		`	\LetterColorSetup{#1}
 		`	\exp_args:NV \lettercolor \BODY
 		`}
 		`\ExplSyntaxOff
-		`
-		`\LetterColorSetup*{
-		`	effect = letter, %% ball, initial, count
-		`	letters = 5,
-		`	font = \bfseries,
-		`	foreground = orange,
-		`	background = blue,
-		`	transition = none, %% gradient, random
-		`	rand-min = 0, %% greater than or equal to 0
-		`	rand-max = 255, %% less than or equal to 255
-		`	grad-continue = false,
-		`	grad-RGB = FF0000,
-		`	grad-step = 5,
-		`	cho = FF0000,
-		`	jung = 00FF00,
-		`	jong = 0000FF
-		`}
 tex:	\documentclass{article}
 		\usepackage{lettercolor}
 		\setlength\parskip{.5\baselineskip}
 		\setlength\parindent{0pt}
 		\begin{document}
-		\begin{LetterColor}[effect=letter, transition=None]
-		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
-		\end{LetterColor}
-		
+
+		\LetterColorSetup{
+			letters = 5,
+			font = \bfseries,
+			foreground = orange,
+			background = blue,
+			grad-continue = true,
+			grad-RGB = FF0000,
+			grad-step = 3,
+			cho = FF0000,
+			jung = 00FF00,
+			jong = 0000FF
+		}
+
+		\subsection*{글자 색을 서서히 바꾸기}
+
 		\begin{LetterColor}[effect=letter, transition=gradient]
+		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
+
 		우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
 		\end{LetterColor}
 
+		\subsection*{글자 색을 아무렇게나 바꾸기}
+
 		\begin{LetterColor}[effect=letter, transition=random]
 		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation. This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.
-		\end{LetterColor}
-		
-		\begin{LetterColor}[effect=letter, transition=gradient]
+
 		백 년 전, 위대한 어느 미국인이 노예해방령에 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 노예들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
 		\end{LetterColor}
-		
+
+		\subsection*{단어의 첫자만 색칠하기}
+
 		\begin{LetterColor}[effect=initial, transition=none]
 		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
-		\end{LetterColor}
 
-		\begin{LetterColor}[effect=initial, transition=gradient]
 		우리나라 역사상 자유를 위한 가장 위대한 시위가 있었던 날로서 역사에 기록될 오늘 나는 여러분과 함께 하게 되어 행복합니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=initial, transition=random]
-		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation.
-		\end{LetterColor}
+		\subsection*{첫자 색을 서서히 바꾸기}
 
-		\begin{LetterColor}[effect=ball, transition=none]
+		\begin{LetterColor}[effect=initial, transition=gradient]
+		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation.
+
 		백년 전, 오늘 우리가 서있는 자리의 상징적 그림자의 주인공인, 한 위대한 미국인이, 노예해방선언문에 서명하였습니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=ball, transition=gradient]
+		\subsection*{첫자 색을 아무렇게나 바꾸기}
+
+		\begin{LetterColor}[effect=initial, transition=random]
 		This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice.
-		\end{LetterColor}
-	
-		\begin{LetterColor}[effect=ball, transition=random]
+
 		그 중대한 법령은 억압적 불평등의 불길에 타들어가던 수백만 흑인 노예들에게 위대한 희망의 횃불로서 다가왔습니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=count, letters=5, transition=none]
+		\subsection*{글자를 공에 넣기}
+
+		\begin{LetterColor}[effect=ball, transition=none, foreground=yellow, font=\sffamily\bfseries]
 		It came as a joyous daybreak to end the long night of their captivity.
 
 		그 법령은 그들의 길었던 구속의 밤을 종식하는 기쁨의 새벽이었습니다.
+		\end{LetterColor}
 
+		\subsection*{글자 색과 공 색을 서서히 바꾸기}
+
+		\begin{LetterColor}[effect=ball, transition=gradient, font=\sffamily\bfseries]
 		But one hundred years later, the Negro still is not free.
 
 		그러나 백년이 지난 후에도, 흑인들은 여전히 자유롭지 못합니다.
+		\end{LetterColor}
 
+		\subsection*{글자 색과 공 색을 아무렇게나 바꾸기}
+
+		\begin{LetterColor}[effect=ball, transition=random, font=\sffamily\bfseries]
 		One hundred years later, the life of the Negro is still sadly crippled by the manacles of segregation and the chains of discrimination.
 
 		백년이 지난 후에도, 분리의 수갑과 차별의 쇠사슬에 의해 흑인들의 삶은 여전히 슬픈 불구의 상태입니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=count, letters=4, transition=gradient, grad-step=10, font=\itshape]
+		\subsection*{다섯 자 이상인 단어만 색칠하기}
+
+		\begin{LetterColor}[effect=count, letters=5, transition=none]
 		One hundred years later, the Negro lives on a lonely island of poverty in the midst of a vast ocean of material prosperity.
-			
+
 		백년이 지난 후에도, 물질적 번영이라는 거대한 대양의 한가운데 홀로 떨어진 빈곤의 섬에서 흑인들은 살아가고 있습니다.
-			
+		\end{LetterColor}
+
+		\subsection*{네 자 이상인 단어의 색을 서서히 바꾸기}
+
+		\begin{LetterColor}[effect=count, letters=4, transition=gradient, grad-step=5, grad-continue=false, font=\itshape\bfseries]
 		One hundred years later, the Negro is still languished in the corners of American society and finds himself an exile in his own land.
-			
+
 		백년이 지난 후에도, 흑인들은 미국사회의 한 구석에서 여전히 풀이 죽고 자신의 땅에서 유배당한 자신을 보게 됩니다.
 		\end{LetterColor}
 
-		\begin{LetterColor}[effect=count, letters=3, transition=random]
+		\LetterColorSetup{
+			words={자유, 권리, 정의, 헌법, 민주주의, freedom, right, justice, liberty, Constitution, democracy}
+		}
+
+		\subsection*{특정 단어들을 색칠하기: 자유, 권리, ..., freedom, right, ...}
+
+		\begin{LetterColor}[effect=word, transition=none, foreground=blue]
 		And so we’ve come here today to dramatize a shameful condition.
 
 		그래서 이 수치스런 상황을 알리고 바꾸고자 우리는 오늘 이 자리에 나온 것입니다.
@@ -1305,7 +1389,6 @@ tex:	\documentclass{article}
 		When the architects of our republic wrote the magnificent words of the Constitution and the Declaration of Independence, they were signing a promissory note to which every American was to fall heir.
 
 		우리나라를 건국한 사람들은 헌법과 독립선언문에 숭고한 단어들을 써넣었으며, 모든 미국인들이 상속받게 될 약속어음에 서명하였습니다.
-		\end{LetterColor}
 
 		This note was a promise that all men, yes, black men as well as white men, would be guaranteed the “unalienable Rights” of “Life, Liberty and the pursuit of Happiness.”
 
@@ -1318,7 +1401,11 @@ tex:	\documentclass{article}
 		Instead of honoring this sacred obligation, America has given the Negro people a bad check, a check which has come back marked “insufficient funds.”
 
 		이 신성한 의무를 존중하지 않고서, 미국은 잔고부족이라고 표기되어 되돌아 온 수표, 부도수표를 흑인들에게 주었습니다.
+		\end{LetterColor}
 
+		\subsection*{특정 단어들의 색을 서서히 바꾸기}
+
+		\begin{LetterColor}[effect=word, transition=gradient, grad-continue=false, grad-step=15]
 		But we refuse to believe that the bank of justice is bankrupt.
 
 		그러나 우리는 정의의 은행이 파산했다고 믿기를 거부합니다.
@@ -1568,4 +1655,5 @@ tex:	\documentclass{article}
 		Thank God Almighty, we are free at last.
 
 		전능하신 하느님 감사합니다, 저희는 마침내 자유가 되었습니다.
-		\end{document}	
+		\end{LetterColor}
+		\end{document}

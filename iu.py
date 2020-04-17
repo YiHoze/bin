@@ -153,15 +153,15 @@ class ImageUtility(object):
             ext = img
         ext = ext.lower()
         if ext in self.bitmaps:
-            return('bitmap')
+            return 'bitmap'
         elif ext in self.vectors:
-            return('vector')
+            return 'vector'
         else:
             print('%s is not covered.' %(ext))
             return False
 
     def get_subdirs(self):
-        return([x[0] for x in os.walk('.')])
+        return [x[0] for x in os.walk('.')]
 
     def run_recursive(self, func):
         if self.recursive:
@@ -204,7 +204,7 @@ class ImageUtility(object):
             trg = filename + "%03d" + self.trgfmt
         else:
             trg = filename + self.trgfmt
-        return(trg)
+        return trg
     
     def bitmap_to_bitmap(self, img):
         trg = self.name_target(img)
@@ -224,9 +224,9 @@ class ImageUtility(object):
             for i in result:
                 if 'Pages:' in i:
                     tmp = i.replace('Pages:', '')                    
-                    return(int(tmp))
+                    return int(tmp)
         else:
-            return(0)        
+            return 0
 
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)

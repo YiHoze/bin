@@ -29,7 +29,7 @@ class ipynb_to_pdf(object):
             try:
                 self.template = config.get('Jupyter Template', 'latex')
                 self.template = os.path.join(inipath, self.template)
-                return(self.check_template())
+                return self.check_template()
             except:
                 print('Make sure to have docenv.ini set properly.')
                 return False

@@ -67,7 +67,7 @@ class FontInfo(object):
         p = '.*' + self.font
         font = re.search(p, fonts)
         if font is not None:
-            return(font.group())
+            return font.group()
         else:
             fonts = fonts.split('\n')
             print('')
@@ -82,7 +82,7 @@ class FontInfo(object):
                 return False
             index = index - 1
             if index < len(fonts):
-                return(fonts[index])
+                return fonts[index]
             else:
                 return False
 

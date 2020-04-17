@@ -60,15 +60,22 @@ class ExchangeRate(object):
         self.currency = args.currency
         self.list_bool = args.list
 
+    # def align_string(self, string: str, width: int):
+    #     nfc_string = unicodedata.normalize('NFC', string)
+    #     num_wide_chars = 0        
+    #     for c in nfc_string:
+    #         if unicodedata.east_asian_width(c) in 'WF':
+    #             num_wide_chars += 1
+    #     width = width - num_wide_chars        
+    #     result = '{:{w}}'.format(nfc_string, w=width)
+    #     return result
+     
     def align_string(self, string: str, width: int):
         nfc_string = unicodedata.normalize('NFC', string)
-        num_wide_chars = 0        
-        for c in nfc_string:
-            if unicodedata.east_asian_width(c) in 'WF':
-                num_wide_chars += 1
-        width = width - num_wide_chars        
-        result = '{:{w}}'.format(nfc_string, w=width)
-        return(result)        
+        wide_chars = [unicodedata.east_asian_width(c) for c in nfc_string]
+        num_wide_chars = sum(map(wide_chars.count, ['W', 'F']))
+        width = max(width - num_wide_chars, num_wide_chars)
+        return '{:{w}}'.format(nfc_string, w=width)     
 
     def show_currencies(self, columns=2):
         currencies = sorted(self.currencies.keys()) 

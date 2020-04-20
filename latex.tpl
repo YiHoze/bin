@@ -1,7 +1,7 @@
 [article]
 output: mydoc
-tex:   \documentclass[a4paper]{article}
-
+tex:   	\documentclass[a4paper]{article}
+		\usepackage{xparse}
 		\usepackage{fontspec}
 	  
 		\begin{document}
@@ -9,6 +9,7 @@ tex:   \documentclass[a4paper]{article}
 		\end{document}
 
 [hzbeamer]
+description: The hzbeamer class is available from https://github.com/YiHoze/HzGuide.
 output: mydoc
 tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 
@@ -27,6 +28,7 @@ tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 		\end{document}
 
 [hzguide]
+description: The hzguide class is available from https://github.com/YiHoze/HzGuide.
 output: mydoc
 tex:    \documentclass{hzguide}
 		\LayoutSetup{}
@@ -37,8 +39,8 @@ tex:    \documentclass{hzguide}
 
 [memoir]
 output: mydoc
-tex:   \documentclass[a4paper]{memoir} 
-
+tex:   	\documentclass[a4paper]{memoir} 
+		\usepackage{xparse}
 		\usepackage{fontspec}
 
 		\begin{document}
@@ -57,6 +59,9 @@ tex:   \documentclass{oblivoir}
 		\end{document}
 
 [glyph]
+description: This template shows the glyphs contained in a font.
+	usage: mytex.py glyph -s FONT STARTING_CODE ENDING_CODE
+	defaults: "Noto Serif CJK KR" 0020 FFFF
 output: myfont
 placeholders: 3
 defaults: Noto Serif CJK KR, 0020, FFFF
@@ -157,6 +162,8 @@ tex:    `\documentclass{article}
 		`\end{document}
 
 [manual]
+description: Use this template to write manuals such as user guides.
+	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 output: manual
 compile_option: -w
 tex:	`\documentclass[10pt, openany]{hzguide}
@@ -179,6 +186,7 @@ tex:	`\documentclass[10pt, openany]{hzguide}
 		`	manufacturer = Manufacturer,
 		`	address = Seoul
 		`}
+		`
 		`\begin{document} 
 		`\frontmatter* 
 		`\FrontCover
@@ -216,6 +224,10 @@ tex:	`\documentclass[10pt, openany]{hzguide}
 		`\end{document}
 
 [album]
+description: This template generates an album which contains the image files (jpg, png, pdf) gathered from the current directory. 
+	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
+	usage: mytex.py album -s COLUMNS IMAGE_SCALE 
+	defaults: 2 1
 output: album
 image_list: im@ges.txt
 placeholders: 2
@@ -230,14 +242,22 @@ tex:	`\documentclass{hzguide}
 		`\begin{document}
 		`\begin{multicols}{\1}
 		`\MakeAlbum[\2]{%(image_list)s}
-		`\MakeAlbum* to hide image names
+		`%% use \MakeAlbum* to hide image names.
 		`\end{multicols}
 		`\end{document}
 
 [merge]
+description: Use this template to merge multiple PDF files different from one another in paper size.
+	However, this template wouldn't be needed but cpdf would be adequate in most cases. For example:
+	cpdf.exe -scale-to-fit "5.5in 8.5in" foo.pdf -o out.pdf
+	cpdf.exe -scale-to-fit "176mm 250mm" A4.pdf -o B5_1.pdf
+	cpdf.exe -scale-to-fit "176mm 250mm" A5.pdf -o B5_2.pdf
+	cpdf.exe -merge B5_1.pdf B5_2.pdf -o B5.pdf
+	usage: mytex.py merge -s PAPER_WIDTH PAPER_HEIGHT TARGET_PDF_FILES
+	defaults: 210mm 297mm "foo, ..."
 output: merged
 placeholders: 3
-defaults: 210mm, 297mm, foo
+defaults: 210mm, 297mm, foo,...
 tex:	`\documentclass{minimal}
 		`
 		`\usepackage{xparse}
@@ -314,14 +334,24 @@ tex:	`\documentclass{minimal}
 		`\end{document}
 
 [number]
+description: Use this template to have each of circled numbers in separate one-page PDF files.
+	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
+	Find and use "circled_numbers.cmd" which is created together with the latex file.
+	The command requires cpdf, or alternatively pdftk, to split the PDF file generated.
+	usage: mytex.py number -s ENDING_NUMBER
+	default: 20
 output: circled_numbers
 placeholders: 1
 defaults: 20
+command:  xelatex \TEX
+	pdfcrop \PDF @@@.pdf
+	rem pdftk @@@.pdf burst
+	cpdf -split @@@.pdf -o %%%%.pdf 
 tex:	`\documentclass{hzguide}
 		`
 		`\LayoutSetup{}
 		`\CirnumSetup{
-		`	font=\sffamily\Large\bfseries,
+		`	font=\sffamily\bfseries\Large,
 		`	fgcolor=white,
 		`	bgcolor=red,
 		`	sep=0.25pt,
@@ -347,6 +377,9 @@ tex:	`\documentclass{hzguide}
 		`\end{document}
 
 [permute]
+description: Use this template to permute letters
+	usage: mytex.py permute -s LETTERS
+	defaults: adei
 output:	permute
 placeholders: 1
 defaults: adei
@@ -403,6 +436,9 @@ tex:	`\documentclass{article}
 		`\end{document}
 
 [lotto]
+description: Use this template to pick lotto numbers randomly.
+	usage: mytex.py lotto -s WEEKS FREQUENCY
+	defaults: 8 5
 output:	lotto
 compile_option: -l, -c
 placeholders: 2
@@ -481,6 +517,10 @@ tex:	`\documentclass[12pt, twocolumn]{article}
 		`\end{document}  
 
 [tys]
+description: Use this template to convert numbers to ancient Chinese numerals.
+	The Apple Symbols font is required.
+	usage: mytex.py tys -s NUMBERS 
+	defaults: "12.86, 302.9534, -8276.1,5.1064, 389.56"
 output:	mytys
 placeholders: 1
 defaults: 12.86,302.9534,-8276.1,5.1064,389.56
@@ -715,6 +755,9 @@ tex:	`\documentclass[a4paper]{article}
 		`\end{document}
 
 [multilingual]
+description: Use this template to see how many languaegs are supported by a font.
+	usage: mytex.py multilingual -s FONT 
+	default: "Noto Serif"
 output: multilingual
 placeholders:1 
 defaults: Noto Serif
@@ -792,6 +835,11 @@ tex:	\documentclass{minimal}
 		\end{document}
 
 [leaflet]
+description: Use this template to impose multiple pages in a sheet.
+	However, this template wouldn't needed but the pdfpages package would be adequate in most cases. For example:
+	\includepdf[pages={1-3, 12, 4, 5}, nup=3x2]{foo.pdf}
+	usage: mytex.py leaflet -s TARGET_PDF COLUMNS LAST_PAGE
+	defalts: foo.pdf 3 12	
 output: myleaflet
 placeholders: 3
 defaults: foo.pdf, 3, 12
@@ -892,6 +940,10 @@ tex:	`\documentclass{minimal}
 		`\end{document}
 
 [lettercolor]
+description: Use this template to apply gradient or random colors to letters.	
+	Applying different colors to jamo requires xelatex and the colorjamo package, which is available from https://github.com/dohyunkim/colorjamo
+	usage: mytex.py lettercolor -s FONT 
+	default: "Noto Serif CJK KR"
 output: lettercolor
 placeholders:1 
 defaults: Noto Serif CJK KR

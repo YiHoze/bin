@@ -87,12 +87,20 @@ class FileOpener(object):
             default = False,
             help = 'Search TeX Live for the specified file to find and open.'
         )
+        parser.add_argument(
+            '-f',
+            dest = 'force',
+            action = 'store_true',
+            default = False,
+            help = 'Force to open as text.'
+        )
         args = parser.parse_args()
         self.files = args.files
         self.editor = args.editor
         self.edopt = args.edopt
         self.Adobe = args.Adobe
         self.texlive = args.texlive
+        self.force = args.force
 
     def DetermineFileType(self, afile):
         ext = os.path.splitext(afile)[1]        
@@ -107,7 +115,7 @@ class FileOpener(object):
         for fnpattern in files:
             for afile in glob.glob(fnpattern):
                 filetype = self.DetermineFileType(afile)
-                if filetype ==  'txt':                    
+                if filetype == 'txt' or self.force:
                     self.OpenTxt(afile)
                 elif filetype ==  'pdf':
                     self.OpenPDF(afile)

@@ -67,11 +67,19 @@ class LatexTemplate(object):
             default = False,
             help = 'Show the list of templates.'
         )
+        parser.add_argument(
+            '-d',
+            dest = 'detail',
+            action = 'store_true',
+            default = False,
+            help = 'Show the details about the specified template.'            
+        )
         args = parser.parse_args()
         self.template = args.template
         self.substitutes = args.substitutes
         self.output = args.output
         self.list_bool = args.list
+        self.detail_bool = args.detail
         self.compile_bool = args.compile
 
     def confirm_to_remove(self, afile):
@@ -93,6 +101,8 @@ class LatexTemplate(object):
             filename = os.path.splitext(filename)[0]
         self.tex = filename + '.tex'
         self.pdf = filename + '.pdf'
+        self.sty = filename + '.sty'
+        self.cmd = filename + '.cmd'         
 
     def make_image_list(self):
         image_list_file = self.templates.get('album', 'image_list', fallback='im@ges.txt')
@@ -115,15 +125,6 @@ class LatexTemplate(object):
             f.write(images)
         return True
 
-    def make_command_for_numbers(self):
-        content = """
-            xelatex %s
-            pdfcrop %s @@@.pdf
-            pdftk @@@.pdf burst
-            """ %(self.tex, self.pdf)
-        with open('circled_numbers.cmd', mode='w', encoding='utf-8') as f:
-            f.write(content)
-
     def fill_placeholders(self, content):        
         content = content.replace('`', '')
         try:
@@ -144,15 +145,23 @@ class LatexTemplate(object):
             cnt += 1
         return content
 
-    def write_from_template(self):      
+    def write_from_template(self):
+        # writing commmand
+        content = self.templates.get(self.template, 'command', fallback=None)
+        if content is not None:
+            content = content.replace('\\TEX', self.tex)
+            content = content.replace('\\PDF', self.pdf)
+            if self.confirm_to_remove(self.cmd):
+                with open(self.cmd, mode='w', encoding='utf-8') as f:
+                    f.write(content)
+        # writing style
         content = self.templates.get(self.template, 'style', fallback=None)
         if content is not None:
-            content = content.replace('`', '')
-            style = self.template + '.sty'
-            if self.confirm_to_remove(style):
-                with open(style, mode='w', encoding='utf-8') as f:
+            content = content.replace('`', '')            
+            if self.confirm_to_remove(self.style):
+                with open(self.style, mode='w', encoding='utf-8') as f:
                     f.write(content)            
-        
+        # writing latex
         if not self.confirm_to_remove(self.tex):
             return False
         try:
@@ -178,20 +187,31 @@ class LatexTemplate(object):
             texer.compile()   
 
     def make(self):
+        if not self.templates.has_section(self.template):
+            print('"{}" is not defined.'.format(self.template))
+            return False
         self.determine_filename()
         if self.template == 'album':            
             if self.make_image_list() is False:
                 return 
-        if self.write_from_template():
-            if self.template == 'number':
-                self.make_command_for_numbers()
+        if self.write_from_template():            
             if self.compile_bool:
                 self.compile()                
 
-    def show_templates(self):
-
+    def show_templates(self):      
+        """Print the list of template names."""  
         templates = ', '.join(sorted(self.templates.sections()))
         print(templates)
+
+    def show_details(self):
+        if not self.templates.has_section(self.template):
+            print('"{}" is not defined.'.format(self.template))
+            return 
+        usage = self.templates.get(self.template, 'description', fallback=None)
+        if usage == None:
+            print('"{}" has no decription'.format(self.template))
+        else: 
+            print('\n{}\n'.format(usage))
  
 if __name__ == '__main__':
     mytex = LatexTemplate()
@@ -199,5 +219,7 @@ if __name__ == '__main__':
         mytex.parse_args()
         if mytex.list_bool:
             mytex.show_templates()
+        elif mytex.detail_bool:
+            mytex.show_details()
         else:
             mytex.make()

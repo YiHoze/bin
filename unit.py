@@ -32,7 +32,7 @@ class ConvertUnit(object):
             'numeral',
             nargs='*',
             help='Enter a numeric value with the full word or the first some letters of a unit type. \
-                "unit.py 10 mi 20" performs converting calculations from 10 to 20 miles in kilometers.'
+                "unit.py 10 mi 20" performs converting calculations from 10 to 20 miles in kilometer.'
         )
         args = parser.parse_args()
         if len(args.numeral) < 2:

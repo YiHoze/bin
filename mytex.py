@@ -158,8 +158,8 @@ class LatexTemplate(object):
         content = self.templates.get(self.template, 'style', fallback=None)
         if content is not None:
             content = content.replace('`', '')            
-            if self.confirm_to_remove(self.style):
-                with open(self.style, mode='w', encoding='utf-8') as f:
+            if self.confirm_to_remove(self.sty):
+                with open(self.sty, mode='w', encoding='utf-8') as f:
                     f.write(content)            
         # writing latex
         if not self.confirm_to_remove(self.tex):

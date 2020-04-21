@@ -235,7 +235,7 @@ defaults: 2, 1
 compile_option: -c
 tex:	`\documentclass{hzguide}
 		`
-		`\usepackge{multicol}
+		`\usepackage{multicol}
 		`\LayoutSetup{ulmargin=15mm, lrmargin=15mm}
 		`\HeadingSetup{type=article}
 		`
@@ -337,7 +337,7 @@ tex:	`\documentclass{minimal}
 description: Use this template to have each of circled numbers in separate one-page PDF files.
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 	Find and use "circled_numbers.cmd" which is created together with the latex file.
-	The command requires cpdf, or alternatively pdftk, to split the PDF file generated.
+	The command requires cpdf, or alternatively pdftk, to split the resulting PDF.
 	usage: mytex.py number -s ENDING_NUMBER
 	default: 20
 output: circled_numbers
@@ -1708,4 +1708,32 @@ tex:	\documentclass{article}
 
 		전능하신 하느님 감사합니다, 저희는 마침내 자유가 되었습니다.
 		\end{LetterColor}
+		\end{document}
+
+[metapost]
+description: Use this template and lualatex to draw metapost images
+output: mymp
+compile_option: -l
+tex:	\documentclass{article}
+		\usepackage{luamplib}
+		\begin{document}
+		\begin{mplibcode}
+		beginfig(1)
+		pair A,B,C,D;
+		u:=2cm;
+		A=(0,0); B=(u,0); C=(u,u); D=(0,u);
+
+		transform T;
+		A transformed T = 1/5[A,B];
+		B transformed T = 1/5[B,C];
+		C transformed T = 1/5[C,D];
+
+		path p;
+		p = A--B--C--D--cycle;
+		for i=0 upto 100:
+		draw p;
+		p:= p transformed T;
+		endfor;
+		endfig;
+		\end{mplibcode}
 		\end{document}

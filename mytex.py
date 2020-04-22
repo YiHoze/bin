@@ -55,10 +55,17 @@ class LatexTemplate(object):
         )
         parser.add_argument(
             '-n',
-            dest = 'compile',
-            action = 'store_false',
-            default = True,
-            help = 'Do not compile.'
+            dest = 'defy',
+            action = 'store_true',
+            default = False,
+            help = 'Do not compile even if some compile options are prescribed.'
+        )
+        parser.add_argument(
+            '-f',
+            dest = 'force',
+            action = 'store_true',
+            default = False,
+            help = 'Compile even if no compile option is prescribed .'
         )
         parser.add_argument(
             '-l',
@@ -80,7 +87,8 @@ class LatexTemplate(object):
         self.output = args.output
         self.list_bool = args.list
         self.detail_bool = args.detail
-        self.compile_bool = args.compile
+        self.defy_bool = args.defy
+        self.force_bool = args.force
 
     def confirm_to_remove(self, afile):
         if os.path.exists(afile):
@@ -178,12 +186,21 @@ class LatexTemplate(object):
         return True
 
     def compile(self):
+        if self.defy_bool:
+            return
+
         compile_option = self.templates.get(self.template, 'compile_option', fallback=None)
-        if compile_option is not None:
+                
+        if compile_option is None:
+            if self.force_bool:
+                texer = LatexCompiler(self.tex)
+                texer.parse_args(['-v'])
+                texer.compile()   
+        else:       
             compile_option = compile_option.split(', ')
+            compile_option.append('-v')                
             texer = LatexCompiler(self.tex)
-            compile_option.append('-v')
-            texer.parse_args(compile_option)
+            texer.parse_args(compile_option)        
             texer.compile()   
 
     def make(self):
@@ -195,8 +212,7 @@ class LatexTemplate(object):
             if self.make_image_list() is False:
                 return 
         if self.write_from_template():            
-            if self.compile_bool:
-                self.compile()                
+            self.compile()                
 
     def show_templates(self):      
         """Print the list of template names."""  

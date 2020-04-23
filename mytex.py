@@ -222,10 +222,24 @@ class LatexTemplate(object):
         if self.write_from_template():            
             self.compile()                
 
-    def show_templates(self):      
+    def show_templates(self, columns=4):      
         """Print the list of template names."""  
-        templates = ', '.join(sorted(self.templates.sections()))
-        print(templates)
+        templates = sorted(self.templates.sections())
+        width = 0
+        for i in templates:
+            width = max(width, len(i))
+        width += 4
+        i = 0
+        while i < len(templates):
+            line = ''
+            for j in range(columns):
+                k = i + j
+                if k < len(templates):
+                    line += '{:{w}}'.format(templates[k], w=width)
+                else:
+                    break
+            i += columns
+            print(line)
 
     def show_details(self):
         if not self.templates.has_section(self.template):

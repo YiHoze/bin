@@ -1,9 +1,11 @@
 [article]
 output: mydoc
 tex:   	\documentclass[a4paper]{article}
-		\usepackage{xparse}
-		\usepackage{fontspec}
-	  
+		
+		%%\usepackage{fontspec}
+		%%\setmainfont{}
+		\usepackage{kotex}
+		%%\setmainhangulfont{}
 		\begin{document}
 
 		\end{document}
@@ -30,7 +32,7 @@ tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 [hzguide]
 description: The hzguide class is available from https://github.com/YiHoze/HzGuide.
 output: mydoc
-tex:    \documentclass{hzguide}
+tex:    \documentclass[Noto]{hzguide}
 		\LayoutSetup{}
 
 		\begin{document}
@@ -165,7 +167,7 @@ tex:    `\documentclass{article}
 description: Use this template to write manuals such as user guides.
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 output: manual
-compile_option: -w
+compiler: -w
 tex:	`\documentclass[10pt, openany]{hzguide}
 		`
 		`\LayoutSetup{}
@@ -232,7 +234,7 @@ output: album
 image_list: im@ges.txt
 placeholders: 2
 defaults: 2, 1
-compile_option: -c
+compiler: -c
 tex:	`\documentclass{hzguide}
 		`
 		`\usepackage{multicol}
@@ -383,7 +385,7 @@ description: Use this template to permute letters
 output:	permute
 placeholders: 1
 defaults: adei
-compile_option: -l, -c
+compiler: -l, -c
 tex:	`\documentclass{article}
 		`\usepackage{kotex}
 		`\ExplSyntaxOn
@@ -440,7 +442,7 @@ description: Use this template to pick lotto numbers randomly.
 	usage: mytex.py lotto -s WEEKS FREQUENCY
 	defaults: 8 5
 output:	lotto
-compile_option: -l, -c
+compiler: -l, -c
 placeholders: 2
 defaults: 8, 5
 tex:	`\documentclass[12pt, twocolumn]{article}
@@ -521,15 +523,13 @@ description: Use this template to convert numbers to ancient Chinese numerals.
 	The Apple Symbols font is required.
 	usage: mytex.py tys -s NUMBERS 
 	defaults: "12.86, 302.9534, -8276.1,5.1064, 389.56"
-output:	mytys
+output:	tys
 placeholders: 1
 defaults: 12.86,302.9534,-8276.1,5.1064,389.56
-tex:	`\documentclass[a4paper]{article}
-		`
-		`\usepackage{fontspec}
-		`\usepackage{xcolor}
-		`\usepackage{cancel}
-		`\usepackage{varwidth}
+style:	`\RequirePackage{fontspec}
+		`\RequirePackage{xcolor}
+		`\RequirePackage{cancel}
+		`\RequirePackage{varwidth}
 		`
 		`\providecommand\disablekoreanfonts{}
 		`
@@ -749,10 +749,11 @@ tex:	`\documentclass[a4paper]{article}
 		`	poscolor=black,
 		`	negcolor=black
 		`}
-		`
-		`\begin{document}
-		`\Tys{\1}
-		`\end{document}
+tex:	\documentclass[a4paper]{article}
+		\usepackage{tys}
+		\begin{document}
+		\Tys{\1}
+		\end{document}
 
 [multilingual]
 description: Use this template to see how many languaegs are supported by a font.
@@ -761,7 +762,7 @@ description: Use this template to see how many languaegs are supported by a font
 output: multilingual
 placeholders:1 
 defaults: Noto Serif
-compile_option: -c
+compiler: -c
 tex:	\documentclass{minimal} 
 		\usepackage{fontspec} 
 		\setlength\parskip{1.25\baselineskip} 
@@ -947,7 +948,7 @@ description: Use this template to apply gradient or random colors to letters.
 output: lettercolor
 placeholders:1 
 defaults: Noto Serif CJK KR
-compile_option: -l
+compiler: -l
 style:	`\RequirePackage{kotex}
 		`\RequirePackage{tikz}
 		`\RequirePackage{environ}
@@ -1713,27 +1714,183 @@ tex:	\documentclass{article}
 [metapost]
 description: Use this template and lualatex to draw metapost images
 output: mymp
-compile_option: -l
+compiler: -l
+tex:	`\documentclass{article}
+		`\usepackage{luamplib}
+		`\begin{document}
+		`\begin{mplibcode}
+		`beginfig(1)
+		`z0 = origin; %% short form for (0,0)
+		`z1 = (60,40); z2 = (40,90);
+		`z3 = (10,70); z4 = (30,50);
+		`pickup pencircle scaled 1mm;
+		`draw z0; draw z1; draw z2;
+		`draw z3; draw z4;
+		`pickup defaultpen;
+		`draw z0--z1--z2--z3--z4 withcolor blue;
+		`draw z0..z1..z2..z3..z4 withcolor red;
+		`draw z0..z1..z2..z3..z4..z0 withcolor green;
+		`endfig;
+		`
+		`beginfig(2)
+		`for i=0 upto 100:
+		`fill unitsquare
+		`scaled ((100-i)*0.1mm)
+		`rotated 31i
+		`withcolor (0.01i)[red,blue];
+		`endfor;
+		`endfig;
+		`
+		`beginfig(3)
+		`pair a;
+		`a = right*15mm;
+		`draw a
+		`for i=30 step 30 until 3600:
+		`	.. a rotated i
+		`	scaled ((3600-i)/3600)
+		`endfor;
+		`endfig;
+		`
+		`beginfig(3)
+		`z1=right*28mm; z2=right*30mm;
+		`draw origin;
+		`for i=0 step 10 until 350:
+		`	if (i < 100) or (i > 270):
+		`		label.rt(decimal(i),origin) shifted z2 rotated i withcolor blue;
+		`	else:
+		`		label.lft(decimal(i),origin) rotated 180 shifted z2 rotated i withcolor red;
+		`	fi;
+		`	draw (z1--z2) rotated i;
+		`endfor;
+		`endfig;
+		`
+		`beginfig(10)
+		`pair A,B,C,D;
+		`u:=2cm;
+		`A=(0,0); B=(u,0); C=(u,u); D=(0,u);
+		`
+		`transform T;
+		`A transformed T = 1/5[A,B];
+		`B transformed T = 1/5[B,C];
+		`C transformed T = 1/5[C,D];
+		`
+		`path p;
+		`p = A--B--C--D--cycle;
+		`for i=0 upto 100:
+		`	draw p;
+		`	p:= p transformed T;
+		`endfor;
+		`endfig;		
+		`\end{mplibcode}		
+		`\end{document}
+
+[bibtex]
+description: Use this tempalte to see an example of bibtex.
+output: mybib
+compiler: -f, -bib
+bib:	`@article{ahu61,
+		`	author={Arrow, Kenneth J. and Leonid Hurwicz and Hirofumi Uzawa},
+		`	title={Constraint qualifications in maximization problems},
+		`	journal={Naval Research Logistics Quarterly},
+		`	volume={8},
+		`	year=1961,
+		`	pages={175-191}
+		`}
+		`
+		`@book{ab94,
+		`	author = {Charalambos D. Aliprantis and Kim C. Border},
+		`	year = {1994},
+		`	title = {Infinite Dimensional Analysis},
+		`	publisher = {Springer},
+		`	address = {Berlin}
+		`}
+		`
+		`@incollection{m85,
+		`	author={Maskin, Eric S.},
+		`	year={1985},
+		`	title={The theory of implementation in {N}ash equilibrium: a survey},
+		`	booktitle={Social Goals and Social Organization},
+		`	editor={Leonid Hurwicz and David Schmeidler and Hugo Sonnenschein},
+		`	pages={173-204},
+		`	publisher={Cambridge University Press},
+		`   address={Cambridge}
+		`}
+		`
+		`@inproceedings{ah2006,
+		`	author={Aggarwal, Gagan and Hartline, Jason D.},
+		`	year={2006},
+		`	title={Knapsack auctions},
+		`	booktitle={Proceedings of the 17th Annual ACM-SIAM Symposium on Discrete Algorithms},
+		`	pages={1083-1092},
+		`	publisher={Association for Computing Machinery},
+		`	address={New York}
+		`}
+		`
+		`@techreport{arrow48,
+		`	author = {Arrow, Kenneth J.},
+		`	title = {The possibility of a universal social welfare function},
+		`	institution = {RAND Corporation},
+		`	year = {1948},
+		`	number = {P-41},
+		`	type = {Report}
+		`}
+		`
+		`@unpublished{FudenbergKreps1988,
+		`	title = {A theory of learning, experimentation, and equilibrium in games},
+		`	author = {Fudenberg, Drew and Kreps, David M.},
+		`	year = {1988},
+		`	note = {Unpublished paper}
+		`}
 tex:	\documentclass{article}
-		\usepackage{luamplib}
+		\usepackage{natbib}
 		\begin{document}
-		\begin{mplibcode}
-		beginfig(1)
-		pair A,B,C,D;
-		u:=2cm;
-		A=(0,0); B=(u,0); C=(u,u); D=(0,u);
-
-		transform T;
-		A transformed T = 1/5[A,B];
-		B transformed T = 1/5[B,C];
-		C transformed T = 1/5[C,D];
-
-		path p;
-		p = A--B--C--D--cycle;
-		for i=0 upto 100:
-		draw p;
-		p:= p transformed T;
-		endfor;
-		endfig;
-		\end{mplibcode}
+		\title{BibTeX in action}
+		\author{Martin Osborne}
+		\maketitle
+		\section{Introduction}
+		This document illustrates the use of BibTeX.  
+		You may want to refer to \cite{ahu61} or \cite{ab94} or \cite{m85}.  
+		Or you may want to cite a specific page in a reference, like this: see \citet[p.~199]{m85}. 
+		Or perhaps you want to cite more than one paper by Maskin: \cite{m85, arrow48}.
+		Or you want to make a parenthetical reference to one or more articles, 
+		in which case the \verb+\citealt+ command omits the parentheses around the year (\citealt{ahu61}).
+		\bibliographystyle{plainnat} 
+		\bibliography{mybib}
 		\end{document}
+
+[tikz]
+description = This template draws a protractor using tikz.
+output: mytikz
+compiler: -c
+tex: 	`\documentclass{standalone}
+		`\usepackage{tikz}
+		`\begin{document}
+		`	\begin{tikzpicture}
+		`		\draw (6,0) arc [radius=6, start angle=0, end angle=180] -- (-6,-0.5) -- (6,-0.`5) -- cycle;
+		`		\ExplSyntaxOn
+		`		\int_step_inline:nnnn {0}{10}{180}
+		`		{ 
+		`			\draw[red] (#1\c_colon_str 5.2) -- (#1\c_colon_str 6);
+		`			\node[red, rotate=-90+#1] at (#1\c_colon_str 5) {#1};
+		`			\node[rotate=90-#1] at (180-#1\c_colon_str 4.5) {#1};
+		`			\draw (#1\c_colon_str 1) -- (#1\c_colon_str 3);            
+		`		}
+		`		\int_step_inline:nnnn {0}{1}{180}
+		`		{
+		`			\int_compare:nF { \int_mod:nn {#1}{10} = 0 }
+		`			{
+		`				\int_compare:nTF { \int_mod:nn {#1}{10} = 5 }
+		`				{			
+		`					\draw[blue] (#1\c_colon_str 5.4) -- (#1\c_colon_str 6);
+		`				}{
+		`					\draw (#1\c_colon_str 5.6) -- (#1\c_colon_str 6);
+		`				}	
+		`			}
+		`		}
+		`		\ExplSyntaxOff
+		`		\draw[->, line width=1] (0,0) -- (4,0);
+		`		\draw[->, line width=1] (0,0) -- (0,4);
+		`		\draw[->, line width=1] (0,0) -- (-4,0);
+		`		\filldraw[fill=white] (0,0) circle [radius=0.2] node {+};
+		`	\end{tikzpicture}
+		`\end{document}

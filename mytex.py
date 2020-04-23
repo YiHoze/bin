@@ -103,21 +103,19 @@ class LatexTemplate(object):
 
     def determine_filename(self):
         if self.output is None:
-            filename = self.templates.get(self.template, 'output', fallback='mydoc')
+            self.filename = self.templates.get(self.template, 'output', fallback='mydoc')
         else:
             filename = self.output
-            filename = os.path.splitext(filename)[0]
-        self.tex = filename + '.tex'
-        self.pdf = filename + '.pdf'
-        self.sty = filename + '.sty'
-        self.cmd = filename + '.cmd'         
+            self.filename = os.path.splitext(filename)[0]        
+        self.tex = self.filename + '.tex'        
 
     def make_image_list(self):
         image_list_file = self.templates.get('album', 'image_list', fallback='im@ges.txt')
         if os.path.exists(image_list_file):
             os.remove(image_list_file)
-        if os.path.exists(self.pdf):
-            os.remove(self.pdf)
+        pdf = self.filename + '.pdf'
+        if os.path.exists(pdf):
+            os.remove(pdf)
         # Make a file the contains a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
@@ -158,16 +156,26 @@ class LatexTemplate(object):
         content = self.templates.get(self.template, 'command', fallback=None)
         if content is not None:
             content = content.replace('\\TEX', self.tex)
-            content = content.replace('\\PDF', self.pdf)
-            if self.confirm_to_remove(self.cmd):
-                with open(self.cmd, mode='w', encoding='utf-8') as f:
+            content = content.replace('\\PDF', self.filename + '.pdf')
+            cmd = self.filename + '.cmd'         
+            if self.confirm_to_remove(cmd):
+                with open(cmd, mode='w', encoding='utf-8') as f:
                     f.write(content)
         # writing style
         content = self.templates.get(self.template, 'style', fallback=None)
         if content is not None:
             content = content.replace('`', '')            
-            if self.confirm_to_remove(self.sty):
-                with open(self.sty, mode='w', encoding='utf-8') as f:
+            sty = self.filename + '.sty'
+            if self.confirm_to_remove(sty):
+                with open(sty, mode='w', encoding='utf-8') as f:
+                    f.write(content)            
+        # writing bib
+        content = self.templates.get(self.template, 'bib', fallback=None)
+        if content is not None:
+            content = content.replace('`', '')            
+            bib = self.filename + '.bib'
+            if self.confirm_to_remove(bib):
+                with open(bib, mode='w', encoding='utf-8') as f:
                     f.write(content)            
         # writing latex
         if not self.confirm_to_remove(self.tex):
@@ -189,19 +197,19 @@ class LatexTemplate(object):
         if self.defy_bool:
             return
 
-        compile_option = self.templates.get(self.template, 'compile_option', fallback=None)
+        compiler = self.templates.get(self.template, 'compiler', fallback=None)
                 
-        if compile_option is None:
+        if compiler is None:
             if self.force_bool:
                 texer = LatexCompiler(self.tex)
                 texer.parse_args(['-v'])
                 texer.compile()   
         else:       
-            compile_option = compile_option.split(', ')
-            compile_option.append('-v')                
+            compiler = compiler.split(', ')
+            compiler.append('-v')                
             texer = LatexCompiler(self.tex)
-            texer.parse_args(compile_option)        
-            texer.compile()   
+            texer.parse_args(compiler)        
+            texer.compile()
 
     def make(self):
         if not self.templates.has_section(self.template):

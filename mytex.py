@@ -33,7 +33,7 @@ class LatexTemplate(object):
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
-            description = 'Create a LaTeX file from several templates.'
+            description = 'Create a LaTeX file from several templates and compile using ltx.py.'
         )
         parser.add_argument(
             'template',

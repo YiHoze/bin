@@ -1922,6 +1922,7 @@ xdy:	(require "lang/general/utf8-lang.xdy")
 tex:	\documentclass[a4paper]{article}
 		\usepackage{kotex}
 		\usepackage{makeidx}
+		\usepackage{hyperref}
 		\newcommand\term[1]{#1\index{#1}}
 		\makeindex
 		\begin{document}
@@ -1965,8 +1966,58 @@ tex:	\documentclass[a4paper]{article}
 
 		백년이 지난 후에도, 흑인들은 미국사회의 한 구석에서 여전히 풀이 죽고 자신의 땅에서 유배당한 자신을 보게 됩니다.
 
-		And so we’ve come here today to dramatize a shameful condition.
+		And so we’ve come here today to dramatize a shameful \term{condition}.
 
 		그래서 이 수치스런 상황을 알리고 바꾸고자 우리는 오늘 이 자리에 나온 것입니다.
 		\printindex
+		\end{document}
+
+[arabic]
+description = This template shows how to typeset Arabic.
+output: arabic
+tex: 	\documentclass[a4paper]{article}
+		\usepackage{polyglossia}
+		\setotherlanguage{arabic}
+		\setdefaultlanguage{english}
+		\newfontfamily\arabicfont[Script=Arabic]{Noto Naskh Arabic}
+		%% \usepackage{arabxetex}
+
+		\begin{document}
+		\begin{Arabic}
+		عندما يريد العالم أن ‪يتكلّم ‬ ، فهو يتحدّث بلغة يونيكود. تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود \textenglish{(Unicode Conference)}، الذي سيعقد في 10\textenglish{--}12 آذار 1997 بمدينة مَايِنْتْس، ألمانيا. و سيجمع المؤتمر بين خبراء من كافة قطاعات الصناعة على الشبكة العالمية انترنيت ويونيكود، حيث ستتم، على الصعيدين الدولي والمحلي على حد سواء مناقشة سبل استخدام يونكود في النظم القائمة وفيما يخص التطبيقات الحاسوبية، الخطوط، تصميم النصوص والحوسبة متعددة اللغات.
+
+		مَمِمّمَّمِّ
+		\end{Arabic}
+		\end{document}
+
+[japanese]
+description = This template shows how to typeset Japanese.
+output = japanese
+tex: 	\documentclass[a4paper]{article}
+		\usepackage{xeCJK}
+		\setCJKmainfont{Noto Serif CJK JP}
+		\setCJKsansfont{Noto Sans CJK JP}
+		\punctstyle{fullwidth}
+
+		\begin{document}
+		ハネウェルAnalyticsは、本機器の運用寿命の期間、通常の使用及びサービスの下で、製品に材料および製造上の欠陥がないことを保証します。 
+		この保証は最初の購入者に新しい、未使用の製品の販売にまで及びます。
+		ハネウェルAnalyticsの保証義務は制限されています。ハネウェルAnalyticsのオプションで、購入代金の払い戻し、 保証期間内にハネウェルAnalytics認定サービスセンターに返送された欠陥製品の修理または交換です。 
+		いかなる場合においても、以下のハネウェルAnalyticsの責任は、実際に製品のバイヤーが支払った購入価格を超えません。
+		\end{document}
+
+[chinese]
+description = This template shows how to typeset Japanese.
+output = chinese
+tex: 	\documentclass[a4paper]{article}
+		\usepackage{xeCJK}
+		\setCJKmainfont{Noto Serif CJK SC}
+		\setCJKsansfont{Noto Sans CJK SC}
+		\punctstyle{fullwidth}
+
+		\begin{document}
+		Honeywell Analytics保证本产品在材料和工艺上没有缺陷，可在设备的使用寿命内正常使用。 
+		将全新和未使用过的产品销售给原始买方时，本保修方可延长。
+		Honeywell Analytics承担有限的保修义务，Honeywell Analytics可自行决定退回购买金额、修理还是更换保修期内退回Honeywell Analytics授权服务中心的存在缺陷的产品。 
+		在任何情况下，Honeywell Analytics没有义务承担超出买方购买本产品实际支付的金额。
 		\end{document}

@@ -282,6 +282,10 @@ class ImageUtility(object):
             if recipe['target type'] == 'bitmap':
                 if self.check_ImageMagick():
                     self.run_recursive(self.bitmap_to_bitmap)
+            elif recipe['target format'] == '.eps' or recipe['target format'] == '.pdf':
+                if self.check_ImageMagick():
+                    self.run_recursive(self.bitmap_to_bitmap)
+
         elif recipe['source type'] == 'vector':
             if recipe['target type'] == 'bitmap':
                 if recipe['source format'] == '.pdf':
@@ -297,7 +301,7 @@ class ImageUtility(object):
                 elif recipe['source format'] == '.pdf' and recipe['target format'] == '.eps':
                     if self.check_TeXLive():
                         self.run_recursive(self.pdf_to_eps)
-                if recipe['source format'] == '.svg':
+                elif recipe['source format'] == '.svg':
                     if self.check_Inkscape():
                         if recipe['target format'] == '.eps':
                             self.run_recursive(self.svg_to_eps)

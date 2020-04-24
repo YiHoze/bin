@@ -151,32 +151,50 @@ class LatexTemplate(object):
             cnt += 1
         return content
 
+    def write_relatives(self, extension):
+        content = self.templates.get(self.template, extension, fallback=None)
+        if content is not None:
+            if extension == 'cmd':
+                content = content.replace('\\TEX', self.tex)
+                content = content.replace('\\PDF', self.filename + '.pdf')
+            else:
+                content = content.replace('`', '')            
+            ext = self.filename + '.' + extension
+            if self.confirm_to_remove(ext):
+                with open(ext, mode='w', encoding='utf-8') as f:
+                    f.write(content)            
+
     def write_from_template(self):
         # writing commmand
-        content = self.templates.get(self.template, 'command', fallback=None)
-        if content is not None:
-            content = content.replace('\\TEX', self.tex)
-            content = content.replace('\\PDF', self.filename + '.pdf')
-            cmd = self.filename + '.cmd'         
-            if self.confirm_to_remove(cmd):
-                with open(cmd, mode='w', encoding='utf-8') as f:
-                    f.write(content)
+        self.write_relatives('cmd')
+        # content = self.templates.get(self.template, 'command', fallback=None)
+        # if content is not None:
+        #     content = content.replace('\\TEX', self.tex)
+        #     content = content.replace('\\PDF', self.filename + '.pdf')
+        #     cmd = self.filename + '.cmd'         
+        #     if self.confirm_to_remove(cmd):
+        #         with open(cmd, mode='w', encoding='utf-8') as f:
+        #             f.write(content)
         # writing style
-        content = self.templates.get(self.template, 'style', fallback=None)
-        if content is not None:
-            content = content.replace('`', '')            
-            sty = self.filename + '.sty'
-            if self.confirm_to_remove(sty):
-                with open(sty, mode='w', encoding='utf-8') as f:
-                    f.write(content)            
+        self.write_relatives('sty')
+        # content = self.templates.get(self.template, 'sty', fallback=None)
+        # if content is not None:
+        #     content = content.replace('`', '')            
+        #     sty = self.filename + '.sty'
+        #     if self.confirm_to_remove(sty):
+        #         with open(sty, mode='w', encoding='utf-8') as f:
+        #             f.write(content)            
         # writing bib
-        content = self.templates.get(self.template, 'bib', fallback=None)
-        if content is not None:
-            content = content.replace('`', '')            
-            bib = self.filename + '.bib'
-            if self.confirm_to_remove(bib):
-                with open(bib, mode='w', encoding='utf-8') as f:
-                    f.write(content)            
+        self.write_relatives('bib')
+        # content = self.templates.get(self.template, 'bib', fallback=None)
+        # if content is not None:
+        #     content = content.replace('`', '')            
+        #     bib = self.filename + '.bib'
+        #     if self.confirm_to_remove(bib):
+        #         with open(bib, mode='w', encoding='utf-8') as f:
+        #             f.write(content) 
+        # writing xdy
+        self.write_relatives('xdy')           
         # writing latex
         if not self.confirm_to_remove(self.tex):
             return False
@@ -206,7 +224,7 @@ class LatexTemplate(object):
                 texer.compile()   
         else:       
             compiler = compiler.split(', ')
-            compiler.append('-v')                
+            compiler.append('-v')            
             texer = LatexCompiler(self.tex)
             texer.parse_args(compiler)        
             texer.compile()

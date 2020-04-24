@@ -29,7 +29,7 @@ class LatexCompiler(object):
         self.index_bool = index
         self.lang = language
         self.komkindex_bool = komkindex
-        self.index_bool_style = index_style
+        self.index_style = index_style
         self.bm_index_bool = bookmark_index
         self.bm_python_bool = bookmark_python
         self.final_bool = final
@@ -59,19 +59,22 @@ class LatexCompiler(object):
             'rus': 'lang/russian/utf8-lang ',
             'spa': 'lang/spanish/modern-utf8-lang '
         }
-        try:
-            self.xindy = index_modules[self.lang[:3].lower()]
-        except:
-            self.xindy = index_modules['kor']
+        if os.path.splitext(self.index_style)[1] == '.xdy':
+            self.xindy = self.index_style
+        else:
+            try:
+                self.xindy = index_modules[self.lang[:3].lower()]
+            except:
+                self.xindy = index_modules['kor']
 
         if self.tex is not None:            
-            filename = os.path.basename(self.tex)
-            basename = os.path.splitext(filename)[0]
-            self.tex = basename + '.tex'
-            self.aux = basename + '.aux'
-            self.idx = basename + '.idx'
-            self.ind = basename + '.ind'
-            self.pdf = basename + '.pdf'
+            basename = os.path.basename(self.tex)
+            filename = os.path.splitext(basename)[0]
+            self.tex = filename + '.tex'
+            self.aux = filename + '.aux'
+            self.idx = filename + '.idx'
+            self.ind = filename + '.ind'
+            self.pdf = filename + '.pdf'
             if not os.path.exists(self.tex):                
                 print('%s is not found.' %(self.tex))
                 self.tex = None
@@ -159,7 +162,7 @@ class LatexCompiler(object):
             '-ist',
             dest = 'index_style',
             default = 'kotex.ist',
-            help = 'Specify an index style for komkindex. The dafault is kotex.ist.'
+            help = 'Specify an index style for komkindex or texindy. The dafault is kotex.ist.'
         )
         parser.add_argument(
             '-a',
@@ -226,7 +229,7 @@ class LatexCompiler(object):
         self.index_bool = args.index
         self.lang = args.language
         self.komkindex_bool = args.komkindex
-        self.index_bool_style = args.index_style
+        self.index_style = args.index_style
         self.bm_index_bool = args.bookmark_index
         self.bm_python_bool = args.bookmark_python
         self.final_bool = args.final
@@ -267,7 +270,7 @@ class LatexCompiler(object):
             print('%s is not found' % (self.idx))
             return
         if self.komkindex_bool:
-            cmd = 'komkindex.exe -s %s %s' %(self.index_bool_style, self.idx)
+            cmd = 'komkindex.exe -s %s %s' %(self.index_style, self.idx)
         else:
             cmd = 'texindy.exe --module %s %s' %(self.xindy, self.idx) 
         os.system(cmd)    

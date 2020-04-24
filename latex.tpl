@@ -6,6 +6,7 @@ tex:   	\documentclass[a4paper]{article}
 		%%\setmainfont{}
 		\usepackage{kotex}
 		%%\setmainhangulfont{}
+
 		\begin{document}
 
 		\end{document}
@@ -345,7 +346,7 @@ description: Use this template to have each of circled numbers in separate one-p
 output: circled_numbers
 placeholders: 1
 defaults: 20
-command:  xelatex \TEX
+cmd:  xelatex \TEX
 	pdfcrop \PDF @@@.pdf
 	rem pdftk @@@.pdf burst
 	cpdf -split @@@.pdf -o %%%%.pdf 
@@ -526,7 +527,7 @@ description: Use this template to convert numbers to ancient Chinese numerals.
 output:	tys
 placeholders: 1
 defaults: 12.86,302.9534,-8276.1,5.1064,389.56
-style:	`\RequirePackage{fontspec}
+sty:	`\RequirePackage{fontspec}
 		`\RequirePackage{xcolor}
 		`\RequirePackage{cancel}
 		`\RequirePackage{varwidth}
@@ -949,7 +950,7 @@ output: lettercolor
 placeholders:1 
 defaults: Noto Serif CJK KR
 compiler: -l
-style:	`\RequirePackage{kotex}
+sty:	`\RequirePackage{kotex}
 		`\RequirePackage{tikz}
 		`\RequirePackage{environ}
 		`
@@ -1894,3 +1895,78 @@ tex: 	`\documentclass{standalone}
 		`		\filldraw[fill=white] (0,0) circle [radius=0.2] node {+};
 		`	\end{tikzpicture}
 		`\end{document}
+
+[xindy]
+description = This template shows how to change index style for texindy.
+output: myxindy
+compiler: -w, -i, -ist, myxindy.xdy
+xdy:	(require "lang/general/utf8-lang.xdy")
+		(require "lang/korean/utf8.xdy")
+
+		(markup-index :open  "\begin{theindex}\sffamily~n
+		\providecommand*\lettergroupDefault[1]{}
+		\providecommand*\lettergroup[1]{%%
+		\par\textbf{\large#1}\par
+		\nopagebreak
+		}"
+				:close "~n~n\end{theindex}~n"
+				:tree)
+
+		(markup-indexentry :open "~n  \item "       :depth 0)
+		(markup-indexentry :open "~n  \subitem "    :depth 1)
+		(markup-indexentry :open "~n  \subsubitem " :depth 2)
+
+		(markup-locclass-list :open "\dotfill " :sep ", ")
+		(markup-locref-list   :sep ", ")
+		(markup-range :sep "--")
+tex:	\documentclass[a4paper]{article}
+		\usepackage{kotex}
+		\usepackage{makeidx}
+		\newcommand\term[1]{#1\index{#1}}
+		\makeindex
+		\begin{document}
+		I am happy to join with you today in what will go down in \term{history} as the greatest \term{demonstration} for freedom in the history of our nation.
+
+		우리 \term{역사}에서 자유를 위한 가장 훌륭한 \term{시위}가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
+
+		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the \term{Emancipation Proclamation}. This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.
+
+		백 년 전, 위대한 어느 미국인이 노예해방령에\index{노예!노예행방령} 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 \term{노예}들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
+
+		I am happy to join with you today in what will go down in history as the greatest demonstration for freedom in the history of our nation.
+
+		우리나라 역사상 자유를 위한 가장 위대한 시위가 있었던 날로서 역사에 기록될 오늘 나는 여러분과 함께 하게 되어 행복합니다.
+
+		Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation.\index{Proclamation@Emancipation Proclamation}
+
+		백년 전, 오늘 우리가 서있는 자리의 상징적 그림자의 주인공인, 한 위대한 미국인이, \term{노예해방선언문}에 서명하였습니다.
+
+		This momentous \term{decree} came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice.
+
+		그 중대한 \term{법령}은 억압적 불평등의 불길에 타들어가던 수백만 흑인 노예들에게 위대한 희망의 횃불로서 다가왔습니다.
+
+		It came as a joyous daybreak to end the long night of their captivity.
+
+		그 법령은 그들의 길었던 구속의 밤을 종식하는 기쁨의 새벽이었습니다.
+
+		But one hundred years later, the Negro still is not free.
+
+		그러나 백년이 지난 후에도, 흑인들은 여전히 자유롭지 못합니다.
+
+		One hundred years later, the life of the Negro is still sadly crippled by the manacles of \term{segregation} and the chains of \term{discrimination}.
+
+		백년이 지난 후에도, \term{분리}의 수갑과 \term{차별}의 쇠사슬에 의해 흑인들의 삶은 여전히 슬픈 불구의 상태입니다.
+
+		One hundred years later, the Negro lives on a lonely island of poverty in the midst of a vast ocean of material prosperity.
+
+		백년이 지난 후에도, 물질적 번영이라는 거대한 대양의 한가운데 홀로 떨어진 빈곤의 섬에서 흑인들은 살아가고 있습니다.
+
+		One hundred years later, the Negro is still languished in the corners of American society and finds himself an exile in his own land.
+
+		백년이 지난 후에도, 흑인들은 미국사회의 한 구석에서 여전히 풀이 죽고 자신의 땅에서 유배당한 자신을 보게 됩니다.
+
+		And so we’ve come here today to dramatize a shameful condition.
+
+		그래서 이 수치스런 상황을 알리고 바꾸고자 우리는 오늘 이 자리에 나온 것입니다.
+		\printindex
+		\end{document}

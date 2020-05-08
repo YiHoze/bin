@@ -13,11 +13,11 @@ from ltx import LatexCompiler
 
 class LatexTemplate(object):
 
-    def __init__(self, template='hzguide', substitutes=None, output=None, compile=True):
+    def __init__(self, template='hzguide', substitutes=None, output=None, defy=False):
         self.template = template
         self.substitutes = substitutes
         self.output = output
-        self.compile_bool = compile
+        self.defy_bool = defy
         self.list_bool = False
         self.ini_bool = self.initialize()    
 
@@ -32,8 +32,26 @@ class LatexTemplate(object):
             return False
 
     def parse_args(self):
+        example = '''examples:
+    mytex.py
+        makes mydoc.tex out of the default template, article.
+    mytex.py -l
+        enumerates templates
+    mytex.py metapost -d
+        gives a brief description of the metapost template.
+    mytex.py memoir -o foo 
+        makes "foo.tex" out of the memoir template.
+    mytex.py lotto -s 20 10 
+        makes and compiles lotto.tex, of which two placeholders are replaced with "20" and "10".
+    mytex.py lotto -n
+        makes lotto.tex but does not compile it though this template has some compilation options.
+    mytex.py glyph -f
+        makes myfont.tex and compiles it though this template has no comilation options.
+        '''
         parser = argparse.ArgumentParser(
-            description = 'Create a LaTeX file from several templates and compile using ltx.py.'
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
+            description = 'Create a LaTeX file from several templates and compile it using ltx.py.'
         )
         parser.add_argument(
             'template',
@@ -58,14 +76,14 @@ class LatexTemplate(object):
             dest = 'defy',
             action = 'store_true',
             default = False,
-            help = 'Do not compile even if some compile options are prescribed.'
+            help = 'Do not compile even if some compilation options are prescribed.'
         )
         parser.add_argument(
             '-f',
             dest = 'force',
             action = 'store_true',
             default = False,
-            help = 'Compile even if no compile option is prescribed .'
+            help = 'Compile even if no compilation option is prescribed .'
         )
         parser.add_argument(
             '-l',
@@ -116,7 +134,7 @@ class LatexTemplate(object):
         pdf = self.filename + '.pdf'
         if os.path.exists(pdf):
             os.remove(pdf)
-        # Make a file the contains a list of image files
+        # Make a file that contains a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
         for img in image_type:
@@ -167,32 +185,10 @@ class LatexTemplate(object):
     def write_from_template(self):
         # writing commmand
         self.write_relatives('cmd')
-        # content = self.templates.get(self.template, 'command', fallback=None)
-        # if content is not None:
-        #     content = content.replace('\\TEX', self.tex)
-        #     content = content.replace('\\PDF', self.filename + '.pdf')
-        #     cmd = self.filename + '.cmd'         
-        #     if self.confirm_to_remove(cmd):
-        #         with open(cmd, mode='w', encoding='utf-8') as f:
-        #             f.write(content)
         # writing style
         self.write_relatives('sty')
-        # content = self.templates.get(self.template, 'sty', fallback=None)
-        # if content is not None:
-        #     content = content.replace('`', '')            
-        #     sty = self.filename + '.sty'
-        #     if self.confirm_to_remove(sty):
-        #         with open(sty, mode='w', encoding='utf-8') as f:
-        #             f.write(content)            
         # writing bib
         self.write_relatives('bib')
-        # content = self.templates.get(self.template, 'bib', fallback=None)
-        # if content is not None:
-        #     content = content.replace('`', '')            
-        #     bib = self.filename + '.bib'
-        #     if self.confirm_to_remove(bib):
-        #         with open(bib, mode='w', encoding='utf-8') as f:
-        #             f.write(content) 
         # writing xdy
         self.write_relatives('xdy')           
         # writing latex

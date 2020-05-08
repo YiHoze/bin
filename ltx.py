@@ -67,7 +67,7 @@ class LatexCompiler(object):
             except:
                 self.xindy = index_modules['kor']
 
-        if self.tex is not None:            
+        if self.tex is not None:   
             basename = os.path.basename(self.tex)
             filename = os.path.splitext(basename)[0]
             self.tex = filename + '.tex'
@@ -338,7 +338,7 @@ class LatexCompiler(object):
                     self.run_bibtex()            
         else:
             if self.tex:
-                cmd_tex = '%s %s %s' %(self.compiler, self.compile_mode, self.tex)
+                cmd_tex = '%s %s "%s"' %(self.compiler, self.compile_mode, self.tex)
                 if self.fully_bool:
                     self.compile_fully(cmd_tex)
                 elif self.twice_bool:

@@ -16,8 +16,22 @@ class FontInfo(object):
         self.fonts_list = list
 
     def parse_args(self):
-        parser = argparse.ArgumentParser(
-            description = 'View the list of installed fonts, or see what glyphs a font contains using an example text. This script requires TeX Live.'
+        example = '''examples:
+    fontinfo.py     
+        gathers font information into fonts_list.txt.
+    fontinfo.py -l foo.txt
+        "foo.txt" is used instead of "fonts_list.txt".
+    fontinfo.py "Noto Serif"
+        creates NotoSerif.pdf, which contains a multilingual text.
+    fontinfo.py -i NotoSerif-Regular.ttf
+        shows the defails, including full name.         
+    fontinfo.py -i "Noto Serif"
+        enumerates all fonts that belong to the same family.
+        '''
+        parser = argparse.ArgumentParser( 
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
+            description = 'View the list of installed fonts, see what glyphs a font contains using an example text, or see information about a font. This script requires TeX Live.'
         )
         parser.add_argument(
             'font',
@@ -86,22 +100,24 @@ class FontInfo(object):
             else:
                 return False
 
-    def get_info(self):  
-        # ext = os.path.splitext(self.font)[1]
-        # if ext == '':
-        cmd = 'fc-list -f "%{{file}}\n" "{}"'.format(self.font)
-        fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        fonts = fonts.decode(encoding='utf-8')        
-        if fonts == '':
-            print('No relevant fonts are found.')
-            return
+    def get_info(self): 
+        if os.path.exists(self.font):
+            cmd = 'otfinfo -i {}'.format(self.font)
+            os.system(cmd)
         else:
-            font = self.find_path(fonts)
-            if font is not False:
-                cmd = 'otfinfo -i {}'.format(font)
-                print('')
-                os.system(cmd)
-                print('')
+            cmd = 'fc-list -f "%{{file}}\n" "{}"'.format(self.font)
+            fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            fonts = fonts.decode(encoding='utf-8')        
+            if fonts == '':
+                print('No relevant fonts are found.')
+                return
+            else:
+                font = self.find_path(fonts)
+                if font is not False:
+                    cmd = 'otfinfo -i {}'.format(font)
+                    print('')
+                    os.system(cmd)
+                    print('')
 
 if __name__ == '__main__':
     fi = FontInfo()

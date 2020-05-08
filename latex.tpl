@@ -8,7 +8,7 @@ tex:   	\documentclass[a4paper]{article}
 		%%\setmainhangulfont{}
 
 		\begin{document}
-
+		Hello.
 		\end{document}
 
 [hzbeamer]
@@ -26,7 +26,7 @@ tex:   \documentclass[10pt,flier=false,hangul=true]{hzbeamer}
 
 		\begin{document}    
 		\begin{frame}[fragile, allowframebreaks=1]{}
-
+		Hello.
 		\end{frame}
 		\end{document}
 
@@ -37,7 +37,7 @@ tex:    \documentclass[Noto]{hzguide}
 		\LayoutSetup{}
 
 		\begin{document}
-
+		Hello.
 		\end{document}
 
 [memoir]
@@ -47,7 +47,7 @@ tex:   	\documentclass[a4paper]{memoir}
 		\usepackage{fontspec}
 
 		\begin{document}
-
+		Hello.
 		\end{document}
 
 [oblivoir]
@@ -58,7 +58,7 @@ tex:   \documentclass{oblivoir}
 		\usefapapersize{*,*,30mm,*,30mm,*}
 
 		\begin{document}
-
+		Hello.
 		\end{document}
 
 [glyph]

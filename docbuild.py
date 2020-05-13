@@ -43,13 +43,13 @@ class DocBuilder(object):
             default = False,
             help = 'Replace with 자동조사 macros.'
         )
-        parser.add_argument(
-            '-x',
-            dest = 'noImage',
-            action = 'store_true',
-            default = False,
-            help = 'Pass over image processing.'
-        )
+        # parser.add_argument(
+        #     '-x',
+        #     dest = 'noImage',
+        #     action = 'store_true',
+        #     default = False,
+        #     help = 'Pass over image processing.'
+        # )
         parser.add_argument(
             '-r',
             dest = 'renew',
@@ -102,12 +102,12 @@ class DocBuilder(object):
             autojosa = AutoJosa([self.args.tex])
             autojosa.replace()
         # Covert SVG images to PDF and crop PDF images
-        if not self.args.noImage:        
-            iu = ImageUtility(['*.svg'], target='pdf', recursive=True)
-            iu.convert()
-            for afile in glob.glob('blockdiag-*.pdf'):
-                cmd = 'pdfcrop.exe %s %s' %(afile, afile)
-                os.system(cmd)    
+        # if not self.args.noImage:        
+        #     iu = ImageUtility(['*.svg'], target='pdf', recursive=True)
+        #     iu.convert()
+        #     for afile in glob.glob('blockdiag-*.pdf'):
+        #         cmd = 'pdfcrop.exe %s %s' %(afile, afile)
+        #         os.system(cmd)    
         # Run xelatex to make PDF
         if not self.args.noCompile:
             texer = LatexCompiler(self.args.tex)

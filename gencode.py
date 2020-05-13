@@ -17,7 +17,23 @@ class GenerateCode(object):
         self.decode_bool = decode
 
     def parse_args(self):
+        example = '''examples:
+    gencode.py 979118986911
+        creates a barcode image named barcode.png.
+    gencode.py 979118986911 -s
+        creates barcode.svg in addition to barcode.png.
+    gencdoe.py 979118986911 -o foo
+        creates "foo.png".
+    gencode.py 979118986911 979118986912
+        creates barcode_01.png and barcode_02.png.
+    gencode.py -q https://github.com/yihoze
+        creates a QR code image names qrcode.png.
+    gencode.py -d qrcode.png.
+        decodes qrcode.png, and opens it in the web browser if the content is a web address.
+        '''
         parser = argparse.ArgumentParser(
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
             description = '''Generate barcodes or QR codes in PNG. 
             The last check digit of barcode will be automatically corrected if it is wrong.'''
         )

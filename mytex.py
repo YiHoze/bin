@@ -190,7 +190,9 @@ class LatexTemplate(object):
         # writing bib
         self.write_relatives('bib')
         # writing xdy
-        self.write_relatives('xdy')           
+        self.write_relatives('xdy')
+        # writing css
+        self.write_relatives('css')
         # writing latex
         if not self.confirm_to_remove(self.tex):
             return False

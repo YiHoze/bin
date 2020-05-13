@@ -346,10 +346,10 @@ description: Use this template to have each of circled numbers in separate one-p
 output: circled_numbers
 placeholders: 1
 defaults: 20
-cmd:  xelatex \TEX
-	pdfcrop \PDF @@@.pdf
-	rem pdftk @@@.pdf burst
-	cpdf -split @@@.pdf -o %%%%.pdf 
+cmd: 	ltx.py \TEX
+		pdfcrop \PDF @@@.pdf
+		rem pdftk @@@.pdf burst
+		cpdf -split @@@.pdf -o %%%%.pdf 
 tex:	`\documentclass{hzguide}
 		`
 		`\LayoutSetup{}
@@ -1903,14 +1903,14 @@ compiler: -w, -i, -ist, myxindy.xdy
 xdy:	(require "lang/general/utf8-lang.xdy")
 		(require "lang/korean/utf8.xdy")
 
-		(markup-index :open  "\begin{theindex}\sffamily~n
+		(markup-index :open "\begin{theindex}\sffamily~n
 		\providecommand*\lettergroupDefault[1]{}
 		\providecommand*\lettergroup[1]{%%
 		\par\textbf{\large#1}\par
 		\nopagebreak
 		}"
-				:close "~n~n\end{theindex}~n"
-				:tree)
+		:close "~n~n\end{theindex}~n"
+		:tree)
 
 		(markup-indexentry :open "~n  \item "       :depth 0)
 		(markup-indexentry :open "~n  \subitem "    :depth 1)
@@ -2260,3 +2260,73 @@ tex: 	\documentclass{article}
 		ὡς οὐδέν ἐστιν οὔτε πύργος οὔτε ναῦς 
 		ἔρημος ἀνδρῶν μὴ ξυνοικούντων ἔσω.
 		\end{document}
+
+[lwarp]
+description: This template shows an example for lwarp.
+output: mylwarp
+cmd:	ltx.py mylwarp -v
+		lwarpmk html mylwarp
+		rem when using the lateximage environment 
+		rem lwarpmk limages mylwarp 
+		open.py mylwarp.html
+css: 	`@import url("lwarp.css") ;
+		`/* @import url("lwarp_formal.css") ; */
+		`/* @import url("lwarp_sagebrush.css") ; */
+		`body {
+		`	font-family: "Noto Serif CJK KR", "DejaVu Serif", "Bitstream Vera Serif",
+		`		"Lucida Bright", Georgia, serif;
+		`	background: #FAF7F4 ;
+		`	color: black ;
+		`	margin:0em ;
+		`	padding:0em ;
+		`	font-size: 100%% ;
+		`	line-height: 1.2 ;
+		`}
+		`div.my {
+		`	font-style: italic;
+		`	font-weight: bolder;
+		`	font-size: 400%%; 
+		`}
+tex:	\documentclass[a4paper]{article}
+		\usepackage{graphicx}
+		\usepackage{kotex}
+		\usepackage[mathjax]{lwarp}
+		\usepackage{amsmath}
+		\CSSFilename{mylwarp.css}
+		\setmainhangulfont{Noto Serif CJK KR}
+		\setsanshangulfont{Noto Sans CJK KR}
+		\setmainfont{Noto Serif}
+		\setsansfont{Noto Sans}
+		\renewcommand\baselinestretch{1.5}
+		\newcommand\my[1]{{\Huge\itshape\bfseries #1}}
+		\begin{warpHTML}
+		%% \renewcommand\my[1]{\begin{lateximage}\Huge\itshape\bfseries #1\end{lateximage}}
+		\renewcommand\my[1]{\begin{BlockClass}{my}#1\end{BlockClass}}
+		\end{warpHTML}
+
+		\begin{document}
+		\section{HTML로 변환하자}
+		\my{My 나의} 함수 $f(x)$가 다음과 같다고 하자.
+		\begin{equation}
+		f(x)=e^{-ix} (\cos x+i \sin x) \tag{1}\label{eq:1}
+		\end{equation}
+		양변을 미분하면
+		\begin{align*}
+		\frac{d}{dx} f(x) &= -ie^{-ix} (\cos x + i \sin x ) + e^{-ix} (\sin x + i \cos x ) \\
+		&= e^{-ix} ( -i \cos x+ \sin x - \sin x + i\cos x ) = 0 \\
+		f(x) &= C \quad (\text{단, $C$는 상수})
+		\end{align*}
+		식 (\ref{eq:1})에 $x=0$을 대입하면
+		\begin{align*}
+		f(0) &= 1 \\
+		C &= 1.
+		\end{align*}
+		이로부터,
+		\[
+		e^{-ix} (\cos x + i\sin x) = 1
+		\]
+		이므로,
+		\[
+		e^{ix} = \cos x + i \sin x.
+		\]
+		\end{document} 

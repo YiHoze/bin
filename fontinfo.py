@@ -67,9 +67,9 @@ class FontInfo(object):
         if os.path.exists(self.fonts_list):
             os.remove(self.fonts_list)
         cmd = 'fc-list -f "%%{file} : %%{family} \\n" > %s' %(self.fonts_list) # %%{family} %%{fullname} %%{style}
-        os.system(cmd)
+        os.system(cmd)        
         with open(self.fonts_list, mode='r', encoding='utf-8') as f:
-            content = f.readlines()                    
+            content = f.readlines()
         content = set(content)
         content = ''.join(sorted(content, key=str.lower))    
         with open(self.fonts_list, mode='w', encoding='utf-8') as f:

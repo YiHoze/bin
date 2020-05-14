@@ -1859,9 +1859,9 @@ tex:	\documentclass{article}
 		\bibliography{mybib}
 		\end{document}
 
-[tikz]
-description = This template draws a protractor using tikz.
-output: mytikz
+[protractor]
+description: This template draws a protractor using tikz.
+output: protrator
 compiler: -c
 tex: 	`\documentclass{standalone}
 		`\usepackage{tikz}
@@ -1897,7 +1897,7 @@ tex: 	`\documentclass{standalone}
 		`\end{document}
 
 [xindy]
-description = This template shows how to change index style for texindy.
+description: This template shows how to change index style for texindy.
 output: myxindy
 compiler: -w, -i, -ist, myxindy.xdy
 xdy:	(require "lang/general/utf8-lang.xdy")
@@ -1973,7 +1973,7 @@ tex:	\documentclass[a4paper]{article}
 		\end{document}
 
 [arabic]
-description = This template shows how to typeset Arabic.
+description: This template shows how to typeset Arabic.
 output: arabic
 tex: 	\documentclass[a4paper]{article}
 		\usepackage{polyglossia}
@@ -2330,3 +2330,429 @@ tex:	\documentclass[a4paper]{article}
 		e^{ix} = \cos x + i \sin x.
 		\]
 		\end{document} 
+
+[target]
+description: This template draws shooting targets using tikz.
+output: shooting_target
+compiler: -c
+tex: 	`\documentclass{minimal}
+		`\usepackage[a3paper,hmargin=0cm,vmargin=0cm]{geometry}
+		`\usepackage{tikz}
+		`\usepackage{ifthen}
+		`\usepackage{xparse}
+		`\tikzset{x=1.25cm,y=1.25cm}
+		`\ExplSyntaxOn
+		`\bool_new:N \g_monochrome_bool
+		`\clist_set:Nn \l_tmpa_clist 
+		`{
+		`	white,white,black,black,blue,blue,red,red,yellow,yellow
+		`}
+		`\clist_set:Nn \l_tmpb_clist 
+		`{
+		`	black,black,white,white,white,white,black,black,black,black,black
+		`}
+		`\NewDocumentCommand \setcolors { }
+		`{
+		`	\bool_if:NTF \g_monochrome_bool
+		`	{
+		`		\tl_set:Nn \bgcolor {white}
+		`		\tl_set:Nn \fgcolor {black}
+		`	}{
+		`		\clist_gpop:NN \l_tmpa_clist \bgcolor
+		`		\clist_gpop:NN \l_tmpb_clist \fgcolor
+		`	}
+		`}
+		`\NewDocumentCommand \points { m }
+		`{
+		`	\int_set:Nn \l_tmpa_int { 11 - #1 }
+		`	\textcolor{\fgcolor}{\sffamily\bfseries \int_use:N \l_tmpa_int}
+		`}
+		`
+		`\NewDocumentCommand \target { s }
+		`{
+		`	\IfBooleanTF{#1}
+		`	{
+		`		\bool_gset_true:N \g_monochrome_bool
+		`	}{
+		`		\bool_gset_false:N \g_monochrome_bool
+		`	}
+		`	\null\vfill
+		`	\centering{\DrawTarget}
+		`	\vfill
+		`}
+		`\ExplSyntaxOff
+		`\NewDocumentCommand \DrawTarget { }
+		`{
+		`	\begin{tikzpicture}
+		`	\sffamily
+		`	\foreach \i in {10,9,...,1}{
+		`		\setcolors
+		`		\filldraw[fill=\bgcolor, draw=\fgcolor] (0,0) circle [ radius=\i ];
+		`		\ifthenelse{\i=1}{
+		`			\node at (180:0) { \points{\i} };
+		`		}{
+		`			\node at (180:\i-0.5) { \points{\i} };
+		`		}
+		`	}
+		`	\end{tikzpicture}
+		`}
+		`
+		`\begin{document}
+		`\target
+		`\newpage
+		`\target*
+		`\end{document}
+
+[persian]
+description: This template shows how to typeset Old Persian in cuineform.
+output: old_persian
+cmd: 	teckit_compile.exe old_persian.map
+		ltx.py old_persian -v
+map: ; TECkit mapping for TeX input conventions <-> Unicode characters
+
+		LHSName "old_persian"
+		RHSName "UNICODE"
+
+		pass(Unicode)
+
+		; ligatures from Knuth's original CMR fonts
+		U+002D U+002D           <>  U+2013  ; -- -> en dash
+		U+002D U+002D U+002D    <>  U+2014  ; --- -> em dash
+
+		U+0027          <>  U+2019  ; ' -> right single quote
+		U+0027 U+0027   <>  U+201D  ; '' -> right double quote
+		U+0022           >  U+201D  ; " -> right double quote
+
+		U+0060          <>  U+2018  ; ` -> left single quote
+		U+0060 U+0060   <>  U+201C  ; `` -> left double quote
+
+		U+0021 U+0060   <>  U+00A1  ; !` -> inverted exclam
+		U+003F U+0060   <>  U+00BF  ; ?` -> inverted question
+
+		; additions supported in T1 encoding
+		U+002C U+002C   <>  U+201E  ; ,, -> DOUBLE LOW-9 QUOTATION MARK
+		U+003C U+003C   <>  U+00AB  ; << -> LEFT POINTING GUILLEMET
+		U+003E U+003E   <>  U+00BB  ; >> -> RIGHT POINTING GUILLEMET
+
+		;U+0020    >  U+0020 ;  space maps to space
+		U+002D    >  U+200D ;  hyphen as Zero Width Joiner
+		U+002E    >  U+200D ;  dot as Zero Width Joiner
+		U+007C    >  U+200C ;  pipe as Zero Width Non-Joiner
+
+		U+0061         <>  U+103A0    ;  a 𐎠 
+		U+0069         <>  U+103A1    ;  i 𐎡
+		U+0075         <>  U+103A2    ;  u 𐎢
+		U+006B U+0061        <>  U+103A3    ;  ka 𐎣
+		U+006B U+0075        <>  U+103A4    ;  ku 𐎤
+		U+0067 U+0061        <>  U+103A5    ;  ga 𐎥
+		U+0067 U+0075        <>  U+103A6    ;  gu 𐎦
+		U+0078 U+0061        <>  U+103A7    ;  xa 𐎧
+		U+0063 U+0068 U+0061       <>  U+103A8    ;  cha 𐎨
+		U+006A U+0061        <>  U+103A9    ;  ja 𐎩
+		U+006A U+0069        <>  U+103AA    ;  ji 𐎪
+		U+0074 U+0061        <>  U+103AB    ;  ta 𐎫
+		U+0074 U+0075        <>  U+103AC    ;  tu 𐎬
+		U+0064 U+0061        <>  U+103AD    ;  da 𐎭
+		U+0064 U+0069        <>  U+103AE    ;  di 𐎮
+		U+0064 U+0075        <>  U+103AF    ;  du 𐎯
+		U+0074 U+0068 U+0061       <>  U+103B0    ;  tha 𐎰
+		U+0070 U+0061        <>  U+103B1    ;  pa 𐎱
+		U+0062 U+0061        <>  U+103B2    ;  ba 𐎲
+		U+0066 U+0061        <>  U+103B3    ;  fa 𐎳
+		U+006E U+0061        <>  U+103B4    ;  na 𐎴
+		U+006E U+0075        <>  U+103B5    ;  nu 𐎵
+		U+006D U+0061        <>  U+103B6    ;  ma 𐎶
+		U+006D U+0069        <>  U+103B7    ;  mi 𐎷
+		U+006D U+0075        <>  U+103B8    ;  mu 𐎸
+		U+0079 U+0061        <>  U+103B9    ;  ya 𐎹
+		U+0076 U+0061        <>  U+103BA    ;  va 𐎺
+		U+0076 U+0069        <>  U+103BB    ;  vi 𐎻
+		U+0072 U+0061        <>  U+103BC    ;  ra 𐎼
+		U+0072 U+0075        <>  U+103BD    ;  ru 𐎽
+		U+006C U+0061        <>  U+103BE    ;  la 𐎾
+		U+0073 U+0061        <>  U+103BF    ;  sa 𐎿
+		U+007A U+0061        <>  U+103C0    ;  za 𐏀
+		U+0073 U+0068 U+0061       <>  U+103C1    ;  sha 𐏁
+		U+0073 U+0073 U+0061       <>  U+103C2    ;  ssa 𐏂
+		U+0068 U+0061        <>  U+103C3    ;  ha 𐏃
+
+		U+0061 U+0075 U+0072       <>  U+103C8    ;  aur 𐏈
+		U+0061 U+0075 U+0072 U+0032      <>  U+103C9    ;  aur2 𐏉
+		U+0061 U+0075 U+0072 U+0033      <>  U+103CA    ;  aur3 𐏊
+		U+0078 U+0078        <>  U+103CB    ;  xx 𐏋
+		U+0064 U+0061 U+0068       <>  U+103CC    ;  dah 𐏌
+		U+0064 U+0061 U+0068 U+0032      <>  U+103CD    ;  dah2 𐏍
+		U+0062 U+0061 U+0067 U+0061      <>  U+103CE    ;  baga 𐏎
+		U+0062 U+0075 U+0075       <>  U+103CF    ;  buu 𐏏
+
+		U+0064 U+0069 U+0076       <>  U+103D0    ;  div 𐏐
+		U+0031         <>  U+103D1    ;  1 𐏑
+		U+0032         <>  U+103D2    ;  2 𐏒
+		U+0031 U+0030        <>  U+103D3    ;  10 𐏓
+		U+0032 U+0030        <>  U+103D4    ;  20 𐏔
+		U+0031 U+0030 U+0030       <>  U+103D5    ;  100 𐏕
+tex:	\documentclass[a4paper]{article}
+		\usepackage{fontspec}
+		\usepackage{graphicx}
+		\usepackage{xcolor}
+		\usepackage{stackengine}
+
+		\newfontface\OldPersianFont[Mapping=old_persian ,Colour=darkgray]{Noto Sans Old Persian}
+		\DeclareTextFontCommand{\textop}{\large\OldPersianFont}
+
+		\newenvironment{OldPersian}
+		{\OldPersianFont\Large\ignorespaces}
+		{\ignorespacesafterend}
+
+		\ExplSyntaxOn
+		\NewDocumentCommand{\transop}{m}
+		{
+		\tl_set:Nn \l_xander_oper_tl { #1 }
+		%% change every run of lowercase letters into italic
+		\regex_replace_all:nnN
+		{ [a-z]+ }
+		{ \c{textit}\cB\{\0\cE\} }
+		\l_xander_oper_tl
+		%% change every xx to name
+		\regex_replace_all:nnN
+		{ ([xx]){2,2} }
+		{ |Xshaayathiya| }
+		\l_xander_oper_tl
+		%% change every ch into c U+030c
+		\regex_replace_all:nnN
+		{ ([ch]){2,2} }
+		{ c \x{030c} }
+		\l_xander_oper_tl
+		%% change every th into θ = U+03b8
+		\regex_replace_all:nnN
+		{ ([th]){2,2} }
+		{ \x{03b8} }
+		\l_xander_oper_tl
+		%% change every ss into c U+0327
+		\regex_replace_all:nnN
+		{ ([ss]){2,2} }
+		{ c \x{0327} }
+		\l_xander_oper_tl  
+		%% change every s into s U+030C
+		\regex_replace_all:nnN
+		{ ([sh]){2,2} }
+		{ s \x{030c} }
+		\l_xander_oper_tl
+		%% change every am into AM
+		\regex_replace_all:nnN
+		{ ([aur]){3,3} }
+		{ |AuraMazda| }
+		\l_xander_oper_tl
+		%% change every dah into Dah
+		\regex_replace_all:nnN
+		{ ([dah]){3,3} }
+		{ |Dahya \x{0304}ush| }
+		\l_xander_oper_tl
+		%% change every baga into Baga
+		\regex_replace_all:nnN
+		{ ([baga]){4,4} }
+		{ |BAGA| }
+		\l_xander_oper_tl
+		%% change every buu into Buumish
+		\regex_replace_all:nnN
+		{ ([buu]){3,3} }
+		{ |Buumish| }
+		\l_xander_oper_tl
+		%% change |...| into raised small-caps
+		\regex_replace_all:nnN
+		{ \|([^|]+)\| }
+		{ \c{raisebox}\cB\{0.5ex\cE\}\cB\{\c{textsc}\cB\{\1\cE\}\cE\} }
+		\l_xander_oper_tl
+		%% change every buu into Buumish
+		\regex_replace_all:nnN
+		{ ([Buumish]){7,7} }
+		{ Bu\x{0304}mis\x{030c} }
+		\l_xander_oper_tl
+		%% print the result
+		\tl_use:N \l_xander_oper_tl
+		}
+		\ExplSyntaxOff
+
+		\setstackgap{L}{.75\normalbaselineskip}
+		\newcommand\rubyop[1]{\Longstack{\transop{#1} \textop{#1}}}  
+
+		\setlength\parindent{0pt}
+		\setlength\parskip{1.25\baselineskip}
+		\def\baselinestretch{1.5}
+
+		\begin{document}
+
+		\section{Old Persian \textop{la-da div pa-aur-ra-sa-i-a-na}}
+
+		\begin{center}
+		\rubyop{a}
+		\rubyop{i}
+		\rubyop{u}
+		\rubyop{ka}
+		\rubyop{ku}
+		\rubyop{ga}
+		\rubyop{gu}
+		\rubyop{xa} \par
+		\rubyop{a-i-u-ka-ku-ga-gu-xa}
+		\end{center}
+
+		\begin{center}
+		\rubyop{cha}
+		\rubyop{tha}
+		\rubyop{sha}
+		\rubyop{ssa} \par
+		\rubyop{cha-tha-sha-ssa}
+		\end{center}
+
+		\begin{center}
+		\rubyop{aur}
+		\rubyop{aur2}
+		\rubyop{aur3}
+		\rubyop{xx} \par
+		\rubyop{aur-aur2-aur3-xx}
+		\end{center}
+
+		\begin{center}
+		\rubyop{dah}
+		\rubyop{dah2}
+		\rubyop{baga}
+		\rubyop{buu} \par
+		\rubyop{dah-dah2-baga-buu}
+		\end{center}
+
+		\section{Son of Darius}
+
+		\verb|\textop{da-a-ra-ya-va-ha-u-sha}| → \textop{da-a-ra-ya-va-ha-u-sha} 
+
+		\verb|\transop{da-a-ra-ya-va-ha-u-sha}| → \transop{da-a-ra-ya-va-ha-u-sha}
+
+		\verb|\rubyop{da-a-ra-ya-va-ha-u-sha}| → \rubyop{da-a-ra-ya-va-ha-u-sha}
+
+		\end{document}
+
+[jamo]
+description: This template shows an usage example of the pmhanguljamo package.
+output: myjamo
+compiler: -c
+tex: 	\documentclass{article}
+
+		\usepackage{fontspec}
+		\usepackage{pmhanguljamo}
+		\setmainfont{Noto Serif CJK KR}[Script=Hangul]
+		\setlength\parskip{.5\baselineskip}
+		\setlength\parindent{0pt}
+
+		\begin{document}
+
+		\section{Old Hangul}
+
+		\verb|\jamoword{an/nyex/ha/sei/yo}| 
+		→ \jamoword{an/nyex/ha/sei/yo}
+
+		\begin{verbatim}
+		\begin{verse}
+		\begin{jamotext}
+		na bo/gi/ga yeg/gye/ue \\
+		ga/sir ddai/ei/nvn \\
+		mar ebs/i go/i bo/nai dv/ri/u/ri/da/.
+		yex/byen/ei yag/san \\
+		jin/dar/rai ggoc \\
+		a/rvm dda/da ga/sir gir/ei bbu/ri/u/ri/da/.
+		ga/si/nvn ger/vm ger/vm \\
+		noh/in gv ggoc/vr \\
+		sa/bbun/hi jv/rye/barb/go ga/si/ob/so/se
+		na bo/gi/ga yeg/gye/ue \\
+		ga/sir ddai/ei/nvn \\
+		jug/e/do a/ni nun/mur hvr/ri/u/ri/da/.
+		\end{jamotext}
+		\end{verse}
+		\end{verbatim}
+
+		\begin{verse}
+		\begin{jamotext}
+		na bo/gi/ga yeg/gye/ue \\
+		ga/sir ddai/ei/nvn \\
+		mar ebs/i go/i bo/nai dv/ri/u/ri/da/.
+		yex/byen/ei yag/san \\
+		jin/dar/rai ggoc \\
+		a/rvm dda/da ga/sir gir/ei bbu/ri/u/ri/da/.
+		ga/si/nvn ger/vm ger/vm \\
+		noh/in gv ggoc/vr \\
+		sa/bbun/hi jv/rye/barb/go ga/si/ob/so/se
+		na bo/gi/ga yeg/gye/ue \\
+		ga/sir ddai/ei/nvn \\
+		jug/e/do a/ni nun/mur hvr/ri/u/ri/da/.
+		\end{jamotext}
+		\end{verse}
+
+		\begin{verbatim}
+		\begin{jamotext}
+		na/ras;mar:ss@/mi; dyuq/guig;ei; dar/a;
+		mun/jj@x;oa;ro; se/rv s@/m@s/di; a/ni;h@r/ss@i;
+		i;ren jyen/c@;ro; e/rin; b@ig;syeq;i;
+		ni/rv/go;jye; horf; bai;
+		i/sye;do; m@/c@m;nai: jey bdv;dvr; si/re; pye/di;
+		mod:h@rf no;mi; ha/ni;ra;.
+		\end{jamotext}
+		\end{verbatim}
+
+		\begin{jamotext}
+		na/ras;mar:ss@/mi; dyuq/guig;ei; dar/a;
+		mun/jj@x;oa;ro; se/rv s@/m@s/di; a/ni;h@r/ss@i;
+		i;ren jyen/c@;ro; e/rin; b@ig;syeq;i;
+		ni/rv/go;jye; horf; bai;
+		i/sye;do; m@/c@m;nai: jey bdv;dvr; si/re; pye/di;
+		mod:h@rf no;mi; ha/ni;ra;.
+		\end{jamotext}
+
+		\newpage
+
+		\section{Revised Romanization of Korean}
+
+		\let\jamoword\relax
+		\let\jamotext\relax
+		\let\endjamotext\relax
+		\ExplSyntaxOn
+		\input{pmhanguljamo-rrk.sty}
+		\ExplSyntaxOff
+
+		\begin{verbatim}
+		\usepackage[RRK]{pmhanguljamo}
+		\end{verbatim}
+
+		\verb|\jamoword{annyeonghase-yo}| 
+		→ \jamoword{annyeonghase-yo}
+
+		\begin{verbatim}
+		\begin{jamotext}
+		na bogiga yeoggyeo-wo \\
+		gasil ttae-eneun \\
+		mal eobs-i go-i bonae deuli-ulida.
+		yeongbyeon-e yagsan \\
+		jindallae kkoch \\
+		aleum ttada gasil gil-e ppuli-ulida.
+		gasineun geol-eum geol-eum \\
+		noh-in geu kkoch-eul \\
+		sappunhi jeulyeobalbgo gasi-obsoseo
+		na bogiga yeoggyeo-wo \\
+		gasil ttae-eneun \\
+		jug-eodo ani nunmul heulli-ulida.
+		\end{jamotext}
+		\end{verbatim}
+
+		\begin{jamotext}
+		na bogiga yeoggyeo-wo \\
+		gasil ttae-eneun \\
+		mal eobs-i go-i bonae deuli-ulida.
+		yeongbyeon-e yagsan \\
+		jindallae kkoch \\
+		aleum ttada gasil gil-e ppuli-ulida.
+		gasineun geol-eum geol-eum \\
+		noh-in geu kkoch-eul \\
+		sappunhi jeulyeobalbgo gasi-obsoseo
+		na bogiga yeoggyeo-wo \\
+		gasil ttae-eneun \\
+		jug-eodo ani nunmul heulli-ulida.
+		\end{jamotext}
+
+		\end{document}

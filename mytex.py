@@ -19,6 +19,7 @@ class LatexTemplate(object):
         self.output = output
         self.defy_bool = defy
         self.list_bool = False
+        self.cmd = None
         self.ini_bool = self.initialize()    
 
     def initialize(self):
@@ -171,29 +172,26 @@ class LatexTemplate(object):
 
     def write_relatives(self, extension):
         content = self.templates.get(self.template, extension, fallback=None)
+        ext = self.filename + '.' + extension
         if content is not None:
             if extension == 'cmd':
+                self.cmd = ext
                 content = content.replace('\\TEX', self.tex)
                 content = content.replace('\\PDF', self.filename + '.pdf')
             else:
                 content = content.replace('`', '')            
-            ext = self.filename + '.' + extension
             if self.confirm_to_remove(ext):
                 with open(ext, mode='w', encoding='utf-8') as f:
-                    f.write(content)            
+                    f.write(content) 
+            
 
     def write_from_template(self):
-        # writing commmand
         self.write_relatives('cmd')
-        # writing style
         self.write_relatives('sty')
-        # writing bib
         self.write_relatives('bib')
-        # writing xdy
         self.write_relatives('xdy')
-        # writing css
         self.write_relatives('css')
-        # writing latex
+        self.write_relatives('map')
         if not self.confirm_to_remove(self.tex):
             return False
         try:
@@ -210,16 +208,17 @@ class LatexTemplate(object):
         return True
 
     def compile(self):
-        if self.defy_bool:
-            return
-
         compiler = self.templates.get(self.template, 'compiler', fallback=None)
-                
         if compiler is None:
             if self.force_bool:
                 texer = LatexCompiler(self.tex)
                 texer.parse_args(['-v'])
-                texer.compile()   
+                texer.compile()  
+            else:                
+                if self.cmd is not None:
+                    answer = input('Do you want to run %s? [Y/n] ' %(self.cmd))
+                    if answer.lower() != 'n':
+                        os.system(self.cmd)
         else:       
             compiler = compiler.split(', ')
             compiler.append('-v')            
@@ -235,8 +234,9 @@ class LatexTemplate(object):
         if self.template == 'album':            
             if self.make_image_list() is False:
                 return 
-        if self.write_from_template():            
-            self.compile()                
+        if self.write_from_template(): 
+            if not self.defy_bool:           
+                self.compile()                
 
     def show_templates(self, columns=4):      
         """Print the list of template names."""  

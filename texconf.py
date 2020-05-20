@@ -43,13 +43,13 @@ class TeXLiveConf(object):
             default = False,
             help = 'Copy the provided latex class and style files into the local TEXMF directory.'
         )
-        parser.add_argument(
-            '-home',
-            dest = 'texmfhome',
-            action = 'store_true',
-            default = False,
-            help = 'Set TEXMFHOME as an environment variable.'
-        )
+        # parser.add_argument(
+        #     '-home',
+        #     dest = 'texmfhome',
+        #     action = 'store_true',
+        #     default = False,
+        #     help = 'Set TEXMFHOME as an environment variable.'
+        # )
         parser.add_argument(
             '-cnf',
             dest = 'texmf_cnf',
@@ -146,23 +146,23 @@ class TeXLiveConf(object):
         os.system(cmd)
         os.system('mktexlsr.exe')
 
-    def set_texmfhome(self):
-        print('\n[Setting TEXMFHOME]')    
-        try:
-            texmfhome = self.config.get('TeX Live', 'TEXMFHOME')
-        except:
-            print('Make sure to have docenv.ini set properly.')
-            return
-        query = 'Are you sure to set the TEXMFHOME environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another path: ' %(texmfhome)
-        answer = self.confirm(query)
-        if answer.lower() == 'n':
-            return
-        if not (answer.lower() == 'y' or answer == ''):
-            texmfhome = answer
-        cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXMFHOME -value '%s'\"" % (texmfhome)
-        os.system(cmd)
-        cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXMFHOME'\""
-        os.system(cmd)
+    # def set_texmfhome(self):
+    #     print('\n[Setting TEXMFHOME]')    
+    #     try:
+    #         texmfhome = self.config.get('TeX Live', 'TEXMFHOME')
+    #     except:
+    #         print('Make sure to have docenv.ini set properly.')
+    #         return
+    #     query = 'Are you sure to set the TEXMFHOME environment variable to  <%s>?\nEnter [Y] to proceed, [n] to abandon, or another path: ' %(texmfhome)
+    #     answer = self.confirm(query)
+    #     if answer.lower() == 'n':
+    #         return
+    #     if not (answer.lower() == 'y' or answer == ''):
+    #         texmfhome = answer
+    #     cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXMFHOME -value '%s'\"" % (texmfhome)
+    #     os.system(cmd)
+    #     cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXMFHOME'\""
+    #     os.system(cmd)
 
     def set_texedit(self):
         print('\n[Setting TEXEDIT]')    
@@ -289,8 +289,8 @@ class TeXLiveConf(object):
             if self.args.batch:
                 if not self.ToContinue(self.store_to_local):
                     return None
-                if not self.ToContinue(self.set_texmfhome):
-                    return None
+                # if not self.ToContinue(self.set_texmfhome):
+                #     return None
                 if not self.ToContinue(self.modify_texmf_cnf):
                     return None
                 if not self.ToContinue(self.create_local_conf):
@@ -307,8 +307,8 @@ class TeXLiveConf(object):
             else:    
                 if self.args.store_to_local:
                     self.store_to_local()
-                if self.args.texmfhome:
-                    self.set_texmfhome()
+                # if self.args.texmfhome:
+                #     self.set_texmfhome()
                 if self.args.texmf_cnf:
                     self.modify_texmf_cnf()
                 if self.args.local_conf:

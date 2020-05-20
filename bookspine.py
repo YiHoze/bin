@@ -29,30 +29,39 @@ class BookSpineWidth(object):
         self.list_bool = False
 
     def parse_args(self):
+        example = '''examples:
+    bookspine.py -t snow -w 80 200
+        caculates the spine width for 200 pages with Snow paper whose weight is 80 grams.
+        '''
         parser = argparse.ArgumentParser(
+            epilog = example,
+            formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Get the spine width for a book.'
         )
         parser.add_argument(
             'pages',
-            nargs = 1,
+            nargs = '?',
             type = int,
             help = 'Specify a page count'
         )
         parser.add_argument(
             '-t',
             dest = 'paper_type',
-            help = 'specify a paper type. The default is vellum'
+            default = 'vellum',
+            help = 'Specify a paper type. The default is vellum'
         )
         parser.add_argument(
             '-w',
             dest = 'paper_weight', 
             type = int,   
+            default = 120,
             help = 'Specify the paper weight. The default is 120.'
         )
         parser.add_argument(
             '-m',
             dest = 'margin',
             type = int,
+            default = 1,
             help = 'Specify the margin for binding. The default is 1 (mm).'
         )
         parser.add_argument(
@@ -63,13 +72,10 @@ class BookSpineWidth(object):
             help = 'Display paper details.'
         )
         args = parser.parse_args()
-        self.pages = args.pages[0]
-        if args.paper_type is not None:
-            self.paper_type = args.paper_type
-        if args.paper_weight is not None:
-            self.paper_weight = args.paper_weight
-        if args.margin is not None:
-            self.margin = args.margin
+        self.pages = args.pages
+        self.paper_type = args.paper_type
+        self.paper_weight = args.paper_weight
+        self.margin = args.margin
         self.list_bool = args.list
 
     def show_papers(self):
@@ -85,14 +91,14 @@ class BookSpineWidth(object):
     def calculate(self): 
         try:
             name = self.paper_types[self.paper_type]
-            width = self.papers[self.paper_type][self.paper_weight]
-            msg = '\nWith %d g %s paper of which width is %0.3f mm, %d pages make the spine:' %(self.paper_weight, name, width, self.pages)
+            thickness = self.papers[self.paper_type][self.paper_weight]
+            msg = '\nWith %d g %s paper of which thickness is %0.3f mm, %d pages make the spine:' %(self.paper_weight, name, thickness, self.pages)
             print(msg)
-            spine = (self.pages / 2 * width) + self.margin    
-            msg = '%0.2f mm with a margin of %d mm from the paper width' %(spine, self.margin)
+            spine = (self.pages / 2 * thickness) + self.margin    
+            msg = '%0.2f mm with a margin of %d mm from the paper thickness' %(spine, self.margin)
             print(msg)
         except:
-            print('\nNo corresponding width data is found.')
+            print('\nNo corresponding thickness data is found.')
         spine = (self.paper_weight * self.pages * 0.6 / 1000) + self.margin
         msg = '%0.2f mm with a margin of %d mm from the paper weight\n' %(spine, self.margin)
         print(msg)

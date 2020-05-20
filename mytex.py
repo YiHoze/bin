@@ -45,9 +45,9 @@ class LatexTemplate(object):
     mytex.py lotto -s 20 10 
         makes and compiles lotto.tex, of which two placeholders are replaced with "20" and "10".
     mytex.py lotto -n
-        makes lotto.tex but does not compile it though this template has some compilation options.
+        makes lotto.tex but doesn't compile though this template has some compilation options.
     mytex.py glyph -f
-        makes myfont.tex and compiles it though this template has no comilation options.
+        makes and compiles myfont.tex though this template has no comilation options.
         '''
         parser = argparse.ArgumentParser(
             epilog = example,  

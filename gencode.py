@@ -53,7 +53,7 @@ class GenerateCode(object):
             '-o',
             dest = 'output',
             default = 'barcode',
-            help = '''Specify a filename for output. 
+            help = '''Specify a file name for output. 
             The default is "barcode" or "qrcode", and it will be sequentially numbered with two digits.'''
         )
         parser.add_argument(
@@ -78,12 +78,11 @@ class GenerateCode(object):
         self.decode_bool = args.decode
 
     def name_file(self, counter):
-        basename = os.path.splitext(self.output)[0]
+        name = os.path.splitext(self.output)[0]
         if len(self.code) > 1:
-            filename = "%s_%02d" %(basename, counter)
+            return "{}_{:02d}".format(name, counter)
         else:
-            filename = basename
-        return filename
+            return name
 
     def encode_barcode(self):
         EAN = barcode.get_barcode_class('ean13')

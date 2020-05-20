@@ -17,7 +17,9 @@ class ConvertUnit(object):
             'point': ['points', 'millimeters', 0.352778],
             'pound': ['pounds', 'kilograms', 0.453592],
             'pyeong': ['pyeongs', 'square meters', 3.305785],
-            'yard': ['yards', 'meters', 0.9144]
+            'yard': ['yards', 'meters', 0.9144],
+            'knot': ['knots', 'km/h', 1.852]
+
         }
         self.unit_types = []
         for i in self.units.keys():

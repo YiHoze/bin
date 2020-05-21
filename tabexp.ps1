@@ -41,10 +41,16 @@
         }
         $field = [System.Management.Automation.CompletionResult].GetField('completionText', 'Instance, NonPublic')
         $source.CompletionMatches | ForEach-Object {
-            $ext = [io.path]::GetExtension($_.CompletionText)
-            If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.py' -and $ext -ne '.exe') {
-                $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))
-            }
+            $item = $_.CompletionText
+            $ext = [io.path]::GetExtension($item)
+            $cnt = ($item.ToCharArray() | Where-Object {$_ -eq '\'} | Measure-Object).Count
+            # write-host $item, $cnt
+            # only at the current directory
+            if ($cnt -eq 1) {            
+                If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.exe') {
+                    $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))                    
+                }
+            }                        
         }
         Return $source
     }    

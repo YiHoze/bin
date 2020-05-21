@@ -240,7 +240,7 @@ class LatexTemplate(object):
 
     def show_templates(self, columns=4):      
         """Print the list of template names."""  
-        templates = sorted(self.templates.sections())
+        templates = sorted(self.templates.sections(), key=str.casefold)
         width = 0
         for i in templates:
             width = max(width, len(i))

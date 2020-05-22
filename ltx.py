@@ -294,10 +294,11 @@ class LatexCompiler(object):
     def bookmark_item(self, line, pattern):
         entry = re.search(pattern, line)
         if entry: 
+            entry = entry.group(1).replace('\spxentry{', '')
             page = re.findall(r'\\hyperpage\{(\d+)\}', line)
             append = ''
             for i in range(len(page)):
-                append +=  '\t\\bookmark[level=2, page=%s]{%s}\n' %(page[i], entry.group(1))                    
+                append +=  '\t\\bookmark[level=2, page=%s]{%s}\n' %(page[i], entry)
             line +=  append
         return line
 

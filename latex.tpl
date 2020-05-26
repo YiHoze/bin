@@ -2943,3 +2943,486 @@ tex:	\documentclass[korean, Noto]{hzguide}
 		우리가 온전한 인간이라고 착각하며 우리의 이질적 이웃을 망각한다면, 도래하는 뉴노멀 시대에 우리의 자리는 어디에서도 찾을 수 없을지 모른다.
 		우리는 이미 한국, 남성, 정치적 시민, 이성애자, 그리고 이방인이자 여성, 식물과 동물, 기계, 그리고 지구이기에.
 		\end{document} 
+
+[oesol]
+output: oesolscript
+compiler: -c
+sty:	`\ProvidesPackage{oesolscript}[2020/05/26 v0.3.3]
+		`\RequirePackage{xparse}
+		`\RequirePackage{l3keys2e}
+		`\RequirePackage{fontspec}
+		`
+		`\ExplSyntaxOn
+		`\bool_new:N \g_ui_bool
+		`
+		`\keys_define:nn { oesolscript }
+		`{
+		`	fontfile	.tl_set:N = \g_fontfile_tl,
+		`	uivowel		.choice:,
+		`		uivowel/ui	.code:n = { \bool_gset_true:N \g_ui_bool },
+		`		uivowel/wi	.code:n = { \bool_gset_false:N \g_ui_bool },
+		`}
+		`
+		`\keys_set:nn { oesolscript }
+		`{
+		`	fontfile = CMUOSerif-Roman.otf,
+		`	uivowel = ui
+		`}
+		`
+		`\ProcessKeysOptions { oesolscript }
+		`
+		`\seq_new:N \l_oesol_seq
+		`
+		`\NewDocumentCommand \oesolscript { m }
+		`{
+		`	\seq_set_split:Nnn \l_oesol_seq { ~ } { #1 }
+		`	
+		`	\int_set:Nn \l_tmpa_int { \seq_count:N \l_oesol_seq }
+		`	
+		`	\seq_indexed_map_inline:Nn \l_oesol_seq
+		`	{
+		`		\oesol_process_a_word:n { ##2 }
+		`		\int_compare:nT { \l_tmpa_int > ##1 }
+		`		{
+		`			{}~  
+		`		}
+		`	}
+		`}
+		`
+		`\NewDocumentCommand \oesolvar { m }
+		`{
+		`	\seq_set_split:Nnn \l_oesol_seq { ~ } { #1 }
+		`	
+		`	\int_set:Nn \l_tmpa_int { \seq_count:N \l_oesol_seq }
+		`	
+		`	\seq_indexed_map_inline:Nn \l_oesol_seq
+		`	{
+		`		\script_a_word:n { ##2 }
+		`		\int_compare:nT { \l_tmpa_int > ##1 }
+		`		{
+		`			{}~
+		`		}
+		`	}
+		`}
+		`
+		`\cs_new:Npn \oesol_process_a_word:n #1
+		`{
+		`	\oesolProcessAWord { #1 }
+		`}
+		`
+		`\int_new:N \l_code_int
+		`\int_const:Nn \c_start_point { 44032 }   %% `가'
+		`
+		`\tl_new:N \g_output_tl
+		`
+		`\prop_new:N \dict_cho
+		`\prop_new:N \dict_jung
+		`\prop_new:N \dict_jong
+		`
+		`\cs_new:Npn \dict_fn:nn #1 #2
+		`{
+		`	\clist_set:Nn \l_tmpb_clist { #2 }
+		`	\clist_map_inline:Nn \l_tmpb_clist
+		`	{
+		`		\use:c { items_to_prop_ #1 :w } ##1 \q_stop
+		`	}
+		`}
+		`
+		`\cs_new:Npn \items_to_prop_cho:w #1 = #2 \q_stop
+		`{
+		`	\prop_put:Nnn \dict_cho { #1 } { #2 }
+		`}
+		`
+		`\cs_new:Npn \items_to_prop_jung:w #1 = #2 \q_stop
+		`{
+		`	\prop_put:Nnn \dict_jung { #1 } { #2 }
+		`}
+		`
+		`\cs_new:Npn \items_to_prop_jong:w #1 = #2 \q_stop
+		`{
+		`	\prop_put:Nnn \dict_jong { #1 } { #2 }
+		`}
+		`
+		`\cs_new:Npn \get_value:nn #1 #2 
+		`{
+		`	\str_case:nn { #1 } 
+		`	{
+		`		{ jong } {
+		`			\prop_get:cnN { dict _ #1 } { #2 } \l_tmpa_tl
+		`			\quark_if_no_value:NTF \l_tmpa_tl
+		`			{
+		`				\tl_gset:Nn \g_jongcho_tl { \empty }
+		`			}
+		`			{
+		`				\tl_gset_eq:NN \g_jongcho_tl \l_tmpa_tl
+		`			}
+		`		}
+		`		{ cho  } {
+		`			\prop_get:cnN { dict _ #1 } { #2 } \l_tmpa_tl
+		`			\quark_if_no_value:NTF \l_tmpa_tl
+		`			{
+		`				\tl_gput_right:Nn \g_output_tl { \g_jongcho_tl }
+		`			}
+		`			{
+		`				\tl_gconcat:NNN \g_jong_and_cho \g_jongcho_tl \l_tmpa_tl
+		`				\tl_gput_right:Nx \g_output_tl { \g_jong_and_cho }
+		`			}
+		`		}
+		`		{ jung } {
+		`			\prop_get:cnN { dict _ #1 } { #2 } \l_tmpa_tl
+		`			\quark_if_no_value:NTF \l_tmpa_tl
+		`			{
+		`			}
+		`			{
+		`				\tl_gput_right:Nx \g_output_tl { \l_tmpa_tl }
+		`			}
+		`		}
+		`	}
+		`}
+		`
+		`\dict_fn:nn { cho }
+		`{
+		`	0=g, 1=gg, 2=n, 3=d, 4=dd, 5=l, 6=m, 7=b, 8=bb, 9=s,
+		`	10=ss, 11={}, 12=j, 13=jj, 14=c, 15=k, 16=t, 17=p, 18=h
+		`}
+		`
+		`\bool_if:NTF \g_ui_bool
+		`{
+		`	\dict_fn:nn { jung }
+		`	{
+		`		0=a, 1=axi, 2=ya, 3=yaxi, 4=e, 5=exi, 6=ye, 7=yexi,
+		`		8=o, 9=voa, 10=voaxi, 11=oxi, 12=yo, 13=u, 14=vue,
+		`		15=vuexi, 16=vui, 17=yu, 18=z, 19=vzi, 20=i
+		`	}
+		`}
+		`{
+		`	\dict_fn:nn { jung }
+		`	{
+		`		0=a, 1=axi, 2=ya, 3=yaxi, 4=e, 5=exi, 6=ye, 7=yexi,
+		`		8=o, 9=voa, 10=voaxi, 11=oxi, 12=yo, 13=u, 14=vue,
+		`		15=vuexi, 16=uxi, 17=yu, 18=z, 19=vzi, 20=i
+		`	}
+		`}
+		`
+		`\dict_fn:nn { jong }
+		`{
+		`	0=\empty,
+		`	1=g, 2=gg, 3=gs, 4=n, 5=nj, 6=nh, 7=d, 8=l, 
+		`	9=lg, 10=lm, 11=lb, 12=ls, 13=lt, 14=lp, 15=lh,
+		`	16=m, 17=b, 18=bs, 19=s, 20=ss, 21=q, 22=j, 23=c, 24=k,
+		`	25=t, 26=p, 27=h
+		`}
+		`
+		`\NewDocumentCommand \oesolProcessAWord { m }
+		`{
+		`	\tl_gclear:N \g_output_tl
+		`	\tl_clear:N \g_jongcho_tl
+		`	\tl_clear:N \g_jong_and_cho
+		`
+		`	\tl_set:Nn \l_tmpa_tl { #1 }
+		`	
+		`	\tl_put_right:Nn \l_tmpa_tl { ! }
+		`
+		`	\tl_map_inline:Nn \l_tmpa_tl
+		`	{
+		`		\str_case:nnTF { ##1 } 
+		`		{
+		`			{ - } {	\tl_gput_right:Nn \g_jongcho_tl { - } }
+		`			{ ! } { \tl_gput_right:Nx \g_output_tl { \g_jongcho_tl } }
+		`			{ * } { \tl_gput_right:Nx \g_jongcho_tl { * } }
+		`			{ + } { \tl_gput_right:Nn \g_jongcho_tl { + } }
+		`			{ . } { \tl_gput_right:Nn \g_jongcho_tl { . } }
+		`			{ , } { \tl_gput_right:Nn \g_jongcho_tl { , } }
+		`		}
+		`		{ } 
+		`		{
+		`			\to_RR_a_char:n { ##1 }
+		`		}
+		`	}
+		`
+		`	\regex_replace_all:nnN { \* } { \c{tl_upper_case:n }  } \g_output_tl
+		`	\regex_replace_all:nnN { \+(.+)\+ } { \c{tl_upper_case:n} \cB({) \1 \cE(}) } \g_output_tl
+		`	
+		`	\exp_args:Nx \script_a_word:n { \g_output_tl }
+		`}
+		`
+		`\cs_new:Npn \to_RR_a_char:n #1
+		`{
+		`	\split_hangul:n #1
+		`	\exp_args:Nnf \get_value:nn { cho  } { \int_use:N \g_cho_int }
+		`	\exp_args:Nnf \get_value:nn { jung } { \int_use:N \g_jung_int }
+		`	\exp_args:Nnf \get_value:nn { jong } { \int_use:N \g_jong_int }
+		`}
+		`
+		`\cs_new:Npn \split_hangul:n #1
+		`{
+		`	\int_zero_new:N \l_basecode_int
+		`	\int_zero_new:N \g_cho_int
+		`	\int_zero_new:N \g_jung_int
+		`	\int_zero_new:N \g_jong_int
+		`	\str_set_convert:Nnnn \l_code_tl { #1 } { } { clist }
+		`	\exp_args:NNx \int_set:Nn \l_code_int { \l_code_tl }
+		`	\bool_if:nT
+		`	{
+		`		\int_compare_p:n { \l_code_int >= \c_start_point }
+		`	&&
+		`		\int_compare_p:n { \l_code_int <= 55219 }
+		`	}
+		`	{
+		`		\int_set:Nn \l_basecode_int { \l_code_int - \c_start_point }
+		`		\exp_args:Nx \get_lvt_code:n { \int_use:N \l_basecode_int }
+		`	}
+		`}
+		`
+		`\cs_new:Npn \get_lvt_code:n #1
+		`{
+		`	\int_set:Nn \g_cho_int { \int_div_truncate:nn { #1 } { 588 } }
+		`	\int_set:Nn \g_jung_int { \int_div_truncate:nn { #1 - 588 * \g_cho_int } { 28 } }
+		`	\int_set:Nn \g_jong_int { #1 - \g_cho_int * 588 - \g_jung_int * 28 }
+		`}
+		`
+		`\cs_new:Npn \script_a_word:n #1
+		`{
+		`	\group_begin:
+		`	\bool_set_false:N \g_marker_bool
+		`	\exp_args:No \fontspec { \g_fontfile_tl } [ BoldFont = \g_fontfile_tl, BoldFeatures = { FakeBold = 1.06 }, AutoFakeSlant ]
+		`	\tl_set:Nn \l_tmpa_tl { #1 }
+		`	\tl_map_function:NN \l_tmpa_tl \treat_a_char:n
+		`	\group_end:
+		`}
+		`
+		`\bool_new:N \g_marker_bool
+		`
+		`\cs_new:Npn \treat_a_char:n #1
+		`{
+		`	\str_case:nnTF { #1 }
+		`	{
+		`		{ y } { }
+		`		{ x } { }
+		`		{ v } { }
+		`		{ Y } { }
+		`		{ X } { }
+		`		{ V } { }
+		`	}
+		`	{ 
+		`		\bool_gset_true:N \g_marker_bool
+		`		\tl_gset:Nn \g_marker_tl { #1 }
+		`	}
+		`	{
+		`		\bool_if:NTF \g_marker_bool
+		`		{
+		`			\bool_gset_false:N \g_marker_bool
+		`			\tl_gput_right:Nn \g_marker_tl { #1 }
+		`			\prop_get:NoN \c_test_prop { \g_marker_tl } \l_tmpb_tl
+		`			\quark_if_no_value:NTF \l_tmpb_tl 
+		`			{
+		`				\tl_use:N \g_marker_tl 
+		`			}
+		`			{
+		`				\tl_use:N \l_tmpb_tl
+		`			}
+		`		}
+		`		{
+		`			\prop_get:NnN \c_test_prop { #1 } \l_tmpb_tl
+		`			\quark_if_no_value:NTF \l_tmpb_tl
+		`			{
+		`				\tl_use:N \g_marker_tl
+		`			}
+		`			{
+		`				\tl_use:N \l_tmpb_tl
+		`			}
+		`		}
+		`	}	
+		`}
+		`
+		`\prop_const_from_keyval:Nn \c_test_prop
+		`{
+		`	g = , G = ,
+		`	n = , N = ,
+		`	d = , D = ,
+		`	l = , L = ,
+		`	m = , M = ,
+		`	b = , B = ,
+		`	s = , S = ,
+		`	q = , Q = ,  %% 받침 이응
+		`	j = , J = ,
+		`	c = , C = ,
+		`	k = , K = ,
+		`	t = , T = ,
+		`	p = , P = ,
+		`	h = , H = ,
+		`	r = , R = ,
+		`	A = , YA = ,
+		`	E = , YE = ,
+		`	O = , YO = ,
+		`	U = , YU = ,
+		`	Z = , I = ,   %% 모음 ‘eu(ㅡ)’를 z에 할당
+		`	a = , ya = ,
+		`	e = , ye = ,
+		`	o = , yo = ,
+		`	u = , yu = ,
+		`	z = , i = ,
+		`	XI = , Xi = , %% ㅐ = axi, ㅔ = exi
+		`	VO = , VU = , %% ㅘ = voa, ㅝ = voe
+		`	VZ = , VI = , %% ㅢ = vzi, ㅑ = via
+		`	xi = , vo = ,
+		`	vu = , vz = , 
+		`	vi = , 
+		`	Ya = , Ye = ,
+		`	Yo = , Yu = ,
+		`	Vo = , Vu = ,
+		`	Vz = , Vi = , 
+		`	- = {{\rmfamily -}},
+		`	. = {{\rmfamily .}},
+		`	{,} = {{\rmfamily ,}},
+		`	{=} = {\empty},
+		`	? = {{\rmfamily ?}},
+		`	! = {{\rmfamily !}},
+		`	“ = {{\rmfamily “}},
+		`	” = {{\rmfamily ”}},
+		`	` = {{\rmfamily `}},
+		`	' = {{\rmfamily '}},
+		`}
+		`\seq_new:N \l_oespara_seq
+		`\seq_new:N \l_oeswd_seq
+		`\tl_new:N  \l_oesword_tl
+		`
+		`\newcommand*\oesolalign{\raggedright}
+		`
+		`\NewDocumentEnvironment { oesoltext } { s +b }
+		`{
+		`	\oesolalign
+		`	\oesolpar { #2 }
+		`	\IfBooleanTF { #1 } {} { \par }
+		`}{}
+		`
+		`\NewDocumentCommand \oesolpar { +m }
+		`{
+		`	\seq_set_split:Nnn \l_oespara_seq { \par } { #1 }
+		`	\seq_indexed_map_function:NN \l_oespara_seq \oesolpar_proc:nn
+		`}
+		`
+		`\cs_new:Npn \oesolpar_proc:nn #1 #2
+		`{
+		`	\regex_split:nnN { \s } { #2 } \l_oeswd_seq
+		`	\seq_indexed_map_inline:Nn \l_oeswd_seq
+		`	{
+		`		\oesolpar_prcword:n { ##2 }
+		`		\int_compare:nT { ##1 < \seq_count:N \l_oeswd_seq }
+		`		{ \space }
+		`	}
+		`	\int_compare:nT { #1 < \seq_count:N \l_oespara_seq }
+		`	{ \par }
+		`}
+		`
+		`\cs_new:Npn \oesolpar_prcword:n #1
+		`{
+		`	\tl_set:Nn \l_oesword_tl { #1 }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { ch } { c }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { CH } { C }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Ch } { C }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { r  } { l }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { R  } { L }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { kk } { gg }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { tt } { dd }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { pp } { bb }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Kk } { Gg }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Tt } { Dd }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Pp } { Bb }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { KK } { GG }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { TT } { DD }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { PP } { BB }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { ng } { q  }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { NG } { Q  }
+		`	
+		`	\tl_replace_all:Nnn \l_oesword_tl  { ui } { vzi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { UI } { VZI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Ui } { VZi }
+		`
+		`	\tl_replace_all:Nnn \l_oesword_tl  { wae } { voaxi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wae } { VOaxi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Ae  } { Axi }
+		`
+		`	\tl_replace_all:Nnn \l_oesword_tl  { ae  } { axi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { wa  } { voa }
+		`	\bool_if:NTF \g_ui_bool
+		`	{ \tl_replace_all:Nnn \l_oesword_tl  { wi } { vui } }
+		`	{ \tl_replace_all:Nnn \l_oesword_tl  { wi } { uxi } }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { e    } { exi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { exio } { e } 
+		`	\tl_replace_all:Nnn \l_oesword_tl  { exiu } { z }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { wo   } { vue }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { wexi } { vuexi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { oexi } { oxi }
+		`
+		`	\tl_replace_all:Nnn \l_oesword_tl  { WAE } { VOAXI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { AE } { AXI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { WA } { VOA }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wa } { VOa }
+		`	\bool_if:NTF \g_ui_bool
+		`	{ \tl_replace_all:Nnn \l_oesword_tl  { WI } { VUI } 
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wi } { VUi }
+		`	}
+		`	{ \tl_replace_all:Nnn \l_oesword_tl  { WI } { UXI } 
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wi } { Uxi }
+		`	}
+		`	\tl_replace_all:Nnn \l_oesword_tl  { E } { EXI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { EXIO } { E } 
+		`	\tl_replace_all:Nnn \l_oesword_tl  { EXIo } { E } 
+		`	\tl_replace_all:Nnn \l_oesword_tl  { EXIU } { Z }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { EXIu } { Z }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { WO } { VUE }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wo } { VUe }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { WEXI } { VUEXI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Wexi } { VUexi }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { OEXI } { OXI }
+		`	\tl_replace_all:Nnn \l_oesword_tl  { Oexi } { Oxi }	
+		`	\exp_args:No \oesolvar { \l_oesword_tl }
+		`	}
+		`	\cs_set_eq:NN \oesol \oesolpar
+		`	\ExplSyntaxOff
+tex:	\documentclass[a4paper]{article}
+		\usepackage{kotex}
+		\usepackage[fontfile={CMUO Serif Roman}]{oesolscript}
+		\usepackage{hyperref}
+		\setmainfont{Noto Serif}
+		\setmainhangulfont{Noto Serif CJK KR}
+
+		\setlength\parindent{0pt}
+		\def\baselinestretch{1.1}
+		\setlength\parskip{1.2\baselineskip}
+
+		\begin{document}
+
+		Tzetachi가 개발한 외솔체 폰트 CMUOSerif-Roman.otf는 \url{https://github.com/Tzetachi/Computer-Modern-Unicode-Oesol}에서 구할 수 있다.
+		외솔체 폰트를 이용하여 풀어쓰기를 구현하는 oesolscript 패키지와 설명서는 \url{https://bitbucket.org/novadh/oesolscript/src/master/}에서 구할 수 있다.
+
+		\textbackslash oesol 명령과 oesoltext 환경은 알파벳을 받아서, \textbackslash oesolscript는 한글을 받는다.
+
+		\verb|\oesol{egeseo han=geul eul baewoss=eul ppunman anila}|
+		\oesol{egeseo han=geul eul baewoss=eul ppunman anila}
+
+		\begin{verbatim}
+		\begin{oesoltext}
+		uri mal uri geul e sarang gwa geu yeon=gu ui chwimi reul gilleosseumyeo
+		\end{oesoltext}
+		\end{verbatim}
+
+		\begin{oesoltext}
+		uri mal uri geul e sarang gwa geu yeon=gu ui chwimi reul gilleosseumyeo
+		\end{oesoltext}
+
+		\verb|\oesolscript{과학스럽게 만들어 진 글.}| 
+		\oesolscript{과학스럽게 만들어 진 글.}
+
+		\newcommand\hanoe[1]{#1\\\oesolscript{#1}}
+
+		\hanoe{가 냐 더 려 모 뵤 수 유 즈 치}
+
+		\hanoe{캐 턔 페 혜}
+
+		\hanoe{괴 놰 뒤 뒈}
+
+		\hanoe{각 난 닫 랄 맘 밥 삿 앙 잦 찿 캌 탙 팦 핳} 
+		\end{document}
+ 

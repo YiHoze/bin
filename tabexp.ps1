@@ -46,9 +46,11 @@
             $cnt = ($item.ToCharArray() | Where-Object {$_ -eq '\'} | Measure-Object).Count
             # write-host $item, $cnt
             # only at the current directory
-            if ($cnt -eq 1) {            
-                If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.exe') {
-                    $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))                    
+            if ($item.StartsWith('.\')) {
+                if ($cnt -eq 1) {            
+                    If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.exe') {
+                        $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))                    
+                    }
                 }
             }                        
         }

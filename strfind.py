@@ -148,8 +148,9 @@ class StringFinder(object):
                     reader = csv.reader(ptrn, delimiter='\t')
                 else:
                     reader = csv.reader(ptrn)
-                for row in reader:            
-                    content = re.sub(row[0], row[1], content)                 
+                for row in reader:  
+                    if not row[0].startswith('#'):
+                        content = re.sub(row[0], row[1], content)                 
         with open(tmp, mode='w', encoding='utf-8') as f:
             f.write(content)
         if self.detex_bool:            

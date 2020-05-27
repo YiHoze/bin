@@ -1,5 +1,6 @@
 %.+?\n,
 \\documentclass.+?\n,
+\\usepackage.+?\n,
 \\LayoutSetup(.|\n)+?\}\n,
 \\HeadingSetup(.|\n)+?\}\n,
 \\CalloutSetup(.|\n)+?\}\n,
@@ -83,6 +84,8 @@
 \\url.?\{.+?\},
 \\email\{.+?\},
 \\label\{.+?\},
+\\cite.?\{.+?\},
+\\ref\{.+?\},
 \\pageref\{.+?\},
 \\titleref\{.+?\},
 \\bibliography.*?\{.+?\},
@@ -102,11 +105,14 @@
 \\problem\{(.+?)\},\1
 \\action\{(.+?)\},\1
 \\ui\{(.+?)\},\1
+\\term\{(.+?)\},\1
+\\index\{(.+?)\},\1
 \\href\{.+?\}\{(.+?)\},\1
 \\menu\{(.+?)\}\{(.+?)\},\1 \2
 \\jargon\{(.+?)\}\{(.+?)\},\1(\2)
 \\item\[(.+?)\],\1
 \\item,
+\\FinalizerSetup(.|\n)+?\}\n,
 \\FinalizerOn, 
 \\FinalizerOff, 
 \\hline, 
@@ -122,6 +128,23 @@
 \\makeatletter,
 \\makeatother,
 \\def,
+\\HideImageFilename,
+\\HidePending,
+\\ShowImageFilename.?,
+\\ShowPending,
+\\IndexingEnable,
+\\이,이
+\\가,가
+\\을,을
+\\를,를
+\\은,은
+\\는,는
+\\와,와
+\\과,과
+\\로,로
+\\으로,으로
+\\라,라
+\\이라,이라
 <,
 >,
 {,

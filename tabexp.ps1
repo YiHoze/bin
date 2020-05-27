@@ -48,7 +48,7 @@
             # only at the current directory
             if ($item.StartsWith('.\')) {
                 if ($cnt -eq 1) {            
-                    If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.exe') {
+                    If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.py' -and $ext -ne '.exe') {
                         $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))                    
                     }
                 }

@@ -24,7 +24,7 @@ class StringFinder(object):
 
     def pattern_for_detex(self):
         if self.detex_bool and self.pattern is None:
-            self.pattern = os.path.join(dirCalled, 'tex.csv')
+            self.pattern = os.path.join(dirCalled, 'detex.tsv')
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
@@ -93,16 +93,16 @@ class StringFinder(object):
         self.detex_bool = args.detex
         self.pattern_for_detex()
 
-    def check_to_remove(self, afile):
-        if os.path.exists(afile):
-            answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
-            if answer.lower() == 'y':
-                os.remove(afile)
-                return True
-            else:
-                return False
-        else:
-            return True
+    # def check_to_remove(self, afile):
+    #     if os.path.exists(afile):            
+    #         answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
+    #         if answer.lower() == 'y':
+    #             os.remove(afile)
+    #             return True
+    #         else:
+    #             return False            
+    #     else:
+    #         return True
 
     def get_subdirs(self):
         return [x[0] for x in os.walk('.')]
@@ -155,12 +155,11 @@ class StringFinder(object):
         if self.detex_bool:            
             filename = os.path.splitext(afile)[0]
             output = filename + '_clean.txt'
-            if self.check_to_remove(output) is False:
-                return
-            else:
-                os.rename(tmp, output)
-                opener = FileOpener()
-                opener.OpenTxt(output)                
+            if os.path.exists(output):
+                os.remove(output)
+            os.rename(tmp, output)
+            opener = FileOpener()
+            opener.OpenTxt(output)                
         else:
             if self.backup_bool:
                 filename, ext = os.path.splitext(afile)
@@ -181,7 +180,7 @@ class StringFinder(object):
                         os.remove(output)
                     os.rename(tmp, output)
 
-    def find_replace(self):        
+    def find_replace(self): 
         if self.pattern is None:        
             if self.target is None:
                 return

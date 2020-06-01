@@ -192,9 +192,9 @@ class ImageUtility(object):
         if self.check_format(img) == 'bitmap':
             if self.maxwidth > 0:
                 cmd = '"%s" "%s"  -resize %dx%d^> "%s"' % (self.Magick, img, self.maxwidth, self.maxwidth, img)
-                subprocess.Popen(cmd)
+                subprocess.run(cmd)
             cmd = '"%s" "%s" -auto-orient -units PixelsPerCentimeter -density %d -resize %d%%  "%s"' % (self.Magick, img, self.density, self.scale, img)            
-            subprocess.Popen(cmd)
+            subprocess.run(cmd)
             self.cnt += 1
 
     def name_target(self, img):
@@ -213,7 +213,7 @@ class ImageUtility(object):
             cmd = cmd + ' -colorspace gray'
         cmd = cmd + ' "%s"' %(trg)   
         print(cmd)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         self.cnt += 1 
 
     def count_pdf_pages(self, img):
@@ -232,38 +232,38 @@ class ImageUtility(object):
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
         cmd = '"%s" -density 254 "%s" "%s"' %(self.Magick, img, trg)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         page_count = self.count_pdf_pages(img)
         if page_count > 1:
             filename, ext = os.path.splitext(trg)
             trg = filename + '*' + ext
-        for i in glob.glob(trg):        
+        for i in glob.glob(trg):
             cmd = '"%s" "%s" -units PixelsPerCentimeter -density 100 "%s"' % (self.Magick, i, i)
-            subprocess.Popen(cmd)
+            subprocess.run(cmd)
         self.cnt += 1
 
     def eps_to_pdf(self, img):
         cmd = 'epstopdf.exe "%s"' %(img)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         self.cnt += 1
 
     def pdf_to_eps(self, img):
         cmd = 'pdftops -eps "%s"' %(img)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         self.cnt += 1
 
     def svg_to_pdf(self, img):
         trg = self.name_target(img)
         cmd = '"%s" --export-pdf "%s" "%s"' %(self.Inkscape, trg, img)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         cmd = 'pdfcrop.exe "%s" "%s"' %(trg, trg)
-        subprocess.Popen(cmd)
+        subprocess.run(cmd)
         self.cnt += 1
 
     def svg_to_eps(self, img):
         trg = self.name_target(img)
         cmd = '"%s" --export-eps "%s" "%s"' %(self.Inkscape, trg, img)
-        subprocess.Popen(cmd)  
+        subprocess.run(cmd)  
         self.cnt += 1
 
     def convert(self):

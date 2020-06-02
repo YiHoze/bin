@@ -336,14 +336,14 @@ tex:	`\documentclass{minimal}
 		`\mergepdf{\3}
 		`\end{document}
 
-[number]
+[numbers]
 description: Use this template to have each of circled numbers in separate one-page PDF files.
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 	Find and use "numbers.cmd" which is created together with the latex file.
 	The command requires cpdf, or alternatively pdftk, to split the resulting PDF.
 	usage: mytex.py number -s ENDING_NUMBER
 	default: 20
-output: circled_numbers
+output: numbers
 placeholders: 1
 defaults: 20
 cmd: 	ltx.py \TEX
@@ -3425,4 +3425,30 @@ tex:	\documentclass[a4paper]{article}
 
 		\hanoe{각 난 닫 랄 맘 밥 삿 앙 잦 찿 캌 탙 팦 핳} 
 		\end{document}
- 
+
+[circled]
+ description: Use this template to draw circled numbers or letters.
+ output: circled
+ compiler: -c
+ tex:	`\documentclass[a4paper]{article}
+		`\usepackage{xparse}
+		`\usepackage{tikz}
+		`\ExplSyntaxOn
+		`\NewDocumentCommand\cirnum{ m }
+		`{
+		`	\raisebox{-.5ex}{
+		`		\tikz\node[
+		`			circle, draw=white, thin, inner~sep=0.25pt,
+		`			top~color=black, bottom~color=black,
+		`			text~width=1em,
+		`			font=\sffamily\footnotesize\bfseries, text~badly~centered, white
+		`			]{#1};}
+		`}
+		`\NewDocumentCommand \cirnumuntil { m }
+		`{
+		`	\int_step_inline:nn { #1 }{ \cirnum{ ##1 }\space }
+		`}
+		`\ExplSyntaxOff
+		`\begin{document}
+		`\cirnumuntil{25}
+		`\end{document}

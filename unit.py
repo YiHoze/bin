@@ -149,7 +149,7 @@ class ColorModel(object):
                 if not all(map(lambda x: x >= 0. and x <= 1., [C, M, Y, K])):
                     self.error_message()
                 else:
-                    self.CMYK_to_RGB(color, C, M, Y, K)
+                    self.CMYK_to_RGB(C, M, Y, K)
         else:
             R, G, B = self.parse_RGB(color)
             if R is False:
@@ -159,7 +159,7 @@ class ColorModel(object):
                 if not all(map(lambda x: x in range(256), [R, G, B])):
                     self.error_message()
                 else:
-                    self.RGB_to_CMYK(color, R, G, B)
+                    self.RGB_to_CMYK(R, G, B)
 
     def parse_CMYK(self, color: str):        
         color = color.split(',')
@@ -175,7 +175,6 @@ class ColorModel(object):
             C, M, Y, K = False, False, False, False
 
         return C, M, Y, K
-
 
     def parse_RGB(self, color: str):
         if color.count(',') == 0:        
@@ -198,25 +197,41 @@ class ColorModel(object):
             
         return R, G, B
 
-    def RGB_to_CMYK(self, color, R, G, B):       
-        R = R/255
-        G = G/255
-        B = B/255
-        K = 1 - max(R, G, B)
-        C = (1 - R - K) / (1 - K)
-        M = (1 - G - K) / (1 - K)
-        Y = (1 - B - K) / (1 - K)
-        color = color.replace(',', ', ')
-        CMYK = '{} = {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}'.format(color, C, M, Y, K)
-        print(CMYK)
+    def RGB_hex(self, R, G, B):
+        RGB = [R, G, B]
+        for i in range(len(RGB)):
+            j = '{:3.0f}'.format(RGB[i])
+            j = hex(int(j))
+            j = j[2:]
+            j = j.upper()
+            j = j.zfill(2)
+            RGB[i] = j
+        RGB = ''.join(RGB)
+        return RGB
 
-    def CMYK_to_RGB(self, color, C, M, Y, K):
+    def RGB_to_CMYK(self, R, G, B):        
+        Rp = R/255
+        Gp = G/255
+        Bp = B/255
+        K = 1 - max(Rp, Gp, Bp)
+        C = (1 - Rp - K) / (1 - K)
+        M = (1 - Gp - K) / (1 - K)
+        Y = (1 - Bp - K) / (1 - K)
+        RGBd = map(lambda x: str(x), [R, G, B])
+        RGBd = ', '.join(RGBd)
+        RGBh = self.RGB_hex(R, G, B)
+        result = '{} ({}) = {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}'.format(RGBd, RGBh, C, M, Y, K)
+        print(result)
+
+    def CMYK_to_RGB(self, C, M, Y, K):
         R = 255 * (1 - C) * (1 - K) 
         G = 255 * (1 - M) * (1 - K)
         B = 255 * (1 - Y) * (1 - K)
-        color = color.replace(',', ', ')
-        RGB = '{} = {:3.0f}, {:3.0f}, {:3.0f}'.format(color, R, G, B)
-        print(RGB)
+        CMYK = map(lambda x: '{:3.2f}'.format(x), [C, M, Y, K])
+        CMYK = ', '.join(CMYK)
+        RGB = self.RGB_hex(R, G, B)
+        result = '{} = {:3.0f}, {:3.0f}, {:3.0f} ({})'.format(CMYK, R, G, B, RGB)
+        print(result)
 
 if __name__ == '__main__':
     unit = ConvertUnit()

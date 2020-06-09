@@ -8,17 +8,18 @@ class ConvertUnit(object):
         self.unit_type = unit_type
         self.until = until
         self.units = {
-            'acre': ['acres', 'square meters', 4046.86],
+            'acre': ['acres', 'm²', 4046.86],
             'degree': ['°', '%', 'self.gradient'],
-            'fahrenheit': ['Fahrenheit', 'Celsius', 'self.temperature'],
-            'foot': ['feet', 'meters', 0.3048],
-            'inch': ['inches', 'centimeters', 2.54],
-            'mile': ['miles', 'kilometers', 1.609344],
-            'point': ['points', 'millimeters', 0.352778],
-            'pound': ['pounds', 'kilograms', 0.453592],
-            'pyeong': ['pyeongs', 'square meters', 3.305785],
-            'yard': ['yards', 'meters', 0.9144],
-            'knot': ['knots', 'km/h', 1.852]
+            'fahrenheit': ['F°', 'C°', 'self.temperature'],
+            'foot': ['feet', 'm', 0.3048],
+            'inch': ['inches', 'cm', 2.54],
+            'mile': ['miles', 'km', 1.609344],
+            'point': ['points', 'mm', 0.352778],
+            'pound': ['pounds', 'kg', 0.453592],
+            'pyeong': ['pyeongs', 'm²', 3.305785],
+            'yard': ['yards', 'm', 0.9144],
+            'knot': ['knots', 'km/h', 1.852],
+            'pascal': ['kg/cm²', 'Pa', 98066.5]
         }
         self.unit_types = []
         for i in self.units.keys():
@@ -35,6 +36,10 @@ class ConvertUnit(object):
             This RGB value is converted to CMYK
         unit.py -c 0.1,0.33,0.01
             This CMYK value is converted to RGB
+        To use a comma as thousand separator in Powershell, 
+        wrap the number with quotes or use the escape character.
+            unit "100,000" pa
+            unit 100`,000 pa
         '''
         parser = argparse.ArgumentParser(
             epilog = example,  
@@ -61,10 +66,11 @@ class ConvertUnit(object):
                 print('Specify a unit type:')
                 self.show_unit_list()
             else:
-                self.numeral = float(args.numeral[0])
+                print(args.numeral)
+                self.numeral = float(args.numeral[0].replace(',', ''))
                 self.unit_type = args.numeral[1]
                 try:
-                    self.until = float(args.numeral[2])
+                    self.until = float(args.numeral[2].replace(',', ''))
                 except:
                     self.until = None
                 unit.convert()
@@ -117,16 +123,18 @@ class ConvertUnit(object):
             lower += 1
 
     def convert_calculate(self, numeral):
-        if self.coefficient_bool is True:
+        if self.coefficient_bool is True:        
             nonmetric_coefficient = 1 / self.coefficient
             nonmetric_value = numeral * nonmetric_coefficient
             metric_value = numeral * self.coefficient
         else:
             func = self.coefficient + '(' + str(numeral) + ')'
-            nonmetric_value, metric_value = eval(func)
-        print('%6.2f %s = %6.2f %s \t %6.2f %s = %6.2f %s' % (
-            numeral, self.nonmetric_unit, metric_value, self.metric_unit, numeral, 
-            self.metric_unit, nonmetric_value, self.nonmetric_unit))
+            nonmetric_value, metric_value = eval(func)        
+        result = '{:,.2f} {} = {:,.2f} {} \t {:,.2f} {} = {:,.2f} {}'.format(
+            numeral, self.nonmetric_unit, metric_value, self.metric_unit, 
+            numeral, self.metric_unit, nonmetric_value, self.nonmetric_unit
+            )
+        print(result)
 
 class ColorModel(object):
 

@@ -49,7 +49,7 @@ class ImageUtility(object):
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
-            description = 'This script requires TeX Live, Inkscape, and ImageMagick. With this script you can: 1) view a bitmap image\'s information; 2) resize a bitmap image by changing its resolution or scale; 3) convert a bitmap image to another format [jpg/png]; 4) convert a vector image to another vector or bitmap format [eps/pdf/svg to pdf/eps/jpg/png]. Be aware that SVG cannot be the target format.'
+            description = "This script requires TeX Live, Inkscape, and ImageMagick. With this script you can: 1) view bitmap images' information; 2) resize bitmap images by changing their resolution or scale; 3) convert bitmap images to another format; 4) convert vector images to another vector or bitmap format. Be aware that SVG cannot be the target format."
         )
         parser.add_argument(
             'images',
@@ -61,7 +61,7 @@ class ImageUtility(object):
             dest = 'info',
             action = 'store_true',
             default = False,
-            help = "Display image information. Vector images are ignored with this option."
+            help = "Display bitmap images' information."
         )
         parser.add_argument(
             '-t',
@@ -74,42 +74,42 @@ class ImageUtility(object):
             dest = 'resize',
             action = 'store_true',
             default = False,
-            help = 'Change resolution or scale.'
+            help = "Change bimap images' size."
         )
         parser.add_argument(
             '-d',
             dest = 'density',
             type = int,
             default = 100,
-            help = 'Pixel density for bitmap images (default: 100 pixels per centimeter)'
+            help = "With '-r', specify a pixel density. (default: 100 pixels per centimeter)"
         )
         parser.add_argument(
             '-m',
             dest = 'maxwidth',
             type = int,
             default = 0,
-            help = 'Specify a max width to reduce bigger ones than it.'
+            help = "With '-r', specify a max width to reduce bigger ones than it."
         )
         parser.add_argument(
             '-s',
             dest = 'scale',
             type = int,
             default = 100,
-            help = "Scale, applied after checked with the max width (default: 100 %%). If an image's width is 800 pixels and 50 is given for scale, the image is reduced to 400 pixels."
+            help = "With '-r', specify a scale to be applied after checking with the max width. (default: 100 %%)"
         )
         parser.add_argument(
             '-g',
             dest = 'gray',
             action = 'store_true',
             default = False,
-            help = 'Covert to grayscale.'
+            help = 'Covert bitmap images to grayscale.'
         )
         parser.add_argument(
             '-rec',
             dest = 'recursive',
             action = 'store_true',
             default = False,
-            help = 'process ones in all subdirectories'
+            help = 'Process ones in all subdirectories'
         )
         args = parser.parse_args()
         self.images = args.images
@@ -212,7 +212,6 @@ class ImageUtility(object):
         if self.gray_bool:
             cmd = cmd + ' -colorspace gray'
         cmd = cmd + ' "%s"' %(trg)   
-        print(cmd)
         subprocess.run(cmd)
         self.cnt += 1 
 

@@ -16,10 +16,10 @@ parser.add_argument(
     help = 'Type a command with arguments.'
 )
 parser.add_argument(
-    '-x',
+    '-c',
     dest = 'check_bool',
-    action = 'store_true',
-    default = False,
+    action = 'store_false',
+    default = True,
     help = 'Do not check if files matching the wildcard expression exist.'
 )
 args = parser.parse_args()
@@ -34,17 +34,14 @@ for i in cmd:
 cmd = ' '.join(cmd)
 if args.check_bool:
     for i in glob.glob(selection):
-        real_cmd = cmd.replace(selection, i)
-        # print(real_cmd)
-        os.system(real_cmd)
-else:
-    cmd = ' '.join(cmd)
-    for i in glob.glob(selection):
         num = re.findall('\d+', i)
         if len(num) > 0:
             real_cmd = cmd.replace('*', num[0])
             os.system(real_cmd)
-            # print(real_cmd)
         else:
             print('No numbered files are found.')
             break
+else:    
+    for i in glob.glob(selection):
+        real_cmd = cmd.replace(selection, i)
+        os.system(real_cmd)

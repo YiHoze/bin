@@ -178,6 +178,8 @@ class LatexTemplate(object):
                 self.cmd = ext
                 content = content.replace('\\TEX', self.tex)
                 content = content.replace('\\PDF', self.filename + '.pdf')
+                content = content.replace('\\DVI', self.filename + '.dvi')
+                content = content.replace('\\PS', self.filename + '.ps')
             else:
                 content = content.replace('`', '')            
             if self.confirm_to_remove(ext):

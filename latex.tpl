@@ -3452,3 +3452,45 @@ tex:	\documentclass[a4paper]{article}
 		`\begin{document}
 		`\cirnumuntil{25}
 		`\end{document}
+
+[pstricks]
+description: This a simple example of pstricks.
+output: mypstricks
+cmd:	REM Use this script or xelatex.
+		latex.exe \TEX
+		dvips.exe \DVI
+		ps2pdf.exe \PS
+tex: 	`\documentclass[a4paper]{article}
+		`\usepackage{pstricks}
+		`\newcount\n              
+		`\newcount\x\newcount\y   
+		`\newcount\xo\newcount\yo 
+		`\newcount\dx\newcount\dy 
+		`\newcount\t              
+		`\def\swp{\t=\dx\dx=\dy\dy=\t}
+		`\def\L{\swp\multiply\dx by-1}
+		`\def\R{\swp\multiply\dy by-1}
+		`\def\S{%%
+		`	\xo=\x \yo=\y %%
+		`	\advance\x by\dx%%
+		`	\advance\y by\dy%%
+		`	\ln{\the\xo}{\the\yo}{\the\x}{\the\y}%%
+		`}
+		`\def\ln#1#2#3#4{\qline(#1,#2)(#3,#4)}
+		`\def\h#1#2{\ifnum\n=0\relax\else%%
+		`	\advance\n by-1%%
+		`	#1\h#2#1\S#2\h#1#2\S\h#1#2#2\S\h#2#1#1%%
+		`	\advance\n by1\fi%%
+		`}
+		`\begin{document}
+		`\psset{unit=2mm}
+		`\centerline{\textbf{\LARGE Hilbert Curve}}
+		`\bigskip
+		`\makebox[\textwidth]{%%
+		`	\begin{pspicture}(0,0)(63,63)
+		`		\x=0 \y=0
+		`		\dx=1 \dy=0
+		`		\n=6 \h\L\R
+		`	\end{pspicture}%%
+		`}
+		`\end{document}

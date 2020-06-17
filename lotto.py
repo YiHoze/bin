@@ -10,7 +10,7 @@ import sys
 import argparse
 from random import randint
 from itertools import permutations
-# from itertools import combinations
+from itertools import combinations
 from nltk.corpus import wordnet
 # from nltk.corpus import words 
 
@@ -21,8 +21,9 @@ from mytex import LatexTemplate
 class Lotto(object):
 
     def __init__(self, 
-    letters=None, wordnet=False, number=False, frequency=5, pdf=False, weeks=8):
+    letters=None, combination=0, wordnet=False, number=False, frequency=5, pdf=False, weeks=8):
         self.letters = letters
+        self.combination = combination
         self.number_bool = number
         self.wordnet_bool = wordnet
         self.frequency = frequency
@@ -41,11 +42,18 @@ class Lotto(object):
             help = 'Type letters without space for permutation or nothing for lotto.'
         )
         parser.add_argument(
+            '-c',
+            dest = 'combination',   
+            type = int,         
+            default = 0,
+            help = 'Specify a number bigger than 1 to generate combinations with letters before doing permutations.'
+        )        
+        parser.add_argument(
             '-n',
             dest = 'number',
             action = 'store_true',
             default = False,
-            help = 'Show results with number.'
+            help = 'Show results with numbers.'
         )
         parser.add_argument(
             '-W',
@@ -76,18 +84,21 @@ class Lotto(object):
         )
         args = parser.parse_args()
         self.letters = args.letters
+        self.combination = args.combination
         self.number_bool = args.number
         self.wordnet_bool = args.wordnet
         self.frequency = args.frequency
         self.pdf_bool = args.pdf
-        self.weeks = args.weeks
-        
+        self.weeks = args.weeks        
 
     def run(self):
         if self.letters is None:
             self.run_lotto()
         else:
-            self.run_permutations()
+            if self.combination > 1:
+                self.run_combinations(self.letters)
+            else:
+                self.run_permutations(self.letters)
 
     def run_lotto(self):
         m, n = 6, 45
@@ -104,32 +115,49 @@ class Lotto(object):
             balls.sort()            
             for index, value in enumerate(balls):
                 balls[index] = '{:>2}'.format(str(value))
-            print(', '.join(balls))            
+            cnt += 1
+            result = ', '.join(balls)
+            if self.number_bool:
+                print('{:2d}: {}'.format(cnt, result))
+            else:
+                print(result)
+
+    def run_combinations(self, letters):
+        letters = list(letters)
+        cnt = self.combination 
+        while cnt <= len(letters):
+            combs = combinations(letters, cnt)        
+            for i in list(combs):
+                self.run_permutations(''.join(i))
             cnt += 1
 
-    def run_permutations(self):
-        letters = list(self.letters)
+    def run_permutations(self, letters):
+        letters = list(letters)
         perms = list(permutations(letters))
-        for index, value in enumerate(perms):
-            perms[index] = ''.join(value)
-        perms = set(sorted(perms))
+        self.display_results(perms)
+
+    def display_results(self, results):
+        # join letters to a word in each item
+        for index, value in enumerate(results):
+            results[index] = ''.join(value)
+        # remove duplicates
+        results = set(sorted(results))
+        # check if items are meaningful words
         if self.wordnet_bool:
             picked = []
-            for i in perms:
+            for i in results:
                 # if i in words.words():
                 if wordnet.synsets(i):
                     picked.append(i)
-            perms = picked
-        self.permutations_display(perms)
-
-    def permutations_display(self, perms):        
+            results = picked
+        # add numbers to display
         if self.number_bool:
-            digits = len(perms)
+            digits = len(results)
             digits = len(str(digits))
-            for index, value in enumerate(perms):
+            for index, value in enumerate(results):
                 print('{0:{d}}: {1}'.format(index+1, value, d=digits))
         else:
-            print(', '.join(perms))
+            print(', '.join(results))
 
     def generate_pdf(self):
         if self.letters is None:

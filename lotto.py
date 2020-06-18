@@ -74,7 +74,7 @@ class Lotto(object):
             dest = 'pdf',
             action = 'store_true',
             default = False,
-            help = 'Print in PDF using XeLaTeX.'
+            help = 'Print lotto numbers in PDF using XeLaTeX.'
         )
         parser.add_argument(
             '-w',
@@ -123,25 +123,27 @@ class Lotto(object):
                 print(result)
 
     def run_combinations(self, letters):
-        letters = list(letters)
+        letters = sorted(list(letters))
         cnt = self.combination 
         while cnt <= len(letters):
             combs = combinations(letters, cnt)        
             for i in list(combs):
-                self.run_permutations(''.join(i))
+                self.run_permutations(''.join(i), cnt)
             cnt += 1
 
-    def run_permutations(self, letters):
+    def run_permutations(self, letters, num=0):
+        # num is just passed from run_combinations() to display_results() 
+        # to display the number of picked letters.
         letters = list(letters)
         perms = list(permutations(letters))
-        self.display_results(perms)
+        self.display_results(perms, num)
 
-    def display_results(self, results):
+    def display_results(self, results, num):
         # join letters to a word in each item
         for index, value in enumerate(results):
             results[index] = ''.join(value)
         # remove duplicates
-        results = set(sorted(results))
+        results = sorted(set(results))
         # check if items are meaningful words
         if self.wordnet_bool:
             picked = []
@@ -155,7 +157,10 @@ class Lotto(object):
             digits = len(results)
             digits = len(str(digits))
             for index, value in enumerate(results):
-                print('{0:{d}}: {1}'.format(index+1, value, d=digits))
+                if num > 1:
+                    print('{}-{:{d}}: {}'.format(num, index+1, value, d=digits))
+                else:
+                    print('{:{d}}: {}'.format(index+1, value, d=digits))
         else:
             print(', '.join(results))
 

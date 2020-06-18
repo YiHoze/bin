@@ -66,7 +66,6 @@ class ConvertUnit(object):
                 print('Specify a unit type:')
                 self.show_unit_list()
             else:
-                print(args.numeral)
                 self.numeral = float(args.numeral[0].replace(',', ''))
                 self.unit_type = args.numeral[1]
                 try:

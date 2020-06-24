@@ -96,9 +96,10 @@ class Lotto(object):
             self.run_lotto()
         else:
             if self.combination > 1:
-                self.run_combinations(self.letters)
+                self.display_results(self.run_combinations(self.letters))
+
             else:
-                self.run_permutations(self.letters)
+                self.display_results(self.run_permutations(self.letters))
 
     def run_lotto(self):
         m, n = 6, 45
@@ -123,22 +124,24 @@ class Lotto(object):
                 print(result)
 
     def run_combinations(self, letters):
-        letters = sorted(list(letters))
+        letters = list(letters)
         cnt = self.combination 
+        perms = []
         while cnt <= len(letters):
-            combs = combinations(letters, cnt)        
+            combs = combinations(letters, cnt)
             for i in list(combs):
-                self.run_permutations(''.join(i), cnt)
+                perms.extend(self.run_permutations(''.join(i)))
             cnt += 1
+        return perms
 
-    def run_permutations(self, letters, num=0):
+
+    def run_permutations(self, letters):
         # num is just passed from run_combinations() to display_results() 
         # to display the number of picked letters.
         letters = list(letters)
-        perms = list(permutations(letters))
-        self.display_results(perms, num)
+        return list(permutations(letters))        
 
-    def display_results(self, results, num):
+    def display_results(self, results):
         # join letters to a word in each item
         for index, value in enumerate(results):
             results[index] = ''.join(value)
@@ -157,12 +160,25 @@ class Lotto(object):
             digits = len(results)
             digits = len(str(digits))
             for index, value in enumerate(results):
-                if num > 1:
-                    print('{}-{:{d}}: {}'.format(num, index+1, value, d=digits))
+                if self.combination > 1:
+                    print('{}.{:{d}}: {}'.format(len(value), index+1, value, d=digits))
                 else:
                     print('{:{d}}: {}'.format(index+1, value, d=digits))
         else:
-            print(', '.join(results))
+            if self.combination > 1:
+                results = sorted(results, key=len)
+                letters = len(results[0])
+                comb = []
+                for i in results:
+                    if letters == len(i):
+                        comb.extend([i])
+                    else:
+                        print('{} letters: {}'.format(letters, ', '.join(comb)))
+                        letters = len(i)
+                        comb = [i] 
+                print('{} letters: {}'.format(letters, ', '.join(comb)))
+            else:
+                print(', '.join(results))
 
     def generate_pdf(self):
         if self.letters is None:

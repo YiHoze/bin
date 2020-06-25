@@ -46,7 +46,7 @@ class Lotto(object):
             dest = 'combination',   
             type = int,         
             default = 0,
-            help = 'Specify a number bigger than 1 to generate combinations with letters before doing permutations.'
+            help = 'Specify a least number of letters but bigger than 1 to generate combinations for permutation.'
         )        
         parser.add_argument(
             '-n',
@@ -95,6 +95,7 @@ class Lotto(object):
         if self.letters is None:
             self.run_lotto()
         else:
+            self.letters = self.letters.upper()
             if self.combination > 1:
                 self.display_results(self.run_combinations(self.letters))
 
@@ -166,13 +167,15 @@ class Lotto(object):
                     print('{:{d}}: {}'.format(index+1, value, d=digits))
         else:
             if self.combination > 1:
+                # sort by the length of elements
                 results = sorted(results, key=len)
                 letters = len(results[0])
                 comb = []
                 for i in results:
+                    # gather words that have the same length
                     if letters == len(i):
                         comb.extend([i])
-                    else:
+                    else:                        
                         print('{} letters: {}'.format(letters, ', '.join(comb)))
                         letters = len(i)
                         comb = [i] 

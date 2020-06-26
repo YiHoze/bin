@@ -147,7 +147,7 @@ class Lotto(object):
         for index, value in enumerate(results):
             results[index] = ''.join(value)
         # remove duplicates
-        results = sorted(set(results))
+        results = set(results)
         # check if items are meaningful words
         if self.wordnet_bool:
             picked = []
@@ -155,15 +155,18 @@ class Lotto(object):
                 # if i in words.words():
                 if wordnet.synsets(i):
                     picked.append(i)
-            results = picked
+            results = picked        
         # add numbers to display
+        results = sorted(results)
         if self.number_bool:
             digits = len(results)
             digits = len(str(digits))
-            for index, value in enumerate(results):
-                if self.combination > 1:
+            if self.combination > 1:
+                results = sorted(results, key=len)
+                for index, value in enumerate(results):
                     print('{}.{:{d}}: {}'.format(len(value), index+1, value, d=digits))
-                else:
+            else:
+                for index, value in enumerate(results):
                     print('{:{d}}: {}'.format(index+1, value, d=digits))
         else:
             if self.combination > 1:
@@ -175,12 +178,13 @@ class Lotto(object):
                     # gather words that have the same length
                     if letters == len(i):
                         comb.extend([i])
-                    else:                        
+                    else:    
+                        comb = sorted(comb)                    
                         print('{} letters: {}'.format(letters, ', '.join(comb)))
                         letters = len(i)
                         comb = [i] 
                 print('{} letters: {}'.format(letters, ', '.join(comb)))
-            else:
+            else:                
                 print(', '.join(results))
 
     def generate_pdf(self):

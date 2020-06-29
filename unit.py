@@ -201,7 +201,7 @@ class ColorModel(object):
                 B = int(color[2])
             except:
                 R, G, B = False, False, False
-            
+        
         return R, G, B
 
     def RGB_hex(self, R, G, B):
@@ -224,20 +224,33 @@ class ColorModel(object):
         C = (1 - Rp - K) / (1 - K)
         M = (1 - Gp - K) / (1 - K)
         Y = (1 - Bp - K) / (1 - K)
-        RGBd = map(lambda x: str(x), [R, G, B])
-        RGBd = ', '.join(RGBd)
+
+        # 255,255,255
+        RGBd = '{:3d}, {:3d}, {:3d}'.format(R, G, B)
+        # 1.0,1.0,1.0
+        RGBp = '{:1.2f}, {:1.2f}, {:1.2f}'.format(Rp, Gp, Bp)
+        # FFFFFF
         RGBh = self.RGB_hex(R, G, B)
-        result = '{} ({}) = {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}'.format(RGBd, RGBh, C, M, Y, K)
+        
+        result = '{} ({} / {}) = {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}'.format(RGBd, RGBp, RGBh, C, M, Y, K)
         print(result)
 
     def CMYK_to_RGB(self, C, M, Y, K):
         R = 255 * (1 - C) * (1 - K) 
         G = 255 * (1 - M) * (1 - K)
         B = 255 * (1 - Y) * (1 - K)
+        Rp = R/255
+        Gp = G/255
+        Bp = B/255
+        
         CMYK = map(lambda x: '{:3.2f}'.format(x), [C, M, Y, K])
         CMYK = ', '.join(CMYK)
-        RGB = self.RGB_hex(R, G, B)
-        result = '{} = {:3.0f}, {:3.0f}, {:3.0f} ({})'.format(CMYK, R, G, B, RGB)
+        # 1.0,1.0,1.0
+        RGBp = '{:1.2f}, {:1.2f}, {:1.2f}'.format(Rp, Gp, Bp)
+        # FFFFFF
+        RGBh = self.RGB_hex(R, G, B)
+
+        result = '{} = {:3.0f}, {:3.0f}, {:3.0f} ({} / {})'.format(CMYK, R, G, B, RGBp, RGBh)
         print(result)
 
 if __name__ == '__main__':

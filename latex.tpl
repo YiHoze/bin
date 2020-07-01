@@ -3494,3 +3494,72 @@ tex: 	`\documentclass[a4paper]{article}
 		`	\end{pspicture}%%
 		`}
 		`\end{document}
+
+[counter]
+desription: This template shows all available counter representations supported by KoTeX and dingbats.
+output: counters
+compiler: -c
+tex: 	`\documentclass[twocolumn]{article}
+		`
+		`\usepackage{kotex}
+		`\usepackage{enumitem}
+		`\usepackage{pifont}
+		`\usepackage{xcolor}
+		`
+		`\ExplSyntaxOn
+		`\NewDocumentCommand \dingbat { m }
+		`{
+		`	\int_set:Nn \l_tmpa_int { #1 + 32 }
+		`	\ding{\l_tmpa_int}    
+		`}
+		`\def\Ding#1{\expandafter\dingbat\csname c@#1\endcsname}
+		`\ExplSyntaxOff
+		`
+		`\AddEnumerateCounter{\Ding}{\dingbat}{M}
+		`\AddEnumerateCounter{\jaso}{\@jaso}{M}
+		`\AddEnumerateCounter{\gana}{\@gana}{M}
+		`\AddEnumerateCounter{\ojaso}{\@ojaso}{M}
+		`\AddEnumerateCounter{\ogana}{\@ogana}{M}
+		`\AddEnumerateCounter{\pjaso}{\@pjaso}{M}
+		`\AddEnumerateCounter{\pgana}{\@pgana}{M}
+		`\AddEnumerateCounter{\onum}{\@onum}{M}
+		`\AddEnumerateCounter{\pnum}{\@pnum}{M}
+		`\AddEnumerateCounter{\oeng}{\@oeng}{M}
+		`\AddEnumerateCounter{\peng}{\@peng}{M}
+		`\AddEnumerateCounter{\hroman}{\@hroman}{ⅻ}
+		`\AddEnumerateCounter{\hRoman}{\@hRoman}{Ⅻ}
+		`\AddEnumerateCounter{\hnum}{\@hnum}{스물하나}
+		`\AddEnumerateCounter{\Hnum}{\@Hnum}{스물넷째}
+		`\AddEnumerateCounter{\hNum}{\@hNum}{이십사}
+		`\AddEnumerateCounter{\hanjanum}{\@hanjanum}{二十四}
+		`
+		`\ExplSyntaxOn
+		`\NewDocumentCommand \HangulCounter { m O{14} }
+		`{
+		`	\begin{enumerate}[font=\color{blue}\bfseries,label=#1]
+		`	\int_step_inline:nn {#2}{\item 천상에서~다시~만나면~그대를~다시~만나면}
+		`	\end{enumerate}    
+		`}
+		`\ExplSyntaxOff
+		`
+		`%% \setlist[enumerate,1]{label=\onum*}
+		`
+		`\begin{document}
+		`\HangulCounter{\Ding*}[90]
+		`\HangulCounter{\jaso*.}
+		`\HangulCounter{\gana*.}
+		`\HangulCounter{\ojaso*}
+		`\HangulCounter{\ogana*}
+		`\HangulCounter{\pjaso*}
+		`\HangulCounter{\pgana*}
+		`\HangulCounter{\onum*}[15]
+		`\HangulCounter{\pnum*}[15]
+		`\HangulCounter{\oeng*}[26]
+		`\HangulCounter{\peng*}[26]
+		`\HangulCounter{\hroman*.}[12]
+		`\HangulCounter{\hRoman*.}[12]
+		`\HangulCounter{\hnum*.}[24]
+		`\HangulCounter{\Hnum*.}[24]
+		`\HangulCounter{\hNum*.}[24]
+		`\HangulCounter{\hanjanum*.}[24]
+		`\end{document}

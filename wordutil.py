@@ -84,7 +84,7 @@ class WordUtility(object):
             dest = 'gather_tex',
             action ='store_true',
             default = False,
-            help = 'Gather TeX macros into one file. This is available only with -t.'
+            help = 'Gather TeX macros from multiple files into one file. This is available only with -t.'
         )
         parser.add_argument(
             '-tor',
@@ -199,7 +199,6 @@ class WordUtility(object):
             c = s[1]
             if (c != '\n') and (c != ' ') and ( c != '\t'):
                 codes += '%s\tU+%04X\t%s\n' %(c, ord(c), unicodedata.name(c).lower())
-                # codes += '%s\tU+%04X\n' %(c, ord(c))
         return codes
 
     def get_unicode(self, afile):
@@ -267,7 +266,7 @@ class WordUtility(object):
         opener = FileOpener()
         opener.OpenTxt(output) 
 
-    def run(self):
+    def determine_task(self):
         if not self.determine_suffix():
             return
         self.determine_tex_patterns()
@@ -287,4 +286,4 @@ class WordUtility(object):
 if __name__ == '__main__':
     wordutil = WordUtility()
     wordutil.parse_args()
-    wordutil.run()
+    wordutil.determine_task()

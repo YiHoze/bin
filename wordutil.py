@@ -1,4 +1,4 @@
-# 가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎
+# wordutil.py -b -u 가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎
 import os
 import sys
 import argparse
@@ -49,14 +49,16 @@ class WordUtility(object):
         wordutil.py foo.txt
             This also counts words and characters. This option requires TeX Live.
         wordutil.py -U foo.txt
-            foo_unicode.txt is created to show Unicode code points except space, tab and line feed.
+            foo_unicode.txt is created to show Unicode code points 
+            except space, tab and line feed.
         wordutil.py -e -k foo.tex
             Words are extracted into foo_extracted.txt
             With "-k", numbers and TeX macros are also extracted.
         wordutil.py -t -g -tor foo.tex goo.tex
             TeX macros are extracted into foo_picked.txt and goo_picked.txt.
             With "-g", TeX macros are gathered into tex_picked.txt
-            with "-tor", a brief description of the syntax of Tortoise Tagger is added to the output. Be aware that the output file is encoded in EUC-KR.'
+            with "-tor", a brief description of the syntax of Tortoise Tagger is 
+            added to the output. Be aware that the output file is encoded in EUC-KR.'
         wordutil.py -b -u aZ가힣
             For the given characters, their UTF-8 bytes are analyzed.
             With "-u", uppercase letters are used for hexadecimal numbers.
@@ -77,7 +79,7 @@ class WordUtility(object):
             dest = 'unicode',
             action = 'store_true',
             default = False,
-            help = 'View character codes in Unicode.'
+            help = 'View Unicode code points.'
         )
         parser.add_argument(
             '-e',
@@ -105,14 +107,14 @@ class WordUtility(object):
             dest = 'gather_tex',
             action ='store_true',
             default = False,
-            help = 'Gather TeX macros from multiple files into one file. This is available only with -t.'
+            help = 'Gather TeX macros from multiple files into one file. This is available only with "-t".'
         )
         parser.add_argument(
             '-tor',
             dest = 'tortoise',
             action = 'store_true',
             default = False,
-            help = 'Prepend the Tortoise Tagger syntax to the output for reference. This is available only with the -t option.'
+            help = 'Add description of Tortoise Tagger to the output for reference. This is available only with "-t".'
         )
         parser.add_argument(
             '-s',
@@ -131,7 +133,7 @@ class WordUtility(object):
             dest='upper',
             action='store_true',
             default=False,
-            help='Use uppercase for hexadecimal. This option is available only with "-b".'
+            help='Use uppercase for hexadecimal. This is available only with "-b".'
         )
         args = parser.parse_args()
         self.files = args.files

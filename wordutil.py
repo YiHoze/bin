@@ -1,3 +1,4 @@
+# 가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎
 import os
 import sys
 import argparse
@@ -41,18 +42,38 @@ class WordUtility(object):
 &"""
 
     def parse_args(self):
+
+        example = '''examples:
+        wordutil.py foo.txt
+            Word and character counts are displayed.
+        wordutil.py foo.txt
+            This also counts words and characters. This option requires TeX Live.
+        wordutil.py -U foo.txt
+            foo_unicode.txt is created to show Unicode code points except space, tab and line feed.
+        wordutil.py -e -k foo.tex
+            Words are extracted into foo_extracted.txt
+            With "-k", numbers and TeX macros are also extracted.
+        wordutil.py -t -g -tor foo.tex goo.tex
+            TeX macros are extracted into foo_picked.txt and goo_picked.txt.
+            With "-g", TeX macros are gathered into tex_picked.txt
+            with "-tor", a brief description of the syntax of Tortoise Tagger is added to the output. Be aware that the output file is encoded in EUC-KR.'
+        wordutil.py -b -u aZ가힣
+            For the given characters, their UTF-8 bytes are analyzed.
+            With "-u", uppercase letters are used for hexadecimal numbers.
+        '''
         parser = argparse.ArgumentParser(
-            description='With this script, you can 1) count or extract words from a text file; 2) view codes of characters in a file encoded in UTF-8; 3) extract tex macros from a tex file. A PDF file can be processed for word count if TeX Live is installed. Be aware that the output file produced with the "-tor" option is encoded in EUC-KR.'
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter            
         )
 
         parser.add_argument(
             'files',
             type=str,
             nargs='+',
-            help='Specify one or more text files.'
+            help='Specify one or more text files, or characters to analyze their UTF-8 bytes.'
         )
         parser.add_argument(
-            '-u',
+            '-U',
             dest = 'unicode',
             action = 'store_true',
             default = False,
@@ -98,6 +119,20 @@ class WordUtility(object):
             dest = 'suffix',    
             help = 'Specify a suffix for output. The default varies by options.'
         )
+        parser.add_argument(
+            '-b',
+            dest = 'utf_byte',
+            action = 'store_true',
+            default = False,
+            help = 'Analyze UTF-8 bytes of given characters.',
+        )
+        parser.add_argument(
+            '-u',
+            dest='upper',
+            action='store_true',
+            default=False,
+            help='Use uppercase for hexadecimal. This option is available only with "-b".'
+        )
         args = parser.parse_args()
         self.files = args.files
         self.unicode_bool = args.unicode
@@ -107,6 +142,8 @@ class WordUtility(object):
         self.gather_tex_bool = args.gather_tex
         self.tortoise_bool = args.tortoise
         self.suffix = args.suffix
+        self.utf_byte_bool = args.utf_byte
+        self.upper_bool = args.upper
 
     def check_TeXLive(self):
         try:
@@ -267,21 +304,96 @@ class WordUtility(object):
         opener.OpenTxt(output) 
 
     def determine_task(self):
-        if not self.determine_suffix():
-            return
-        self.determine_tex_patterns()
-        for fnpattern in self.files:
-            for afile in glob.glob(fnpattern):
-                afile = self.check_if_pdf(afile)
-                if afile is not None:
-                    if self.extract_bool:
-                        self.extract_words(afile)
-                    elif self.unicode_bool:
-                        self.get_unicode(afile)
-                    elif self.tex_bool:                
-                        self.pick_tex_macro(afile)
-                    else:
-                        self.count_words(afile)
+        if self.utf_byte_bool:
+            utf = UTFanalyzer(chars=self.files[0], upper=self.upper_bool)
+            utf.show()
+        else:
+            if not self.determine_suffix():
+                return
+            self.determine_tex_patterns()
+            for fnpattern in self.files:
+                for afile in glob.glob(fnpattern):
+                    afile = self.check_if_pdf(afile)
+                    if afile is not None:
+                        if self.extract_bool:
+                            self.extract_words(afile)
+                        elif self.unicode_bool:
+                            self.get_unicode(afile)
+                        elif self.tex_bool:                
+                            self.pick_tex_macro(afile)
+                        else:
+                            self.count_words(afile)
+
+class UTFanalyzer(object):
+
+    def __init__(self, chars=None, upper=False):
+        self.chars = chars
+        self.upper_bool = upper
+
+    def highlight_Bcode(self, dec, byte):
+        # 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37: white
+        head = '\x1b[37m'
+        tail = '\x1b[36m'
+        normal = '\x1b[0m'
+
+        if dec < int('0x80', 16):        
+            byte = byte.zfill(8)
+            return head + byte[:1] + tail + byte[1:] + normal
+        elif dec < int('0x800', 16):
+            byte = byte.zfill(12)
+            return head + byte[0:6] + tail + byte[6:] + normal
+        elif dec < int('0x10000', 16):
+            byte = byte.zfill(16)
+            return head + byte[0:4] + tail + byte[4:10] + head + byte[10:16] + normal
+        else:
+            byte = byte.zfill(24)
+            return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal            
+
+    def highlight_Bbyte(self, byte_number, byte_index, byte):
+        head = '\x1b[32m'
+        tail = '\x1b[33m'
+        normal = '\x1b[0m'
+        if byte_index > 0: 
+            return head + byte[:2] + tail + byte[2:] + normal
+        else:
+            if byte_number == 2:
+                return head + byte[:3] + tail + byte[3:] + normal
+            elif byte_number == 3:
+                return head + byte[:4] + tail + byte[4:] + normal
+            elif byte_number == 4:
+                return head + byte[:5] + tail + byte[5:] + normal
+
+    def show(self):
+        for char in self.chars:
+            # decimal code points
+            Dcode = ord(char)
+            # hexadecimal code points
+            Hcode = hex(Dcode).replace('0x', '')
+            if self.upper_bool:
+                Hcode = Hcode.upper()
+            # binary code points
+            Bcode = bin(Dcode).replace('0b', '')
+            # Bcode = Bcode.zfill(8)
+            Bcode = self.highlight_Bcode(Dcode, Bcode)
+            # hexadecimal UTF-8 bytes
+            if Dcode > 127:
+                Hbyte = str(char.encode('utf-8'))
+                Hbyte = Hbyte.replace("b'\\x", "")
+                Hbyte = Hbyte.replace("'", "")
+                Hbyte = Hbyte.split('\\x')
+                # binary UTF-8 bytes
+                Bbyte = []
+                for i, val in enumerate(Hbyte):
+                    if self.upper_bool:
+                        Hbyte[i] = val.upper()
+                    bbyte = bin(int(val, 16)).replace('0b', '')
+                    bbyte = self.highlight_Bbyte(len(Hbyte), i, bbyte)
+                    Bbyte.append(bbyte)
+                Hbyte = ' '.join(Hbyte)
+                Bbyte = ' '.join(Bbyte)
+                print(char, Hcode, Bcode, Hbyte, Bbyte)
+            else:
+                print(char, Hcode, Bcode)
 
 if __name__ == '__main__':
     wordutil = WordUtility()

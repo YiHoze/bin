@@ -29,13 +29,14 @@ class ConvertUnit(object):
     def parse_args(self):
         example = '''examples:
         unit.py 10 mi 20
-            10 to 20 miles are converted to kilometers
+            10 to 20 miles are converted to kilometers.
         unit.py -c 0000FF
-            This RGB value is converted to CMYK
+            This RGB value is converted to CMYK.
         unit.py -c 240,120,99
-            This RGB value is converted to CMYK
+            This RGB value is converted to CMYK.
         unit.py -c 0.1,0.33,0.01
-            This CMYK value is converted to RGB
+            This CMYK value is converted to RGB.
+            
         To use a comma as thousand separator in Powershell, 
         wrap the number with quotes or use the escape character.
             unit "100,000" pa

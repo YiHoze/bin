@@ -294,7 +294,7 @@ class LatexCompiler(object):
     def bookmark_item(self, line, pattern):
         entry = re.search(pattern, line)
         if entry: 
-            entry = entry.group(1).replace('\spxentry{', '')
+            entry = entry.group(1).replace('\\spxentry{', '')
             page = re.findall(r'\\hyperpage\{(\d+)\}', line)
             append = ''
             for i in range(len(page)):

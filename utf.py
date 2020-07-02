@@ -32,7 +32,7 @@ class UTFanalyzer(object):
     def highlight_Bcode(self, dec, byte):
         # 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37: white
         head = '\x1b[32m'
-        tail = '\x1b[36m'
+        tail = '\x1b[37m'
         normal = '\x1b[0m'
 
         if dec < int('0x80', 16):        
@@ -46,7 +46,7 @@ class UTFanalyzer(object):
             return head + byte[0:4] + tail + byte[4:10] + head + byte[10:16] + normal
         else:
             byte = byte.zfill(24)
-            return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal
+            return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal            
 
     def highlight_Bbyte(self, byte_number, byte_index, byte):
         head = '\x1b[32m'
@@ -59,6 +59,8 @@ class UTFanalyzer(object):
                 return head + byte[:3] + tail + byte[3:] + normal
             elif byte_number == 3:
                 return head + byte[:4] + tail + byte[4:] + normal
+            elif byte_number == 4:
+                return head + byte[:5] + tail + byte[5:] + normal
 
     def show(self):
         for char in self.chars:

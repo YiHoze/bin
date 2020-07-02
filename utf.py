@@ -31,7 +31,7 @@ class UTFanalyzer(object):
 
     def highlight_Bcode(self, dec, byte):
         # 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37: white
-        head = '\x1b[32m'
+        head = '\x1b[34m'
         tail = '\x1b[37m'
         normal = '\x1b[0m'
 

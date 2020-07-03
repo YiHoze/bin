@@ -44,25 +44,26 @@ class WordUtility(object):
     def parse_args(self):
 
         example = '''examples:
-        wordutil.py foo.txt
-            Word and character counts are displayed.
-        wordutil.py foo.txt
-            This also counts words and characters. This option requires TeX Live.
-        wordutil.py -U foo.txt
-            foo_unicode.txt is created to show Unicode code points 
-            except space, tab and line feed.
-        wordutil.py -e -k foo.tex
-            Words are extracted into foo_extracted.txt
-            With "-k", numbers and TeX macros are also extracted.
-        wordutil.py -t -g -tor foo.tex goo.tex
-            TeX macros are extracted into foo_picked.txt and goo_picked.txt.
-            With "-g", TeX macros are gathered into tex_picked.txt
-            with "-tor", a brief description of the syntax of Tortoise Tagger is 
-            added to the output. Be aware that the output file is encoded in EUC-KR.'
-        wordutil.py -b -u aZ가힣
-            For the given characters, their UTF-8 bytes are analyzed.
-            With "-u", uppercase letters are used for hexadecimal numbers.
-        '''
+    wordutil.py foo.txt
+        Word and character counts are displayed.
+    wordutil.py foo.txt
+        This also counts words and characters. This option requires TeX Live.
+    wordutil.py -U foo.txt
+        foo_unicode.txt is created to show Unicode code points 
+        except space, tab and line feed.
+    wordutil.py -e -k foo.tex
+        Words are extracted into foo_extracted.txt
+        With "-k", numbers and TeX macros are also extracted.
+    wordutil.py -t -g -tor foo.tex goo.tex
+        TeX macros are extracted into foo_picked.txt and goo_picked.txt.
+        With "-g", TeX macros are gathered into tex_picked.txt
+        with "-tor", a brief description of the syntax of Tortoise Tagger 
+            is added to the output. 
+            Be aware that the output file is encoded in EUC-KR.'
+    wordutil.py -b -u aZ가힣
+        For the given characters, their UTF-8 bytes are analyzed.
+        With "-u", uppercase letters are used for hexadecimal numbers.
+    '''
         parser = argparse.ArgumentParser(
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter            

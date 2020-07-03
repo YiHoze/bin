@@ -18,25 +18,25 @@ class FontInfo(object):
     def parse_args(self):
         example = '''examples:
     fontinfo.py     
-        gathers font information into fonts_list.txt.
-    fontinfo.py -l foo.txt
+        The information about the installed fonts is gathered into "fonts_list.txt".
+    fontinfo.py -o foo.txt
         "foo.txt" is used instead of "fonts_list.txt".
     fontinfo.py "Noto Serif"
-        creates NotoSerif.pdf, which contains a multilingual text.
+        "NotoSerif.pdf" is created, which contains multilingual text.
     fontinfo.py -i NotoSerif-Regular.ttf
-        shows the defails, including full name.         
+        The font defails are displayed, including the full name.         
     fontinfo.py -i "Noto Serif"
-        enumerates all fonts that belong to the same family.
+        Every font that belongs to the same family is enumerated.
         '''
         parser = argparse.ArgumentParser( 
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description = 'View the list of installed fonts, see what glyphs a font contains using an example text, or see information about a font. This script requires TeX Live.'
+            description = 'This script requires TeX Live.'
         )
         parser.add_argument(
             'font',
             nargs = '?',
-            help = 'Specify a font name or filename.'
+            help = 'Specify a font name or file name.'
         )
         parser.add_argument(
             '-i',
@@ -46,10 +46,10 @@ class FontInfo(object):
             help = 'Show the font name.'
         )
         parser.add_argument(
-            '-l',
+            '-o',
             dest = 'fonts_list',    
             default = 'fonts_list.txt',
-            help = 'Specify a filename for the list of fonts (default: fonts_list.txt).'
+            help = 'Specify a file name for the output.'
         )
         args = parser.parse_args()
         self.font = args.font

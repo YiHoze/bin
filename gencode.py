@@ -19,17 +19,18 @@ class GenerateCode(object):
     def parse_args(self):
         example = '''examples:
     gencode.py 979118986911
-        creates a barcode image named barcode.png.
+        A barcode image named "barcode.png" is created.
     gencode.py 979118986911 -s
-        creates barcode.svg in addition to barcode.png.
+        "barcode.svg" is created in addition to barcode.png.
     gencdoe.py 979118986911 -o foo
-        creates "foo.png".
+        "foo.png" is created.
     gencode.py 979118986911 979118986912
-        creates barcode_01.png and barcode_02.png.
+        "barcode_01.png" and "barcode_02.png" are created.
     gencode.py -q https://github.com/yihoze
-        creates a QR code image names qrcode.png.
+        A QR code image named "qrcode.png" is created.
     gencode.py -d qrcode.png.
-        decodes qrcode.png, and opens it in the web browser if the content is a web address.
+        The decoded result is displayed.
+        If the content is a web address, it is opened by the default web browser.
         '''
         parser = argparse.ArgumentParser(
             epilog = example,  
@@ -53,8 +54,7 @@ class GenerateCode(object):
             '-o',
             dest = 'output',
             default = 'barcode',
-            help = '''Specify a file name for output. 
-            The default is "barcode" or "qrcode", and it will be sequentially numbered with two digits.'''
+            help = 'Specify a file name for output. The default is "barcode" or "qrcode.'
         )
         parser.add_argument(
             '-s',

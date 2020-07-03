@@ -21,7 +21,7 @@ from mytex import LatexTemplate
 class Lotto(object):
 
     def __init__(self, 
-    letters=None, combination=0, wordnet=False, number=False, frequency=5, pdf=False, weeks=8):
+    letters=None, combination=None, wordnet=False, number=False, frequency=5, pdf=False, weeks=8):
         self.letters = letters
         self.combination = combination
         self.number_bool = number
@@ -32,21 +32,40 @@ class Lotto(object):
 
     def parse_args(self):
 
+        example = '''examples:
+    lotto.py -f 10 -p -w 20
+        Lotto numbers are picked at random.
+        With "-f 10", 10 set of lotto numbers are presented.
+        With "-p", lotto numbers are printed in PDF. This requires TeX Live.            
+        With "-w 20", lotto numbers are presented for coming 20 weeks.
+        This is available only with "-p".
+    lotto.py -c 3-4 -W -n 12ab가나
+        These characters are permuted.
+        With "-c 3-4", characters are selected within the specified range 
+            and each set is permuted.
+        With "-c 2", characters are selected from the specified number 
+            up to the length of the given characters.
+        With "-W", only meaningful words among the results are displayed.
+    lotto.py -n [...]
+        Each result is numbered.
+    '''
+
         parser = argparse.ArgumentParser(
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Pick lotto numbers or permute letters.'
         )
         parser.add_argument(
             'letters',
             type = str,
             nargs = '?',
-            help = 'Type letters without space for permutation or nothing for lotto.'
+            help = 'Type characters without space for permutation or nothing for lotto.'
         )
         parser.add_argument(
             '-c',
             dest = 'combination',   
-            type = int,         
-            default = 0,
-            help = 'Specify a least number of letters but bigger than 1 to generate combinations for permutation.'
+            default = None,
+            help = 'Specify a range of combination.'
         )        
         parser.add_argument(
             '-n',
@@ -91,14 +110,33 @@ class Lotto(object):
         self.pdf_bool = args.pdf
         self.weeks = args.weeks        
 
-    def run(self):
+    def determine_task(self):
         if self.letters is None:
             self.run_lotto()
+        # permutation or combination
         else:
             self.letters = self.letters.upper()
-            if self.combination > 1:
-                self.display_results(self.run_combinations(self.letters))
-
+            # check combination range
+            if self.combination is not None:     
+                cnt = self.combination 
+                cnt = self.combination.split('-')
+                try:
+                    if len(cnt) == 1:
+                        start = int(cnt[0])                
+                        end = len(self.letters)
+                    elif len(cnt) == 2:
+                        start = int(cnt[0])
+                        end = int(cnt[1])
+                except:
+                    print('Wrong combination range')
+                    return False           
+                if start > end:
+                    start = end
+                if start < 2:
+                    start = 2
+                if end > len(self.letters):
+                    end = len(self.letters)
+                self.display_results(self.run_combinations(self.letters, start, end))                
             else:
                 self.display_results(self.run_permutations(self.letters))
 
@@ -124,17 +162,15 @@ class Lotto(object):
             else:
                 print(result)
 
-    def run_combinations(self, letters):
-        letters = list(letters)
-        cnt = self.combination 
+    def run_combinations(self, letters, start, end):
+        letters = list(letters)               
         perms = []
-        while cnt <= len(letters):
-            combs = combinations(letters, cnt)
+        while start <= end:
+            combs = combinations(letters, start)
             for i in list(combs):
                 perms.extend(self.run_permutations(''.join(i)))
-            cnt += 1
+            start += 1
         return perms
-
 
     def run_permutations(self, letters):
         # num is just passed from run_combinations() to display_results() 
@@ -161,7 +197,7 @@ class Lotto(object):
         if self.number_bool:
             digits = len(results)
             digits = len(str(digits))
-            if self.combination > 1:
+            if self.combination is not None:
                 results = sorted(results, key=len)
                 for index, value in enumerate(results):
                     print('{}.{:{d}}: {}'.format(len(value), index+1, value, d=digits))
@@ -169,7 +205,7 @@ class Lotto(object):
                 for index, value in enumerate(results):
                     print('{:{d}}: {}'.format(index+1, value, d=digits))
         else:
-            if self.combination > 1:
+            if self.combination is not None:
                 # sort by the length of elements
                 results = sorted(results, key=len)
                 letters = len(results[0])
@@ -201,7 +237,7 @@ if __name__ == '__main__':
     if lotto.pdf_bool:
         lotto.generate_pdf()
     else:
-        lotto.run()
+        lotto.determine_task()
 
 # def permute(a, k=0):    
 #     global num

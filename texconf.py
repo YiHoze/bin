@@ -252,10 +252,8 @@ class TeXLiveConf(object):
         else:
             if not (answer.lower() == 'y' or answer == ''):
                 repository = answer
-            cmd = 'tlmgr.bat option repository %s' %(repository)
-            os.system(cmd)
-            cmd = 'tlmgr.bat update --self --all'
-            os.system(cmd)
+            os.system('tlmgr.bat option repository %s' %(repository))
+            os.system('tlmgr.bat update --self --all')
 
     def cache_font(self):
         print('\n[Caching fonts]')

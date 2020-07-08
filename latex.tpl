@@ -160,7 +160,7 @@ tex:    `\documentclass{article}
 		`\setlength\parindent{0pt}
 		`
 		`\begin{document}     
-		`%%\ShowGlyphsBySlot{Noto Serif CJK KR}%%[1](10000)
+		`%%\ShowGlyphsBySlot{\1}[1](10000)
 		`\ShowGlyphsByUnicode{\1}{\2}{\3}
 		`\end{document}
 
@@ -850,7 +850,7 @@ tex:	`\documentclass{minimal}
 		`\usepackage{xparse, expl3}
 		`\usepackage{graphicx}
 		`\usepackage[a4paper]{geometry}
-		`'\usepackage{pdfpages}
+		`\usepackage{pdfpages}
 		`
 		`\setlength\fboxsep{0pt}
 		`\setlength\parindent{0pt}
@@ -3496,7 +3496,7 @@ tex: 	`\documentclass[a4paper]{article}
 		`\end{document}
 
 [counter]
-desription: This template shows all available counter representations supported by KoTeX and dingbats.
+description: This template shows all available counter representations supported by KoTeX and dingbats.
 output: counters
 compiler: -c
 tex: 	`\documentclass[twocolumn]{article}
@@ -3563,3 +3563,122 @@ tex: 	`\documentclass[twocolumn]{article}
 		`\HangulCounter{\hNum*.}[24]
 		`\HangulCounter{\hanjanum*.}[24]
 		`\end{document}
+
+[babel]
+description: This template shows the basic usage of babel and polyglossia packages.
+output: mybabel
+compiler: -w
+tex: 	\documentclass[a5paper]{memoir}
+
+		\usepackage[main=russian, english]{babel}
+		\babelfont[english]{rm}{Noto Serif Light}
+		\babelfont[russian]{rm}{CMU Serif}
+		\babelfont[english]{sf}{Noto Sans Light}
+		\babelfont[russian]{sf}{CMU Sans Serif}
+
+		%% \usepackage{polyglossia}
+		%% \setdefaultlanguage{russian}
+		%% \setotherlanguage{english}
+		%% \newfontfamily\englishfont{Noto Serif Light}
+		%% \newfontfamily\englishfontsf{Noto Sans Light}
+		%% \newfontfamily\cyrillicfont{CMU Serif}
+		%% \newfontfamily\cyrillicfontsf{CMU Sans Serif}
+
+		\newcommand*\oxygen{O\textsubscript{2}}
+
+		\begin{document}
+
+		\tableofcontents
+
+		\selectlanguage{english}
+
+		\chapter{Introduction}
+
+		XXX is a portable gas detector, featuring the following:
+
+		Activate the detector before the activation date on the package.
+
+		This product is a gas detector, not a measurement device.
+
+		Ensure that the sensor grill is free of dirt, debris, and is not obstructed.
+
+		Clean the exterior with a soft, damp cloth.
+
+		For optimal performance, periodically zero the sensor in a normal atmosphere (20.9\%% v/v \oxygen) that is free of hazardous gas.
+
+		\sffamily
+
+		Portable safety gas detectors are life safety devices. Accuracy of ambient gas reading(s) is dependent upon factors such as accuracy of the calibration gas standard used for calibration and frequency of calibration.
+		Honeywell Analytics recommends performing a calibration at least once every 180 days (6 months).
+
+		The combustible gas sensor is initially calibrated to 50\%% LEL methane. Only methane gas should be used to calibrate or bump test the combustible gas sensor.
+
+		Only the combustible gas detection portion of this instrument has been assessed for performance.
+
+		High off-scale readings may indicate an explosive concentration.
+
+		Any rapid up scaling reading followed by a declining or erratic reading may indicate a gas concentration beyond the upper scale limit, which can be hazardous.
+
+		Products may contain materials that are regulated for transportation under domestic and international dangerous goods regulations. Return product in compliance with appropriate dangerous goods regulations. Contact freight carrier for further instructions.
+
+		Recycling: this instrument contains a lithium battery.
+		Do not mix with the solid waste stream.
+		Spent batteries should be disposed of by a qualified recycler or hazardous materials handler.
+
+		\selectlanguage{russian}
+
+		\rmfamily
+
+		\chapter{Введение}
+
+		XXX – это переносной газоанализатор со следующими характеристиками:
+
+		Газоанализатор необходимо активировать до истечения срока активации, указанного на упаковке.
+
+		Не допускайте загрязнения и блокирования отверстий решетки сенсора.
+
+		Для очистки корпуса пользуйтесь мягкой, влажной салфеткой.
+
+		Для оптимальной работы газоанализатора следует периодически обнулять сенсор в нормальной атмосфере (с объемной долей 20,9\%% \oxygen), не содержащей опасных газов.
+
+		\sffamily
+
+		Переносные газоанализаторы обеспечивают безопасность жизнедеятельности. Точность показаний окружающего газа зависит от таких факторов, как точность калибровочного газа, который используется для калибровки, а также от частоты проведения калибровок.  
+		Honeywell Analytics рекомендует выполнять калибровку не реже, чем каждые 180 дней (6 месяцев).
+
+		сенсор горючего газа изначально откалиброван на НКПР 50\%% по метану. Следует использовать только метан для калибровки датчики и ударного теста на горючий газ.
+
+		Оценивалась только работа той части прибора, которая улавливает горючие газы.
+
+		Зашкаливающие показания могут свидетельствовать о взрывоопасной концентрации газа.
+
+		Любое резкое увеличение показаний, за которым идет спад или неустойчивость значений, может свидетельствовать о том, что концентрация газа превышает верхний предел, а это может быть опасно.
+
+		Оборудование может содержать материалы, подпадающие под действие национальных и международных правил перевозки опасных грузов.  В случае возврата оборудования необходимо обеспечить соблюдение правил перевозки опасных грузов. Для получения дополнительных указаний обратитесь в транспортную компанию.
+
+		Утилизация: в данном приборе есть литиевая батарея. 
+		Не бросайте газоанализатор в поток твердых отходов. 
+		Отработавшие батареи следует сдавать в специализированный пункт переработки опасных материалов. 
+
+		\end{document}
+
+[combination]
+description: This template contains a lua code to calculate combinations.
+	example: mytex.py combinations -s 45 6
+output: comb
+compiler: -l
+placeholders: 2
+defaults: 45, 6 
+tex: 	`\documentclass[a5paper]{article}
+		`\newcommand\comb[2]{
+		`	${#1\choose #2} =  \directlua{
+		`		local res, n, r = 1, #1, #2
+		`		for j=1, r do
+		`		res = res * (n - r + j) / j
+		`		end
+		`		tex.print(math.floor(res))
+		`	}$
+		`}
+		`\begin{document}
+		`\comb{\1}{\2}
+		`\end{document} 

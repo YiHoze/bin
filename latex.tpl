@@ -3682,3 +3682,99 @@ tex: 	`\documentclass[a5paper]{article}
 		`\begin{document}
 		`\comb{\1}{\2}
 		`\end{document} 
+
+[abreast]
+description: This template immitates the wrapfig package.
+output: abreast
+compiler: -c
+tex: 	`\documentclass[a4paper]{article}
+		`\usepackage{graphicx}
+		`\usepackage{xparse}
+		`
+		`\ExplSyntaxOn
+		`\box_new:N \l_image_box
+		`\box_new:N \l_text_box
+		`\dim_new:N \l_image_box_wd
+		`\dim_new:N \l_image_box_ht
+		`\dim_new:N \l_text_box_wd
+		`\dim_new:N \l_text_box_ht
+		`\dim_new:N \l_box_sep
+		`\dim_set:Nn \l_box_sep { 1em }
+		`\bool_new:N \l_bigger_bool
+		`
+		`\NewDocumentCommand \abreast { m +m }
+		`{    
+		`    \group_begin:
+		`    \hyphenchar\font=-1
+		`    \sloppy
+		`
+		`    %% 이미지 크기를 재고
+		`    \hbox_set:Nn \l_image_box { \includegraphics[scale=1]{#1} }
+		`    \dim_set:Nn \l_image_box_wd { \box_wd:N \l_image_box }
+		`    \dim_set:Nn \l_image_box_ht { \box_ht:N \l_image_box + \box_dp:N \l_image_box }
+		`
+		`    %% 텍스트를 위한 폭을 지정하여, 박스에 넣고 높이를 잰다.
+		`    \dim_set:Nn \l_text_box_wd { \linewidth - \l_image_box_wd - \l_box_sep }
+		`    \vbox_set:Nn \l_tmpa_box { \hsize=\l_text_box_wd #2 }
+		`    \dim_set:Nn \l_text_box_ht { \box_ht:N \l_tmpa_box + \box_dp:N \l_tmpa_box }
+		`
+		`    %% 텍스트 박스가 이미지보다 크면 이미지와 같은 높이로 자른다.
+		`    \dim_compare:nTF { \l_text_box_ht > \l_image_box_ht } 
+		`    {        
+		`        \vbox_set_split_to_ht:NNn \l_text_box \l_tmpa_box { \l_image_box_ht }
+		`    }{
+		`        \vbox_set_to_ht:Nnn \l_text_box { \l_image_box_ht } { \vbox_unpack:N \l_tmpa_box }        
+		`    }      
+		`    \mbox{} \box_use_drop:N \l_image_box \hfill \box_use_drop:N \l_text_box
+		`
+		`    %% 텍스트 박스가 이미보다 크면 자르고 남은 텍스트를 식자한다.
+		`    \dim_compare:nT { \l_text_box_ht > \l_image_box_ht } 
+		`    {
+		`        \newline
+		`        \exp_args:No \abreast_tail:n { #2 }
+		`    }
+		`    \group_end:
+		`}
+		`
+		`%% 공백을 기준으로 텍스트를 나누어 시퀀스에 넣는다.
+		`\cs_new:Npn \abreast_tail:n #1
+		`{    
+		`    \str_clear:N \l_tmpa_tl
+		`    \str_clear:N \l_tmpb_tl
+		`    \bool_set_false:N \l_bigger_bool
+		`    \seq_set_split:Nnn \l_tmpa_seq { ~ }{ #1 }
+		`    %% 나머지 텍스트를 구한다.
+		`    \seq_map_function:NN \l_tmpa_seq \abreast_determine_tail:n
+		`    \tl_use:N \l_tmpb_tl
+		`
+		`}
+		`
+		`\cs_new:Npn \abreast_determine_tail:n #1
+		`{
+		`    %% 텍스트 박스가 이미지보다 커지면 남은 텍스트를 따로 모은다.
+		`    \bool_if:NTF \l_bigger_bool
+		`    {
+		`        \tl_put_right:Nn \l_tmpb_tl { #1~ }
+		`    }{
+		`        %% 이미지와 같은 높이가 될 때까지 한 단어씩 박스에 집어넣고 높이를 잰다.
+		`        \tl_put_right:Nn \l_tmpa_tl { #1~ }            
+		`        \vbox_set:Nn \l_tmpa_box { \hsize=\l_text_box_wd  \tl_use:N \l_tmpa_tl }
+		`        \dim_set:Nn \l_text_box_ht { \box_ht:N \l_tmpa_box + \box_dp:N \l_tmpa_box }
+		`        \dim_compare:nT { \l_text_box_ht > \l_image_box_ht }
+		`        {
+		`            \bool_gset_true:N \l_bigger_bool
+		`        }
+		`    }
+		`}
+		`\ExplSyntaxOff
+		`
+		`\def\ltext{Vertical boxes inherit their baseline from their contents. The standard case is that the baseline of the box is at the same position as that of the last item added to the box.}
+		`\def\rtext{The functions above for using box contents work in exactly the same way as for any other expl3 variable. However, for efficiency reasons, it is also useful to have functions which drop box contents on use. \par When a box is dropped, the box becomes empty at the group level where the box was originally set rather than necessarily at the current group level. Vertical boxes inherit their baseline from their contents. The standard case is that the baseline of the box is at the same position as that of the last item added to the box.}
+		`\setlength\parindent{0pt}
+		`
+		`\begin{document}
+		`
+		`\abreast{uncertain}{\ltext}\\
+		`\abreast{uncertain}{\rtext}
+		`
+		`\end{document}

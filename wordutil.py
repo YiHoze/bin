@@ -394,7 +394,7 @@ class UTFanalyzer(object):
                     Bbyte.append(bbyte)
                 Hbyte = ' '.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
-                print(char, Hcode, Bcode, Hbyte, Bbyte)
+                print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte)
             else:
                 print(char, Hcode, Bcode)
 

@@ -943,7 +943,7 @@ tex:	`\documentclass{minimal}
 
 [lettercolor]
 description: Use this template to apply gradient or random colors to letters.	
-	Applying different colors to jamo requires xelatex and the colorjamo package, which is available from https://github.com/dohyunkim/colorjamo
+	Applying different colors to jamo requires lualatex and the colorjamo package, which is available from https://github.com/dohyunkim/colorjamo
 	usage: mytex.py lettercolor -s FONT 
 	default: "Noto Serif CJK KR"
 output: lettercolor
@@ -3776,5 +3776,242 @@ tex: 	`\documentclass[a4paper]{article}
 		`
 		`\abreast{uncertain}{\ltext}\\
 		`\abreast{uncertain}{\rtext}
+		`
+		`\end{document}
+
+[jamoemph]
+description: This template highlights hangul vowels in different colors. It requires lualatex and the colorjamo package.
+output: jamoemph
+compiler: -l
+tex: 	`\documentclass[a4paper]{article}
+		`
+		`\usepackage{kotex}
+		`\usepackage{colorjamo}
+		`\usepackage{environ}
+		`
+		`\setmainhangulfont{Noto Serif CJK KR}[
+		`    Script=Hangul,
+		`    Language=Korean,
+		`    BoldFont={* SemiBold}
+		`]
+		`\setsanshangulfont{Noto Sans CJK KR}[
+		`    Script=Hangul,
+		`    Language=Korean,
+		`    BoldFont={* Medium}
+		`]
+		`
+		`\jamotransparency{FF}
+		`'
+		`\ExplSyntaxOn
+		`
+		`\clist_new:N \l_color_jung_clist
+		`
+		`\keys_define:nn { JamoEmph }
+		`{
+		`	font	.tl_set:N = \l_jamoemph_font_tl,
+		`	cho		.tl_set:N = \l_color_cho_tl,
+		`	jung	.tl_set:N = \l_color_jung_tl,
+		`	jong	.tl_set:N = \l_color_jong_tl,
+		`    distinct    .bool_set:N = \l_jamoemph_distinct_bool,
+		`    a       .tl_set:N = \l_jung_a_tl,
+		`    ae      .tl_set:N = \l_jung_ae_tl,
+		`    ya      .tl_set:N = \l_jung_ya_tl,
+		`    yae     .tl_set:N = \l_jung_yae_tl,
+		`    eo      .tl_set:N = \l_jung_eo_tl,
+		`    e       .tl_set:N = \l_jung_e_tl,
+		`    yeo     .tl_set:N = \l_jung_yeo_tl,
+		`    ye      .tl_set:N = \l_jung_ye_tl,
+		`    o       .tl_set:N = \l_jung_o_tl,
+		`    wa      .tl_set:N = \l_jung_wa_tl,
+		`    wae     .tl_set:N = \l_jung_wae_tl,
+		`    oe      .tl_set:N = \l_jung_oe_tl,
+		`    yo      .tl_set:N = \l_jung_yo_tl,
+		`    u       .tl_set:N = \l_jung_u_tl,
+		`    wo      .tl_set:N = \l_jung_wo_tl,
+		`    we      .tl_set:N = \l_jung_we_tl,
+		`    wi      .tl_set:N = \l_jung_wi_tl,
+		`    yu      .tl_set:N = \l_jung_yu_tl,
+		`    eu      .tl_set:N = \l_jung_eu_tl,
+		`    ui      .tl_set:N = \l_jung_ui_tl,
+		`    i       .tl_set:N = \l_jung_i_tl
+		`}
+		`
+		`\NewDocumentCommand \JamoEmphSetup { m }
+		`{
+		`	\keys_set:nn { JamoEmph }{ #1 }
+		`    \exp_args:NV \jamocolorcho \l_color_cho_tl
+		`    \exp_args:NV \jamocolorjung \l_color_jung_tl
+		`    \exp_args:NV \jamocolorjong \l_color_jong_tl
+		`    \clist_set:No \l_color_jung_clist {
+		`        \l_jung_a_tl,
+		`        \l_jung_ae_tl,
+		`        \l_jung_ya_tl,
+		`        \l_jung_yae_tl,
+		`        \l_jung_eo_tl,
+		`        \l_jung_e_tl,
+		`        \l_jung_yeo_tl,
+		`        \l_jung_ye_tl,
+		`        \l_jung_o_tl,
+		`        \l_jung_wa_tl,
+		`        \l_jung_wae_tl,
+		`        \l_jung_oe_tl,
+		`        \l_jung_yo_tl,
+		`        \l_jung_u_tl,
+		`        \l_jung_wo_tl,
+		`        \l_jung_we_tl,
+		`        \l_jung_wi_tl,
+		`        \l_jung_yu_tl,
+		`        \l_jung_eu_tl,
+		`        \l_jung_ui_tl,
+		`        \l_jung_i_tl
+		`    }
+		`}
+		`
+		`\JamoEmphSetup{
+		`    font = {},    
+		`    cho = 000000,
+		`    jung= FF0000,
+		`    jong= 000000,
+		`    distinct = true,
+		`    a   = 7FFFD4,
+		`    ae  = FFE4C4,
+		`    ya  = 8A2BE2,
+		`    yae = DEB887,
+		`    eo  = D2691E,
+		`    e   = A52A2A,
+		`    yeo = A9A9A9,
+		`    ye  = BDB76B,
+		`    o   = FF8C00,
+		`    wa  = 8B008B,
+		`    wae = 556B2F,
+		`    oe  = 9932CC,
+		`    yo  = 483D8B,
+		`    u   = 2F4F4F,
+		`    wo  = 9400D3,
+		`    we  = B22222,
+		`    wi  = 228B22,
+		`    yu  = FFD700,
+		`    eu  = DAA520,
+		`    ui  = 4B0082,
+		`    i   = F0E68C
+		`}
+		`
+		`\NewDocumentCommand \jamoemph { o +m }
+		`{
+		`	\IfValueT { #1 }
+		`	{
+		`		\JamoEmphSetup{#1}
+		`	}
+		`    \bool_if:NTF \l_jamoemph_distinct_bool
+		`    {
+		`	    \seq_set_split:Nnn \l_tmpa_seq { \par }{ #2 }
+		`	    \seq_map_function:NN \l_tmpa_seq \jamoemph_split_lines:n
+		`    }{
+		`        \begin{colorjamo}
+		`            #2
+		`        \end{colorjamo}
+		`    }
+		`}
+		`
+		`\int_new:N \l_seq_count_int
+		`
+		`\cs_new:Npn \jamoemph_split_lines:n #1
+		`{
+		`	\seq_set_split:Nnn \l_tmpb_seq { \\ }{ #1 }
+		`	\int_set:Nn \l_seq_count_int { \seq_count:N \l_tmpb_seq }
+		`
+		`	\seq_map_inline:Nn \l_tmpb_seq
+		`	{
+		`		\seq_set_split:Nnn \l_tmpc_seq { ~ }{ ##1 }
+		`		\seq_map_function:NN \l_tmpc_seq \jamoemph_split_words:n
+		`
+		`		\int_decr:N \l_seq_count_int
+		`		\int_compare:nT { \l_seq_count_int > 0 } { \newline }
+		`	}\par
+		`}
+		`
+		`\cs_new:Npn \jamoemph_split_words:n #1
+		`{
+		`	\tl_set:Nn \l_tmpa_tl { #1 }
+		`	\tl_map_inline:Nn \l_tmpa_tl
+		`	{
+		`        \jamoemph_identify_character:n ##1
+		`        \begin{colorjamo} \l_jamoemph_font_tl
+		`            ##1
+		`        \end{colorjamo}
+		`	}\space
+		`}
+		`
+		`\int_new:N \l_code_int
+		`\int_const:Nn \c_start_point { 44032 }   % 가'
+		`\int_new:N \l_basecode_int
+		`\int_new:N \l_cho_int
+		`\int_new:N \l_jung_int
+		`\int_new:N \l_jong_int
+		`
+		`% basecode = 문자코드 - 44032
+		`% 초성코드 = basecode / 588
+		`% 중성코드 = (basecode - 588*초성코드) / 28
+		`% 종성코드 = (basecode - 588*초성코드 - 28*중성코드)
+		`
+		`\cs_new:Npn \get_lvt_code:n #1
+		`{
+		`	\int_set:Nn \l_cho_int { \int_div_truncate:nn { #1 } { 588 } }
+		`	\int_set:Nn \l_jung_int { \int_div_truncate:nn { #1 - 588 * \l_cho_int } { 28 } }
+		`	\int_set:Nn \l_jong_int { #1 - \l_cho_int * 588 - \l_jung_int * 28 }
+		`}
+		`
+		`\cs_new:Npn \jamoemph_identify_character:n #1
+		`{
+		`	\int_zero:N \l_basecode_int
+		`	\int_zero:N \l_cho_int
+		`	\int_zero:N \l_jung_int
+		`	\int_zero:N \l_jong_int
+		`
+		`	\str_set_convert:Nnnn \l_code_tl { #1 } { } { clist }
+		`	\exp_args:NNx \int_set:Nn \l_code_int { \l_code_tl }
+		`
+		`	\bool_if:nT
+		`	{
+		`		\int_compare_p:n { \l_code_int >= \c_start_point }
+		`	  &&
+		`		\int_compare_p:n { \l_code_int <= 55199 }
+		`	}
+		`	{
+		`		\int_set:Nn \l_basecode_int { \l_code_int - \c_start_point }
+		`		\exp_args:Nx \get_lvt_code:n { \int_use:N \l_basecode_int }
+		`        \tl_set:Nx \l_tmpb_tl
+		`        {
+		`            \clist_item:Nn \l_color_jung_clist { \l_jung_int + 1 }
+		`        }
+		`        \exp_args:NV \jamocolorjung \l_tmpb_tl
+		`	}
+		`}
+		`
+		`\NewEnviron{JamoEmph}[1][]
+		`{
+		`	\JamoEmphSetup{#1}
+		`	\exp_args:NV \jamoemph \BODY
+		`}
+		`
+		`\ExplSyntaxOff
+		`
+		`\begin{document}
+		`
+		`\begin{JamoEmph}
+		`우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
+		`
+		`백 년 전, 위대한 어느 미국인이 노예해방령에 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 노예들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
+		`
+		`우리나라 역사상 자유를 위한 가장 위대한 시위가 있었던 날로서 역사에 기록될 오늘 나는 여러분과 함께 하게 되어 행복합니다.
+		`\end{JamoEmph}
+		`
+		`\begin{JamoEmph}[distinct=false]
+		`우리 역사에서 자유를 위한 가장 훌륭한 시위가 있던 날로 기록될 오늘 이 자리에 여러분과 함께하게 된 것을 기쁘게 생각합니다.
+		`
+		`백 년 전, 위대한 어느 미국인이 노예해방령에 서명을 했습니다. 지금 우리가 서 있는 이곳이 바로 그 자리입니다. 그 중대한 선언은 불의의 불길에 시들어가고 있던 수백만 흑인 노예들에게 희망의 횃불로 다가왔습니다. 그것은 그 긴 속박의 밤을 끝낼 흥겨운 새벽으로 왔습니다.
+		`
+		`우리나라 역사상 자유를 위한 가장 위대한 시위가 있었던 날로서 역사에 기록될 오늘 나는 여러분과 함께 하게 되어 행복합니다.
+		`\end{JamoEmph}
 		`
 		`\end{document}

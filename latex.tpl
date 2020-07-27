@@ -3799,8 +3799,7 @@ tex: 	`\documentclass[a4paper]{article}
 		`    Language=Korean,
 		`    BoldFont={* Medium}
 		`]
-		`
-		`\jamotransparency{FF}
+		``\jamotransparency{FF}
 		`'
 		`\ExplSyntaxOn
 		`
@@ -4131,3 +4130,30 @@ tex:	`\documentclass{article}
 		`
 		`\zigzagpar*[21]\lipsum[1]
 		`\end{document}
+
+[pythontex]
+description: This template shows an example of pythontex.
+output: pytex
+compiler: -py, -w
+tex:	\documentclass{article}
+		\usepackage{kotex}
+		\usepackage{xcolor}
+		\usepackage{tabto}
+		\usepackage{pythontex}
+
+		\newcommand\codetail[1]{\textcolor{blue}{#1}}
+		\newcommand\bytehead[1]{\textcolor{red}{#1}}
+		\newcommand\bytetail[1]{\textcolor{brown}{#1}}
+		\TabPositions{0pt, .15\linewidth, .5\linewidth}
+
+		\begin{document}
+		\begin{pyblock}
+		import sys
+		sys.path.append('c:\\home\\bin')
+		from wordutil import UTFanalyzer
+		utf = UTFanalyzer( chars="aA가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎", \
+		    upper=True, tex=True)
+		utf.show()
+		\end{pyblock}
+		\small \texttt{\printpythontex}
+		\end{document} 

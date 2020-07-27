@@ -250,32 +250,29 @@ class LatexCompiler(object):
 
     def compile_once(self, cmd_tex):
         os.system(cmd_tex)
-        if self.python_bool:
-            self.pythontex()    
-            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         if self.index_bool:
             self.sort_index()
+        if self.python_bool:
+            self.pythontex()    
 
     def compile_twice(self, cmd_tex):
         os.system(cmd_tex)
-        if self.python_bool:
-            self.pythontex() 
-            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         if self.index_bool:
             self.sort_index()
+        if self.python_bool:
+            self.pythontex() 
         os.system(cmd_tex) 
 
     def compile_fully(self, cmd_tex):
         os.system(cmd_tex)
-        if self.python_bool:
-            self.pythontex() 
-            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
+        if self.python_bool:
+            self.pythontex()
         os.system(cmd_tex)
         self.sort_index()       
         if os.path.exists(self.ind):

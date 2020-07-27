@@ -329,42 +329,75 @@ class WordUtility(object):
 
 class UTFanalyzer(object):
 
-    def __init__(self, chars=None, upper=False):
+    def __init__(self, chars=None, upper=False, color=True):
         self.chars = chars
         self.upper_bool = upper
+        self.color_bool = color
 
     def highlight_Bcode(self, dec, byte):
         # 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37: white
-        head = '\x1b[37m'
-        tail = '\x1b[36m'
-        normal = '\x1b[0m'
+        if self.color_bool:
+            head = '\x1b[37m'
+            tail = '\x1b[36m'
+            normal = '\x1b[0m'
 
-        if dec < int('0x80', 16):        
-            byte = byte.zfill(8)
-            return head + byte[:1] + tail + byte[1:] + normal
-        elif dec < int('0x800', 16):
-            byte = byte.zfill(12)
-            return head + byte[0:6] + tail + byte[6:] + normal
-        elif dec < int('0x10000', 16):
-            byte = byte.zfill(16)
-            return head + byte[0:4] + tail + byte[4:10] + head + byte[10:16] + normal
-        else:
-            byte = byte.zfill(24)
-            return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal            
+        if self.color_bool:
+            if dec < int('0x80', 16):        
+                byte = byte.zfill(8)
+                return head + byte[:1] + tail + byte[1:] + normal
+            elif dec < int('0x800', 16):
+                byte = byte.zfill(12)
+                return head + byte[0:6] + tail + byte[6:] + normal
+            elif dec < int('0x10000', 16):
+                byte = byte.zfill(16)
+                return head + byte[0:4] + tail + byte[4:10] + head + byte[10:16] + normal
+            else:
+                byte = byte.zfill(24)
+                return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal
+        else:                
+            if dec < int('0x80', 16):        
+                byte = byte.zfill(8)
+                return '{}\\codetail{{{}}}'.format(byte[:1], byte[1:])
+            elif dec < int('0x800', 16):
+                byte = byte.zfill(12)
+                return '{}\\codetail{{{}}}'.format(byte[0:6] + byte[6:])
+            elif dec < int('0x10000', 16):
+                byte = byte.zfill(16)
+                return '{}\\codetail{{{}}}{}'.format(byte[0:4], byte[4:10], byte[10:16])
+            else:
+                byte = byte.zfill(24)
+                return '{}\\codetail{{{}}}{}\\codetail{{{}}}'.format(byte[0:6], byte[6:12], byte[12:18], byte[18:24])
 
     def highlight_Bbyte(self, byte_number, byte_index, byte):
-        head = '\x1b[32m'
-        tail = '\x1b[33m'
-        normal = '\x1b[0m'
-        if byte_index > 0: 
-            return head + byte[:2] + tail + byte[2:] + normal
+        if self.color_bool:
+            head = '\x1b[32m'
+            tail = '\x1b[33m'
+            normal = '\x1b[0m'
         else:
-            if byte_number == 2:
-                return head + byte[:3] + tail + byte[3:] + normal
-            elif byte_number == 3:
-                return head + byte[:4] + tail + byte[4:] + normal
-            elif byte_number == 4:
-                return head + byte[:5] + tail + byte[5:] + normal
+            head = '\\bytehead'
+            tail = '\\bytetail'
+
+        if byte_index > 0: 
+            if self.color_bool:                
+                return head + byte[:2] + tail + byte[2:] + normal
+            else:
+                return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:2], byte[2:])
+        else:
+            if self.color_bool:
+                if byte_number == 2:
+                    return head + byte[:3] + tail + byte[3:] + normal
+                elif byte_number == 3:
+                    return head + byte[:4] + tail + byte[4:] + normal
+                elif byte_number == 4:
+                    return head + byte[:5] + tail + byte[5:] + normal
+            else:
+                if byte_number == 2:
+                    return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:3], byte[3:])
+                elif byte_number == 3:                    
+                    return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:4], byte[4:])
+                elif byte_number == 4:                    
+                    return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:5], byte[5:])
+
 
     def show(self):
         for char in self.chars:
@@ -394,9 +427,15 @@ class UTFanalyzer(object):
                     Bbyte.append(bbyte)
                 Hbyte = ' '.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
-                print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte)
+                if self.color_bool:
+                    print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte)
+                else:
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, '\\\\')                
             else:
-                print(char, Hcode, Bcode)
+                if self.color_bool:
+                    print(char, Dcode, Hcode, Bcode)
+                else:
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\\\')
 
 if __name__ == '__main__':
     wordutil = WordUtility()

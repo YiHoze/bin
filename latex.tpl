@@ -4015,3 +4015,119 @@ tex: 	`\documentclass[a4paper]{article}
 		`\end{JamoEmph}
 		`
 		`\end{document}
+
+[zigzag]
+description: This template makes zigzag-shaped paragraphs.
+output: zigzag
+compiler: -c
+tex:	`\documentclass{article}
+		`\usepackage{lipsum}
+		`\usepackage{xparse}
+		`
+		`\ExplSyntaxOn
+		`
+		`\bool_new:N \l_shape_forth_bool
+		`\dim_new:N \l_shape_indent_dim
+		`\dim_new:N \l_shape_xpos_dim
+		`\tl_new:N \l_shape_xpos_tl
+		`\dim_new:N \l_shape_length_dim
+		`\tl_new:N \l_shape_length_tl
+		`\tl_new:N \l_shape_tl
+		`
+		`\NewDocumentCommand \zigzagpar { s O{10} D<>{2em} D(){.5\linewidth} }
+		`{
+		`
+		`    \dim_set:Nn \l_shape_indent_dim { #3 }    
+		`    
+		`    \tl_set:Nn \l_shape_tl { #2~ }
+		`
+		`    \IfBooleanTF {#1}
+		`    {
+		`        \bool_set_false:N \l_shape_forth_bool
+		`        \dim_set:Nn \l_shape_xpos_dim { .5\linewidth - .5em }
+		`        \dim_set:Nn \l_shape_length_dim { 1em }        
+		`    }{
+		`        \bool_set_true:N \l_shape_forth_bool
+		`        \dim_set:Nn \l_shape_xpos_dim { 0pt }
+		`        \dim_set:Nn \l_shape_length_dim { #4 }
+		`        \tl_set:Nn \l_shape_length_tl { #4 }
+		`    }
+		`    \IfBooleanTF {#1}
+		`    {
+		`        \int_step_function:nN { #2 } \trianglepar_shift:n
+		`    }{
+		`        \int_step_function:nN { #2 } \zigzagpar_shift:n 
+		`    }
+		`    \exp_last_unbraced:Nx \parshape \l_shape_tl
+		`    %% \tl_to_str:N \l_shape_tl
+		`}
+		`
+		`\cs_new:Npn \zigzagpar_shift:n #1
+		`{
+		`    \bool_if:NTF \l_shape_forth_bool
+		`    {
+		`        \dim_add:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
+		`        \dim_set:Nn \l_tmpa_dim { \l_shape_xpos_dim + \l_shape_length_dim }
+		`        \dim_compare:nT { \l_tmpa_dim > \linewidth }
+		`        {
+		`            \dim_sub:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }
+		`    }{
+		`        \dim_sub:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
+		`        \dim_compare:nT { \l_shape_xpos_dim < 0pt }
+		`        {
+		`            \dim_add:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }
+		`    }    
+		`    \tl_set:Nx \l_shape_xpos_tl { \dim_to_decimal:n { \l_shape_xpos_dim } }
+		`
+		`    \tl_put_right:No \l_shape_tl 
+		`    { 
+		`        \l_shape_xpos_tl pt ~ \l_shape_length_tl ~ 
+		`    }
+		`}
+		`
+		`\cs_new:Npn \trianglepar_shift:n #1
+		`{
+		`    \bool_if:NTF \l_shape_forth_bool
+		`    {
+		`        \dim_add:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
+		`        \dim_sub:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`        \dim_compare:nT { \l_shape_xpos_dim > .5\linewidth }
+		`        {
+		`            \dim_sub:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \dim_add:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }
+		`    }{
+		`        \dim_sub:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
+		`        \dim_add:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`        \dim_compare:nT { \l_shape_xpos_dim < 0pt }
+		`        {
+		`            \dim_add:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \dim_sub:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }
+		`    }
+		`    \tl_set:Nx \l_shape_xpos_tl { \dim_to_decimal:n { \l_shape_xpos_dim } }
+		`    \tl_set:Nx \l_shape_length_tl { \dim_to_decimal:n { \l_shape_length_dim } }
+		`
+		`    \tl_put_right:Nx \l_shape_tl 
+		`    { 
+		`       \l_shape_xpos_tl pt ~ \l_shape_length_tl pt ~ 
+		`    }
+		`}
+		`
+		`\ExplSyntaxOff
+		`
+		`\setlength\parindent{0pt}
+		`\begin{document}
+		`
+		`\zigzagpar[22]\lipsum[1]
+		`
+		`\medskip
+		`
+		`\zigzagpar*[21]\lipsum[1]
+		`\end{document}

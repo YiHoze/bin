@@ -3,6 +3,7 @@ import sys
 import glob
 import argparse
 import re
+import shutil
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -14,7 +15,7 @@ class LatexCompiler(object):
         view=False, compile=True, bibtex=False, luatex=False,
         index=False, language='korean', komkindex=False, index_style='kotex.ist',
         bookmark_index=False, bookmark_python=False, 
-        final=False, draft=False):
+        final=False, draft=False, python=False):
         self.tex = tex
         self.batch_bool = batch
         self.shell_bool = shell
@@ -34,6 +35,7 @@ class LatexCompiler(object):
         self.bm_python_bool = bookmark_python
         self.final_bool = final
         self.draft_bool = draft
+        self.python_bool = python
 
     def get_ready(self):        
         if self.luatex_bool:
@@ -75,6 +77,7 @@ class LatexCompiler(object):
             self.idx = filename + '.idx'
             self.ind = filename + '.ind'
             self.pdf = filename + '.pdf'
+            self.py = filename + '.pytxcode'
             if not os.path.exists(self.tex):                
                 print('%s is not found.' %(self.tex))
                 self.tex = None
@@ -213,7 +216,16 @@ class LatexCompiler(object):
             default = False,
             help = 'Find \\FinalizerON to replace it with \\FinalizerOff in the tex file.'    
         )
+        parser.add_argument(
+            '-py',
+            dest = 'python',
+            action = 'store_true',
+            default = False,
+            help = 'Run pythontex.exe.'    
+        )
+
         args = parser.parse_args(argv)
+
         if args.tex is not None:
             self.tex = args.tex
         self.batch_bool = args.batch
@@ -234,9 +246,13 @@ class LatexCompiler(object):
         self.bm_python_bool = args.bookmark_python
         self.final_bool = args.final
         self.draft_bool = args.draft
+        self.python_bool = args.python
 
     def compile_once(self, cmd_tex):
         os.system(cmd_tex)
+        if self.python_bool:
+            self.pythontex()    
+            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         if self.index_bool:
@@ -244,6 +260,9 @@ class LatexCompiler(object):
 
     def compile_twice(self, cmd_tex):
         os.system(cmd_tex)
+        if self.python_bool:
+            self.pythontex() 
+            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         if self.index_bool:
@@ -252,6 +271,9 @@ class LatexCompiler(object):
 
     def compile_fully(self, cmd_tex):
         os.system(cmd_tex)
+        if self.python_bool:
+            self.pythontex() 
+            os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         os.system(cmd_tex)
@@ -303,11 +325,14 @@ class LatexCompiler(object):
         return line
 
     def clear_aux(self):
-        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb")
+        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb", "pytxcode")
         for ext in extensions:
             fnpattern = '*.' + ext
             for afile in glob.glob(fnpattern):
                 os.remove(afile)
+        
+        if os.path.exists('pythontex-files-pytex'):
+            shutil.rmtree('pythontex-files-pytex')        
 
     def finalizer_on(self):
         with open(self.tex, mode = 'r', encoding = 'utf-8') as f:
@@ -322,6 +347,9 @@ class LatexCompiler(object):
         content = re.sub("\\\\FinalizerOn", "\\\\FinalizerOff", content)
         with open(self.tex, mode = 'w', encoding = 'utf-8') as f:
             f.write(content)
+
+    def pythontex(self):
+        os.system('pythontex.exe --runall=true %s' %(self.py))
 
     def compile(self):
         self.get_ready()

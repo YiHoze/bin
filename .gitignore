@@ -1,10 +1,12 @@
 .vscode/
 __pycache__/
+build/
 coverage/
+dist/
 inquisitive/
 pandoc/
 pdf2htmlEX/
 *.cls
 *.sty
+*.spec
 daily.ini
-proj.py

@@ -4019,117 +4019,325 @@ tex: 	`\documentclass[a4paper]{article}
 description: This template makes zigzag-shaped paragraphs.
 output: zigzag
 compiler: -c
-tex:	`\documentclass{article}
-		`\usepackage{lipsum}
-		`\usepackage{xparse}
+sty:	`\RequirePackage{tikzpagenodes}
+		`\RequirePackage{xparse}
 		`
 		`\ExplSyntaxOn
-		`
+		`\int_new:N \l_shape_lines_int
 		`\bool_new:N \l_shape_forth_bool
 		`\dim_new:N \l_shape_indent_dim
-		`\dim_new:N \l_shape_xpos_dim
-		`\tl_new:N \l_shape_xpos_tl
+		`\dim_new:N \l_shape_position_dim
+		`\tl_new:N \l_shape_position_tl
 		`\dim_new:N \l_shape_length_dim
+		`\dim_new:N \l_shape_increment_dim
 		`\tl_new:N \l_shape_length_tl
 		`\tl_new:N \l_shape_tl
 		`
-		`\NewDocumentCommand \zigzagpar { s O{10} D<>{2em} D(){.5\linewidth} }
+		`%% \zigzagpar[number of lines]<indentation length>(text length){text}
+		`\NewDocumentCommand \zigzagpar { o D<>{2em} D(){.5\linewidth} +m }
 		`{
-		`
-		`    \dim_set:Nn \l_shape_indent_dim { #3 }    
-		`    
-		`    \tl_set:Nn \l_shape_tl { #2~ }
-		`
-		`    \IfBooleanTF {#1}
+		`    \IfValueTF { #1 }
 		`    {
-		`        \bool_set_false:N \l_shape_forth_bool
-		`        \dim_set:Nn \l_shape_xpos_dim { .5\linewidth - .5em }
-		`        \dim_set:Nn \l_shape_length_dim { 1em }        
+		`        \int_set:Nn \l_shape_lines_int { #1 }
 		`    }{
-		`        \bool_set_true:N \l_shape_forth_bool
-		`        \dim_set:Nn \l_shape_xpos_dim { 0pt }
-		`        \dim_set:Nn \l_shape_length_dim { #4 }
-		`        \tl_set:Nn \l_shape_length_tl { #4 }
+		`        \vbox_set:Nn \l_tmpa_box { \hsize=\linewidth #4 }
+		`        \dim_set:Nn \l_tmpa_dim { \box_ht:N \l_tmpa_box + \box_dp:N \l_tmpa_box }
+		`        \int_set:Nn \l_tmpa_int
+		`        {
+		`            \fp_eval:n { round (\dim_ratio:nn {\l_tmpa_dim}{\baselineskip}) }
+		`        }
+		`        \int_set:Nn \l_shape_lines_int { \l_tmpa_int * 2 }
 		`    }
-		`    \IfBooleanTF {#1}
-		`    {
-		`        \int_step_function:nN { #2 } \trianglepar_shift:n
-		`    }{
-		`        \int_step_function:nN { #2 } \zigzagpar_shift:n 
-		`    }
-		`    \exp_last_unbraced:Nx \parshape \l_shape_tl
-		`    %% \tl_to_str:N \l_shape_tl
+		`
+		`    \dim_set:Nn \l_shape_indent_dim { #2 }    
+		`    \dim_set:Nn \l_shape_position_dim { #2 * -1 }
+		`    \dim_set:Nn \l_shape_length_dim { #3 }
+		`    \tl_set:Nn \l_shape_length_tl { #3 }
+		`    \bool_set_true:N \l_shape_forth_bool
+		`
+		`    \tl_set:No \l_shape_tl { \int_use:N \l_shape_lines_int }
+		`    \tl_put_right:Nn \l_shape_tl { ~ }
+		`    \int_step_function:nN { \l_shape_lines_int } \zigzagpar_shift:n 
+		`    \exp_last_unbraced:Nx \parshape \l_shape_tl #4
 		`}
 		`
-		`\cs_new:Npn \zigzagpar_shift:n #1
+		`\cs_new:Nn \zigzagpar_shift:n 
 		`{
 		`    \bool_if:NTF \l_shape_forth_bool
 		`    {
-		`        \dim_add:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
-		`        \dim_set:Nn \l_tmpa_dim { \l_shape_xpos_dim + \l_shape_length_dim }
+		`        \dim_add:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_set:Nn \l_tmpa_dim { \l_shape_position_dim + \l_shape_length_dim }
 		`        \dim_compare:nT { \l_tmpa_dim > \linewidth }
 		`        {
-		`            \dim_sub:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \dim_sub:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
 		`            \bool_set_false:N \l_shape_forth_bool
 		`        }
 		`    }{
-		`        \dim_sub:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
-		`        \dim_compare:nT { \l_shape_xpos_dim < 0pt }
+		`        \dim_sub:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_compare:nT { \l_shape_position_dim < 0pt }
 		`        {
-		`            \dim_add:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
+		`            \dim_add:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
 		`            \bool_set_true:N \l_shape_forth_bool
 		`        }
 		`    }    
-		`    \tl_set:Nx \l_shape_xpos_tl { \dim_to_decimal:n { \l_shape_xpos_dim } }
-		`
-		`    \tl_put_right:No \l_shape_tl 
+		`    \tl_set:Nx \l_shape_position_tl { \dim_to_decimal:n { \l_shape_position_dim } }
+		`    \tl_put_right:Nx \l_shape_tl 
 		`    { 
-		`        \l_shape_xpos_tl pt ~ \l_shape_length_tl ~ 
+		`        \l_shape_position_tl pt ~ \l_shape_length_tl ~ 
 		`    }
 		`}
 		`
-		`\cs_new:Npn \trianglepar_shift:n #1
+		`%% \diamondpar*[number of lines]<indentation length>{text}
+		`\NewDocumentCommand \diamondpar { s o D<>{1em} +m }
+		`{   
+		`    \IfValueTF { #2 }
+		`    {
+		`        \int_set:Nn \l_shape_lines_int { #2 }
+		`    }{
+		`        \vbox_set:Nn \l_tmpa_box { \hsize=\linewidth #4 }
+		`        \dim_set:Nn \l_tmpa_dim { \box_ht:N \l_tmpa_box + \box_dp:N \l_tmpa_box }
+		`        \int_set:Nn \l_tmpa_int
+		`        {
+		`            \fp_eval:n { round (\dim_ratio:nn {\l_tmpa_dim}{\baselineskip}) }
+		`        }
+		`        \int_set:Nn \l_shape_lines_int { \l_tmpa_int * 3 }
+		`    }
+		`
+		`    \dim_set:Nn \l_shape_indent_dim { #3 }    
+		`    \dim_set:Nn \l_shape_increment_dim { #3 * 2 }
+		`    \IfBooleanTF { #1 }
+		`    {
+		`        \dim_set:Nn \l_shape_position_dim { 0pt }
+		`        \dim_set:Nn \l_shape_length_dim { \linewidth }
+		`        \bool_set_true:N \l_shape_forth_bool
+		`    }{
+		`        \dim_set:Nn \l_shape_position_dim { .5\linewidth }
+		`        \dim_set:Nn \l_shape_length_dim { 0pt }
+		`        \bool_set_false:N \l_shape_forth_bool
+		`    }
+		`    
+		`    \tl_set:No \l_shape_tl { \int_use:N \l_shape_lines_int }
+		`    \tl_put_right:Nn \l_shape_tl { ~ }    
+		`    \int_step_function:nN { \l_shape_lines_int } \diamondpar_shift:n
+		`    \exp_last_unbraced:Nx \parshape \l_shape_tl #4
+		`}
+		`
+		`\cs_new:Nn \diamondpar_shift:n 
 		`{
 		`    \bool_if:NTF \l_shape_forth_bool
 		`    {
-		`        \dim_add:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
-		`        \dim_sub:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
-		`        \dim_compare:nT { \l_shape_xpos_dim > .5\linewidth }
+		`        \dim_add:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_compare:nTF { \l_shape_position_dim > .5\linewidth }
 		`        {
-		`            \dim_sub:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
-		`            \dim_add:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`            \dim_sub:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
+		`            \dim_add:Nn \l_shape_length_dim { \l_shape_increment_dim }
 		`            \bool_set_false:N \l_shape_forth_bool
+		`        }{
+		`            \dim_sub:Nn \l_shape_length_dim { \l_shape_increment_dim }
 		`        }
 		`    }{
-		`        \dim_sub:Nn \l_shape_xpos_dim { \l_shape_indent_dim }
-		`        \dim_add:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
-		`        \dim_compare:nT { \l_shape_xpos_dim < 0pt }
+		`        \dim_sub:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_compare:nTF { \l_shape_position_dim < 0pt }
+		`        {        
+		`            \dim_add:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
+		`            \dim_sub:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }{
+		`            \dim_add:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`        }
+		`    }
+		`    \tl_set:Nx \l_shape_position_tl { \dim_to_decimal:n { \l_shape_position_dim } }
+		`    \tl_set:Nx \l_shape_length_tl { \dim_to_decimal:n { \l_shape_length_dim } }
+		`    \tl_put_right:Nx \l_shape_tl 
+		`    { 
+		`       \l_shape_position_tl pt ~ \l_shape_length_tl pt ~ 
+		`    }
+		`}
+		`
+		`%% \diamondpar*/[number of lines]<increment>{text}
+		`%% the right angle is at 
+		`%% \diamondpar*/ : top left
+		`%% \diamondpar* : top right
+		`%% \diamondpar : bottom left
+		`%% \diamondpar/ : bottom right
+		`
+		`\NewDocumentCommand \rtrianglepar { s t{/} o D<>{1.5em} +m }
+		`{   
+		`    \IfValueTF { #3 }
+		`    {
+		`        \int_set:Nn \l_shape_lines_int { #3 }
+		`    }{
+		`        \vbox_set:Nn \l_tmpa_box { \hsize=\linewidth #5 }
+		`        \dim_set:Nn \l_tmpa_dim { \box_ht:N \l_tmpa_box + \box_dp:N \l_tmpa_box }
+		`        \int_set:Nn \l_tmpa_int
 		`        {
-		`            \dim_add:Nn \l_shape_xpos_dim { 2\l_shape_indent_dim }
-		`            \dim_sub:Nn \l_shape_length_dim { 2\l_shape_indent_dim }
+		`            \fp_eval:n { round (\dim_ratio:nn {\l_tmpa_dim}{\baselineskip}) }
+		`        }
+		`        \int_set:Nn \l_shape_lines_int { \l_tmpa_int * 3 }
+		`    }
+		`
+		`    \dim_set:Nn \l_shape_indent_dim { #4 }
+		`    \dim_set:Nn \l_shape_increment_dim { #4 }
+		`    \IfBooleanTF { #1 }
+		`    {
+		`        \dim_set:Nn \l_shape_length_dim { \linewidth + #4 }
+		`        \IfBooleanTF { #2 }
+		`        {
+		`            \tl_set:Nn \l_shape_position_tl { 0pt }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }{
+		`            \dim_set:Nn \l_shape_position_dim { #4 * -1 }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }
+		`    }{
+		`        \dim_set:Nn \l_shape_length_dim { 0pt }
+		`        \IfBooleanTF { #2 }
+		`        {
+		`            \dim_set:Nn \l_shape_position_dim { \linewidth + #4 }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }{
+		`            \tl_set:Nn \l_shape_position_tl { 0pt }
 		`            \bool_set_true:N \l_shape_forth_bool
 		`        }
 		`    }
-		`    \tl_set:Nx \l_shape_xpos_tl { \dim_to_decimal:n { \l_shape_xpos_dim } }
-		`    \tl_set:Nx \l_shape_length_tl { \dim_to_decimal:n { \l_shape_length_dim } }
+		`    
+		`    \tl_set:No \l_shape_tl { \int_use:N \l_shape_lines_int }    
+		`    \tl_put_right:Nn \l_shape_tl { ~ }
 		`
+		`    \IfBooleanTF { #1 }
+		`    {
+		`        \IfBooleanTF { #2 }
+		`        {
+		`            \int_step_function:nN { \l_shape_lines_int } \rtrianglepar_bottom_left:n
+		`        }{
+		`            \int_step_function:nN { \l_shape_lines_int } \rtrianglepar_bottom_right:n
+		`        }
+		`    }{
+		`        \IfBooleanTF { #2 }
+		`        {
+		`            \int_step_function:nN { \l_shape_lines_int } \rtrianglepar_bottom_right:n
+		`        }{
+		`            \int_step_function:nN { \l_shape_lines_int } \rtrianglepar_bottom_left:n
+		`        }
+		`    }
+		`    \exp_last_unbraced:Nx \parshape \l_shape_tl #5 
+		`}
+		`
+		`\cs_new:Nn \rtrianglepar_bottom_left:n 
+		`{
+		`    \bool_if:NTF \l_shape_forth_bool
+		`    {
+		`        \dim_add:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`        \dim_compare:nT { \l_shape_length_dim > \linewidth }
+		`        {
+		`            \dim_sub:Nn \l_shape_length_dim { 2\l_shape_increment_dim }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }
+		`    }{
+		`        \dim_sub:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`        \dim_compare:nT { \l_shape_length_dim < 0pt }
+		`        {        
+		`            \dim_add:Nn \l_shape_length_dim { 2\l_shape_increment_dim }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }
+		`    }
+		`    
+		`    \tl_set:Nx \l_shape_length_tl { \dim_to_decimal:n { \l_shape_length_dim } }
 		`    \tl_put_right:Nx \l_shape_tl 
 		`    { 
-		`       \l_shape_xpos_tl pt ~ \l_shape_length_tl pt ~ 
+		`       \l_shape_position_tl ~ \l_shape_length_tl pt ~ 
+		`    }
+		`}
+		`
+		`\cs_new:Nn \rtrianglepar_bottom_right:n 
+		`{
+		`    \bool_if:NTF \l_shape_forth_bool
+		`    {
+		`        \dim_add:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_compare:nTF { \l_shape_position_dim > \linewidth }
+		`        {
+		`            \dim_sub:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
+		`            \dim_add:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`            \bool_set_false:N \l_shape_forth_bool
+		`        }{
+		`            \dim_sub:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`        }
+		`    }{
+		`        \dim_sub:Nn \l_shape_position_dim { \l_shape_indent_dim }
+		`        \dim_compare:nTF { \l_shape_position_dim < 0pt }
+		`        {        
+		`            \dim_add:Nn \l_shape_position_dim { 2\l_shape_indent_dim }
+		`            \dim_sub:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`            \bool_set_true:N \l_shape_forth_bool
+		`        }{
+		`            \dim_add:Nn \l_shape_length_dim { \l_shape_increment_dim }
+		`        }
+		`    }
+		`    \tl_set:Nx \l_shape_position_tl { \dim_to_decimal:n { \l_shape_position_dim } }
+		`    \tl_set:Nx \l_shape_length_tl { \dim_to_decimal:n { \l_shape_length_dim } }
+		`    \tl_put_right:Nx \l_shape_tl 
+		`    { 
+		`       \l_shape_position_tl pt ~ \l_shape_length_tl pt ~ 
 		`    }
 		`}
 		`
 		`\ExplSyntaxOff
-		`
-		`\setlength\parindent{0pt}
-		`\begin{document}
-		`
-		`\zigzagpar[22]\lipsum[1]
-		`
-		`\medskip
-		`
-		`\zigzagpar*[21]\lipsum[1]
-		`\end{document}
+		`%% \cornerpar*[text width](font size)<increment>{text}
+		`\NewDocumentCommand \cornerpar {  s O{.2\paperwidth} D(){\scriptsize} D<>{1em} m }
+		`{
+		`    \IfBooleanTF { #1 }
+		`    {
+		`        \begin{tikzpicture}[every node/.style={inner sep=0pt},remember picture,overlay]        
+		`        #3 
+		`        \node[shift={(-1.0cm,1.0cm)},anchor=north west] at (current page.north west)
+		`            {\rotatebox{45}{\parbox{#2}{\diamondpar<#4>{#5}}}};
+		`        \node[shift={(1.0cm,1.0cm)},anchor=north east] at (current page.north east)
+		`            {\rotatebox{-45}{\parbox{#2}{\diamondpar<#4>{#5}}}};
+		`        \node[shift={(-1.0cm,-1.0cm)},anchor=south west] at (current page.south west)
+		`            {\rotatebox{135}{\parbox{#2}{\diamondpar<#4>{#5}}}};
+		`        \node[shift={(1.0cm,-1.0cm)},anchor=south east] at (current page.south east)
+		`            {\rotatebox{-135}{\parbox{#2}{\diamondpar<#4>{#5}}}};
+		`        \end{tikzpicture}
+		`    }{
+		`        \begin{tikzpicture}[every node/.style={inner sep=0pt},remember picture,overlay]
+		`        #3 
+		`        \node[shift={(.5cm,-.5cm)},anchor=north west] at (current page.north west)
+		`            {\parbox{#2}{\rtrianglepar*/<#4>{#5}}};
+		`        \node[shift={(-.5cm,-.5cm)},anchor=north east] at (current page.north east)
+		`            {\parbox{#2}{\rtrianglepar*<#4>{#5}}};
+		`        \node[shift={(.5cm,.5cm)},anchor=south west] at (current page.south west)
+		`            {\parbox{#2}{\rtrianglepar<#4>{#5}}};
+		`        \node[shift={(-.5cm,.5cm)},anchor=south east] at (current page.south east)
+		`            {\parbox{#2}{\rtrianglepar/<#4>{#5}}};
+		`        \end{tikzpicture}
+		`    }
+		`}
+		` 
+tex:	\documentclass{article}
+		\usepackage[a4paper]{geometry}
+		\usepackage{kotex}
+		\usepackage{zigzag}
+
+		\def\shorttext{김약국의 딸들. 통영은 다도해 부근에 있는 조촐한 어항이다.
+		부산과 여수 사이를 내왕하는 항로의 중간 지점으로서 그 고장의 젊은이들은 조선의 나폴리라고 한다.}
+		\def\longtext{그러니만큼 바닷빛은 맑고 푸르다.
+		북쪽에 두루미 목만큼 좁은 육로를 빼면 통영 역시 섬과 별다름이 없이 사면이 바다이다. 벼랑가에 얼마쯤 포전(浦田)이 있고, 언덕배기에 대부분의 집들이 송이버섯처럼 들앉은 지세는 빈약하다.}
+		\def\verylongtext{\shorttext\longtext\shorttext\longtext\shorttext\longtext\shorttext\longtext}
+
+		\setlength\parindent{0pt}
+		\pagestyle{empty}
+
+		\begin{document}
+		\mbox{}\vfill
+		\cornerpar[.16\paperwidth]<1.25em>{\shorttext}
+		\diamondpar<2em>{\verylongtext}
+		\vfill
+		\newpage
+		\mbox{}\vfill
+		\cornerpar*[.25\paperwidth]<1.1em>{\longtext}
+		\zigzagpar{\verylongtext}
+		\vfill
+		\end{document}	
 
 [pythontex]
 description: This template shows an example of pythontex.

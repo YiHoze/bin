@@ -73,7 +73,7 @@ class WordUtility(object):
             'files',
             type=str,
             nargs='+',
-            help='Specify one or more text files, or characters to analyze their UTF-8 bytes.'
+            help='Specify one or more text files, or instead type characters with "-b".'
         )
         parser.add_argument(
             '-U',
@@ -400,6 +400,7 @@ class UTFanalyzer(object):
 
     def show(self):
         for char in self.chars:
+            charname = unicodedata.name(char).lower()
             # decimal code points
             Dcode = ord(char)
             # hexadecimal code points
@@ -427,14 +428,14 @@ class UTFanalyzer(object):
                 Hbyte = ' '.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
                 if self.tex_bool:
-                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, '\\\\')                
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, charname, '\\\\')                
                 else:
-                    print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte)
+                    print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte, charname)
             else:
                 if self.tex_bool:
-                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\\\')
+                    print(char, Dcode, '\\tab', Hcode, Bcode, charname, '\\\\')
                 else:
-                    print(char, Dcode, Hcode, Bcode)
+                    print(char, Dcode, Hcode, Bcode, charname)
 
 if __name__ == '__main__':
     wordutil = WordUtility()

@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
 class WordUtility(object):
+
     def __init__(self):
         self.tex_picked = 'tex_picked.txt'
         self.tortoise = r"""~~~FindAsIs
@@ -129,14 +130,9 @@ class WordUtility(object):
             default = False,
             help = 'Analyze UTF-8 bytes of given characters.',
         )
-        parser.add_argument(
-            '-u',
-            dest='upper',
-            action='store_true',
-            default=False,
-            help='Use uppercase for hexadecimal. This is available only with "-b".'
-        )
+
         args = parser.parse_args()
+
         self.files = args.files
         self.unicode_bool = args.unicode
         self.extract_bool = args.extract
@@ -146,9 +142,9 @@ class WordUtility(object):
         self.tortoise_bool = args.tortoise
         self.suffix = args.suffix
         self.utf_byte_bool = args.utf_byte
-        self.upper_bool = args.upper
 
     def check_TeXLive(self):
+
         try:
             subprocess.check_call('pdftotext -v')
             return True
@@ -157,6 +153,7 @@ class WordUtility(object):
             return False
 
     def determine_suffix(self):
+
         if self.suffix is None:
             if self.unicode_bool:
                 self.suffix = 'unicode'
@@ -170,6 +167,7 @@ class WordUtility(object):
             return True                
 
     def determine_tex_patterns(self):
+
         # Extract TeX macros
         if self.tex_bool:
             self.tex_patterns = [
@@ -190,6 +188,7 @@ class WordUtility(object):
             ]
 
     def check_to_remove(self, afile):
+
         if os.path.exists(afile):
             answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
             if answer.lower() == 'y':
@@ -200,8 +199,9 @@ class WordUtility(object):
         else:
             return True
 
-    # Spaces are not counted as a character.
     def count_words(self, afile):
+
+        # Spaces are not counted as a character.
         lines, chars, words = 0, 0, 0
         f = open(afile, mode='r', encoding='utf-8')
         for line in f.readlines():
@@ -213,7 +213,8 @@ class WordUtility(object):
         msg = '%s\n Lines: %d\n Words: %d\n Characters: %d\n' % (afile, lines, words, chars)
         print(msg) 
 
-    def extract_words(self, afile):    
+    def extract_words(self, afile):
+
         basename = os.path.splitext(afile)[0]
         output = '%s_%s.txt' %(basename, self.suffix)
         if self.check_to_remove(output) is False:
@@ -234,6 +235,7 @@ class WordUtility(object):
         opener.OpenTxt(output) 
 
     def display_unicode(self, string):
+
         codes = ''
         for s in enumerate(string):
             c = s[1]
@@ -242,6 +244,7 @@ class WordUtility(object):
         return codes
 
     def get_unicode(self, afile):
+
         basename = os.path.splitext(afile)[0]
         output = '%s_%s.txt' %(basename, self.suffix)
         if self.check_to_remove(output) is False:
@@ -254,6 +257,7 @@ class WordUtility(object):
         opener.OpenTxt(output) 
 
     def check_if_pdf(self, afile):
+
         basename = os.path.basename(afile)
         filename, ext = os.path.splitext(basename)    
         if ext.lower() == '.pdf':
@@ -271,6 +275,7 @@ class WordUtility(object):
             return afile
 
     def pick_tex_macro(self, afile):
+
         found = []
         # read previously found macros
         if self.gather_tex_bool:
@@ -289,10 +294,12 @@ class WordUtility(object):
                 return        
         with open(afile, mode='r', encoding='utf-8') as f:
             content = f.read()
+
         # pick tex macros and keys
         for i in range(len(self.tex_patterns)):
             p = re.compile(self.tex_patterns[i])
-            found += p.findall(content)            
+            found += p.findall(content)
+
         # remove duplicates and sort
         found = set(found)
         macros = '\n'.join(sorted(found, key=str.lower))
@@ -307,8 +314,9 @@ class WordUtility(object):
         opener.OpenTxt(output) 
 
     def determine_task(self):
+
         if self.utf_byte_bool:
-            utf = UTFanalyzer(chars=self.files[0], upper=self.upper_bool)
+            utf = UTFanalyzer(chars=self.files[0])
             utf.show()
         else:
             if not self.determine_suffix():
@@ -331,7 +339,6 @@ class UTFanalyzer(object):
 
     def __init__(self, chars=None, upper=False, tex=False):
         self.chars = chars
-        self.upper_bool = upper
         self.tex_bool = tex
 
     def highlight_Bcode(self, dec, byte):
@@ -369,6 +376,7 @@ class UTFanalyzer(object):
                 return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal
 
     def highlight_Bbyte(self, byte_number, byte_index, byte):
+
         if self.tex_bool:
             head = '\\bytehead'
             tail = '\\bytetail'
@@ -399,18 +407,19 @@ class UTFanalyzer(object):
                     return head + byte[:5] + tail + byte[5:] + normal
 
     def show(self):
+
         for char in self.chars:
             charname = unicodedata.name(char).lower()
             # decimal code points
             Dcode = ord(char)
             # hexadecimal code points
             Hcode = hex(Dcode).replace('0x', '')
-            if self.upper_bool:
-                Hcode = Hcode.upper()
+            Hcode = Hcode.upper()
             # binary code points
             Bcode = bin(Dcode).replace('0b', '')
             # Bcode = Bcode.zfill(8)
             Bcode = self.highlight_Bcode(Dcode, Bcode)
+            
             # hexadecimal UTF-8 bytes
             if Dcode > 127:
                 Hbyte = str(char.encode('utf-8'))
@@ -420,12 +429,11 @@ class UTFanalyzer(object):
                 # binary UTF-8 bytes
                 Bbyte = []
                 for i, val in enumerate(Hbyte):
-                    if self.upper_bool:
-                        Hbyte[i] = val.upper()
+                    Hbyte[i] = val.upper()
                     bbyte = bin(int(val, 16)).replace('0b', '')
                     bbyte = self.highlight_Bbyte(len(Hbyte), i, bbyte)
                     Bbyte.append(bbyte)
-                Hbyte = ' '.join(Hbyte)
+                Hbyte = ''.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
                 if self.tex_bool:
                     print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, charname, '\\\\')                

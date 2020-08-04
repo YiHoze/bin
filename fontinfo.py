@@ -114,7 +114,7 @@ class FontInfo(object):
             else:
                 font = self.find_path(fonts)
                 if font is not False:
-                    cmd = 'otfinfo -i {}'.format(font)
+                    cmd = 'otfinfo -i "{}"'.format(font)
                     print('')
                     os.system(cmd)
                     print('')

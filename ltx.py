@@ -10,12 +10,14 @@ sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
 class LatexCompiler(object):
+
     def __init__(self, tex=None,
         batch=False, shell=False, twice=False, fully=False, keep_aux=False, clear=False,
         view=False, compile=True, bibtex=False, luatex=False,
         index=False, language='korean', komkindex=False, index_style='kotex.ist',
         bookmark_index=False, bookmark_python=False, 
         final=False, draft=False, python=False):
+        
         self.tex = tex
         self.batch_bool = batch
         self.shell_bool = shell
@@ -326,10 +328,9 @@ class LatexCompiler(object):
         for ext in extensions:
             fnpattern = '*.' + ext
             for afile in glob.glob(fnpattern):
-                os.remove(afile)
-        
-        if os.path.exists('pythontex-files-pytex'):
-            shutil.rmtree('pythontex-files-pytex')        
+                os.remove(afile)        
+        for dir in glob.glob('pythontex-files-*'):        
+            shutil.rmtree(dir)
 
     def finalizer_on(self):
         with open(self.tex, mode = 'r', encoding = 'utf-8') as f:

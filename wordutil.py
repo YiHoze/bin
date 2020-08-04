@@ -436,12 +436,12 @@ class UTFanalyzer(object):
                 Hbyte = ''.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
                 if self.tex_bool:
-                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, charname, '\\\\')                
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, '\\\\')                
                 else:
                     print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte, charname)
             else:
                 if self.tex_bool:
-                    print(char, Dcode, '\\tab', Hcode, Bcode, charname, '\\\\')
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\\\')
                 else:
                     print(char, Dcode, Hcode, Bcode, charname)
 

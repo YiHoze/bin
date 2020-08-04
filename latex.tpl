@@ -2,11 +2,6 @@
 output: mydoc
 tex:   	\documentclass[a4paper]{article}
 		
-		%%\usepackage{fontspec}
-		%%\setmainfont{}
-		\usepackage{kotex}
-		%%\setmainhangulfont{}
-
 		\begin{document}
 		Hello.
 		\end{document}

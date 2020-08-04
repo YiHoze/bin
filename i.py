@@ -126,9 +126,9 @@ class IdleTexnician(object):
                     break
             self.compile_tex()
             
-        if self.args.config_bool:    
-            for i in glob.glob('t@x.*'):
-                os.remove(i)
+        # if self.args.config_bool:    
+        #     for i in glob.glob('t@x.*'):
+        #         os.remove(i)
 
 if __name__ == "__main__":
     idler = IdleTexnician()

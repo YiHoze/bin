@@ -72,11 +72,10 @@ class IdleTexnician(object):
 
         targs = self.compile_option.copy()
         targs.insert(0, self.tex)
-        print(targs)
-        # self.texer.parse_args(targs)
-        # self.texer.compile()
+        # print(targs)
 
-        
+        self.texer.parse_args(targs)
+        self.texer.compile()
 
         if self.args.config_bool:
             if os.path.exists('t@x.pdf'):

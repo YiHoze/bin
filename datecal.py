@@ -67,7 +67,7 @@ class DateCalculator(object):
             help = 'Use week as the unit of time.'
         )
         parser.add_argument(
-            '-wd',
+            '-W',
             dest = 'weekday',
             action = 'store_true',
             default = False,

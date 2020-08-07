@@ -65,7 +65,7 @@ class DocBuilder(object):
             help = "Do not remove unnecessary collateral files, including sphinxmanual.cls."
         )
         parser.add_argument(
-            '-cl',
+            '-C',
             dest = 'clear',
             action = 'store_true',
             default = False,

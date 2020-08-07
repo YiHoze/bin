@@ -146,7 +146,7 @@ class LatexTemplate(object):
             return False
         images.sort()
         images = '\n'.join(images)        
-        with open(image_list_file, mode='w') as f:
+        with open(image_list_file, mode='w', encoding='utf-8') as f:
             f.write(images)
         return True
 

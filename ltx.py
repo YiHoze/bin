@@ -151,7 +151,7 @@ class LatexCompiler(object):
             help = 'Use LuaLaTeX instead of XeLaTeX.'
         )
         parser.add_argument(
-            '-lang',
+            '-L',
             dest = 'language',
             default = 'korean',
             help = 'Specify a language to sort index entries. For example, \"german\" or \"ger\" for German. The default is \"korean\".'
@@ -164,7 +164,7 @@ class LatexCompiler(object):
             help = 'Use komkindex instead of TeXindy.'
         )
         parser.add_argument(
-            '-ist',
+            '-I',
             dest = 'index_style',
             default = 'kotex.ist',
             help = 'Specify an index style for komkindex or texindy. The dafault is kotex.ist.'
@@ -198,28 +198,28 @@ class LatexCompiler(object):
             help = 'Remove auxiliary files after compilation.'
         )
         parser.add_argument(
-            '-bib',
+            '-B',
             dest = 'bibtex',
             action = 'store_true',
             default = False,
             help = 'Run bibtex.'
         )
         parser.add_argument(
-            '-fin',
+            '-F',
             dest = 'final',
             action = 'store_true',
             default = False,
             help = 'Find \\FinalizerOff to replace it with \\FinalizerOn in the tex file.'    
         )
         parser.add_argument(
-            '-d',
+            '-D',
             dest = 'draft',
             action = 'store_true',
             default = False,
             help = 'Find \\FinalizerON to replace it with \\FinalizerOff in the tex file.'    
         )
         parser.add_argument(
-            '-py',
+            '-P',
             dest = 'python',
             action = 'store_true',
             default = False,

@@ -18,12 +18,29 @@ class IdleTexnician(object):
 
     def parse_args(self):
 
+        example = '''examples:
+    i.py
+        The first found tex file is compiled.
+    i.py foo
+        The first file out of *foo*.tex is compiled.
+    i.py -x
+        Select one from the list of tex files.
+    i.py -z
+        The selected one is compiled as specified by tex.conf, if available.
+        The purpose of this option is to compile a single subfile.
+    '''
+
         parser = argparse.ArgumentParser(
-            description = 'Find a tex file to compile it with ltx.py.'
+            epilog = example,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
+            description = 'Find a tex file to compile it using ltx.py. Options unknown to this script are passed to ltx.py.'
+        )
+        parser.add_argument(
+            'tex',
+            nargs = '?'
         )
         parser.add_argument(
             '-x',
-            '--list',
             dest = 'list_bool',
             action = 'store_true',
             default = False,
@@ -31,11 +48,10 @@ class IdleTexnician(object):
         )
         parser.add_argument(
             '-z',
-            '--conf',
             dest = 'config_bool',
             action = 'store_true',
             default = False,
-            help = 'Find and use tex.conf to compile a single subfile.'
+            help = 'Find and use tex.conf.'
         )        
 
         self.args, self.compile_option = parser.parse_known_args()
@@ -85,46 +101,57 @@ class IdleTexnician(object):
 
     def determine_tex(self):
 
-        if self.args.list_bool or self.args.config_bool:
-            files = []
-            for i in glob.glob('*.tex'):
-                files.append(i)
-            for i, v in enumerate(files):
-                print('{}:{}'.format(i+1, v))
-            choice = input('\nChoose a file by entering its number: ')
-            if '-' in choice:
-                range = choice.split('-')
-                initial = range[0]
-                final = range[1]
-            else:
-                initial = choice
-                final = choice
-            try: 
-                initial = int(initial) 
-                final = int(final) 
-            except:
-                print('Wrong selection.')
-                return False
-                
-            initial -= 1
-            final -= 1
-            if initial >= 0 and final < len(files):
-                while initial <= final:
-                    if self.args.config_bool:
-                        self.write_tex(files[initial])
-                    else:
-                        self.tex = files[initial]  
-                    self.compile_tex()
-                    initial += 1
-            else:
-                print('Wrong selection.')
-                return False
+        if self.args.tex:
+            for i in glob.glob('*'+self.args.tex+'*.tex'):
+                self.tex = i
+                self.compile_tex()
         else:
-            for i in glob.glob("*.tex"):
-                if not self.is_excluded(i):
-                    self.tex = i
-                    break
-            self.compile_tex()
+            if self.args.list_bool or self.args.config_bool:
+                self.determine_from_list()
+            else:
+                for i in glob.glob("*.tex"):
+                    if not self.is_excluded(i):
+                        self.tex = i
+                        break
+                self.compile_tex()
+
+    def determine_from_list(self):
+
+        files = []
+        for i in glob.glob('*.tex'):
+            files.append(i)
+        for i, v in enumerate(files):
+            print('{}:{}'.format(i+1, v))
+        choice = input('\nChoose a file by entering its number: ')
+        if '-' in choice:
+            range = choice.split('-')
+            initial = range[0]
+            final = range[1]
+        else:
+            initial = choice
+            final = choice
+        try: 
+            initial = int(initial) 
+            final = int(final) 
+        except:
+            print('Wrong selection.')
+            return False
+            
+        initial -= 1
+        final -= 1
+        if initial >= 0 and final < len(files):
+            while initial <= final:
+                if self.args.config_bool:
+                    self.write_tex(files[initial])
+                else:
+                    self.tex = files[initial]  
+                self.compile_tex()
+                initial += 1
+        else:
+            print('Wrong selection.')
+            return False
+        
+            
             
         # if self.args.config_bool:    
         #     for i in glob.glob('t@x.*'):

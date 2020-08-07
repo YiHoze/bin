@@ -105,7 +105,7 @@ class ImageUtility(object):
             help = 'Covert bitmap images to grayscale.'
         )
         parser.add_argument(
-            '-rec',
+            '-R',
             dest = 'recursive',
             action = 'store_true',
             default = False,

@@ -112,7 +112,7 @@ class WordUtility(object):
             help = 'Gather TeX macros from multiple files into one file. This is available only with "-t".'
         )
         parser.add_argument(
-            '-tor',
+            '-T',
             dest = 'tortoise',
             action = 'store_true',
             default = False,

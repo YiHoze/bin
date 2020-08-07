@@ -44,21 +44,21 @@ class TeXLiveConf(object):
             help = 'Copy the provided latex class and style files into the local TEXMF directory.'
         )
         # parser.add_argument(
-        #     '-home',
+        #     '-H',
         #     dest = 'texmfhome',
         #     action = 'store_true',
         #     default = False,
         #     help = 'Set TEXMFHOME as an environment variable.'
         # )
         parser.add_argument(
-            '-cnf',
+            '-C',
             dest = 'texmf_cnf',
             action = 'store_true',
             default = False,
             help = "Add user's local font directory to texmf.cnf."
         )
         parser.add_argument(
-            '-local',
+            '-L',
             dest = 'local_conf',
             action = 'store_true',
             default = False,
@@ -100,14 +100,14 @@ class TeXLiveConf(object):
             help = 'Update the font database for LuaLaTeX.'
         )
         parser.add_argument(
-            '-batch',
+            '-B',
             dest = 'batch',
             action = 'store_true',
             default = False,
             help = 'Get every option done at once.'
         )
         parser.add_argument(
-            '-w',
+            '-P',
             dest = 'confirmation',
             action = 'store_true',
             default = False,

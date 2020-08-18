@@ -22,7 +22,7 @@ class ImageUtility(object):
         self.gray_bool = gray
         self.recursive = recursive
         self.vectors = ('.eps', '.pdf', '.svg')
-        self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.pbm', '.png', '.ppm', '.tga', '.webp')
+        self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', 'jpeg', '.pbm', '.png', '.ppm', '.tga', '.webp')
         self.cnt = 0
         self.initialize()
 
@@ -230,7 +230,7 @@ class ImageUtility(object):
 
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
-        cmd = '"%s" -density 254 "%s" "%s"' %(self.Magick, img, trg)
+        cmd = '"%s" -colorspace rgb -density %s "%s" "%s"' %(self.Magick, self.density, img, trg) 
         subprocess.run(cmd)
         page_count = self.count_pdf_pages(img)
         if page_count > 1:
@@ -290,12 +290,10 @@ class ImageUtility(object):
 
         elif recipe['source type'] == 'vector':
             if recipe['target type'] == 'bitmap':
-                if recipe['source format'] == '.pdf':
-                    if self.check_TeXLive() and self.check_ImageMagick():
-                        self.run_recursive(self.vector_to_bitmap)
-                else:
-                    if self.check_ImageMagick():
-                        self.run_recursive(self.vector_to_bitmap)
+                if self.density == 100:
+                    self.density = 254
+                if self.check_ImageMagick():
+                    self.run_recursive(self.vector_to_bitmap)
             elif recipe['target type'] == 'vector':
                 if recipe['source format'] == '.eps' and recipe['target format'] == '.pdf':
                     if self.check_TeXLive():

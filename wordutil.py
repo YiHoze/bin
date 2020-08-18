@@ -354,7 +354,7 @@ class UTFanalyzer(object):
                 return '{}\\codetail{{{}}}'.format(byte[:1], byte[1:])
             elif dec < int('0x800', 16):
                 byte = byte.zfill(12)
-                return '{}\\codetail{{{}}}'.format(byte[0:6] + byte[6:])
+                return '{}\\codetail{{{}}}'.format(byte[0:6], byte[6:])
             elif dec < int('0x10000', 16):
                 byte = byte.zfill(16)
                 return '{}\\codetail{{{}}}{}'.format(byte[0:4], byte[4:10], byte[10:16])

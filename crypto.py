@@ -49,10 +49,10 @@ class FileEncryptor(object):
 
     def encrypt_file(self, file):
        
-        with open(file, mode='r') as f:
+        with open(file, mode='rb') as f:
             content = f.read()        
         
-        content = content.encode()
+        # content = content.encode()
         content = self.encryptor.encrypt(content)
         
         output = self.add_suffix(file)
@@ -65,10 +65,10 @@ class FileEncryptor(object):
             content = f.read()
         
         content = self.encryptor.decrypt(content)
-        content = content.decode()
+        # content = content.decode()
 
         output = self.add_suffix(file)
-        with open(output, mode='w') as f:
+        with open(output, mode='wb') as f:
             f.write(content)
 
     def add_suffix(self, file):

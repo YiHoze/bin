@@ -98,19 +98,3 @@ if __name__ == "__main__":
     fencryptor = FileEncryptor()
     fencryptor.parse_args()  
     fencryptor.determine_task()  
-    
-
-
-
-# if __name__ == "__main__":
-#     # generate_key()
-#     encrypt_file("encrypt this file")
-#     decrypt_file(b'gAAAAABfNhSpvGwfEAxtL8tw8lh67IuaYOSaXIZ96gfsMe7Qsbvji3_8qWpfeF2hts17bkuD8dJu_Xm-eX1EY196pobSN2GAlp0PhhBY0-KsSJXmWwnYQ7o=')
-
-# msg = input('Enter a file: ')
-# shifted = ''
-# for i in msg:
-#     print(ord(i))
-#     shifted += chr(ord(i) + 5)
-# print(shifted)
-

@@ -34,7 +34,7 @@ class DateCalculator(object):
         This shows the date 10 weeks after today.
     datecal.py 2021-01-01
         This shows the number of days between tody and 2021-01-01.
-    datecal.py -wd 2021-01-01
+    datecal.py -W 2021-01-01
         This shows the day of week on 2021-01-01.
     datecal.py -c 2021-01
         This displays a monthly calendar for January 2021.

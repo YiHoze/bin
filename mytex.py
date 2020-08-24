@@ -14,15 +14,19 @@ from ltx import LatexCompiler
 class LatexTemplate(object):
 
     def __init__(self, template='hzguide', substitutes=None, output=None, defy=False):
+
         self.template = template
         self.substitutes = substitutes
         self.output = output
         self.defy_bool = defy
         self.list_bool = False
         self.cmd = None
-        self.ini_bool = self.initialize()    
+        self.ini_bool = self.initialize() 
+        self.generated_files = []   
+
 
     def initialize(self):
+
         tpl = os.path.join(dirCalled, 'latex.tpl')
         if os.path.exists(tpl):
             self.templates = configparser.ConfigParser()
@@ -32,7 +36,9 @@ class LatexTemplate(object):
             print('latex.tpl is not found.')
             return False
 
+
     def parse_args(self):
+
         example = '''examples:
     mytex.py
         makes mydoc.tex out of the default template, article.
@@ -84,7 +90,14 @@ class LatexTemplate(object):
             dest = 'force',
             action = 'store_true',
             default = False,
-            help = 'Compile even if no compilation option is prescribed .'
+            help = 'Compile without opening the tex file even if no compilation option is prescribed .'
+        )
+        parser.add_argument(
+            '-r',
+            dest = 'remove',
+            action = 'store_true',
+            default = False,
+            help = 'Remove the tex and its subsidiary files after compilation.'
         )
         parser.add_argument(
             '-l',
@@ -108,8 +121,11 @@ class LatexTemplate(object):
         self.detail_bool = args.detail
         self.defy_bool = args.defy
         self.force_bool = args.force
+        self.remove_bool = args.remove
+
 
     def confirm_to_remove(self, afile):
+
         if os.path.exists(afile):
             answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
             if answer.lower() == 'y':
@@ -120,7 +136,9 @@ class LatexTemplate(object):
         else:
             return True
 
+
     def determine_filename(self):
+
         if self.output is None:
             self.filename = self.templates.get(self.template, 'output', fallback='mydoc')
         else:
@@ -128,13 +146,16 @@ class LatexTemplate(object):
             self.filename = os.path.splitext(filename)[0]        
         self.tex = self.filename + '.tex'        
 
+
     def make_image_list(self):
+
         image_list_file = self.templates.get('album', 'image_list', fallback='im@ges.txt')
         if os.path.exists(image_list_file):
             os.remove(image_list_file)
         pdf = self.filename + '.pdf'
         if os.path.exists(pdf):
             os.remove(pdf)
+
         # Make a file that contains a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
@@ -148,9 +169,15 @@ class LatexTemplate(object):
         images = '\n'.join(images)        
         with open(image_list_file, mode='w', encoding='utf-8') as f:
             f.write(images)
+
+        if self.remove_bool:
+            self.generated_files.append(image_list_file)
+
         return True
 
-    def fill_placeholders(self, content):        
+
+    def fill_placeholders(self, content):       
+
         content = content.replace('`', '')
         try:
             placeholders = int(self.templates.get(self.template, 'placeholders'))
@@ -171,6 +198,7 @@ class LatexTemplate(object):
         return content
 
     def write_relatives(self, extension):
+
         content = self.templates.get(self.template, extension, fallback=None)
         ext = self.filename + '.' + extension
         if content is not None:
@@ -185,9 +213,12 @@ class LatexTemplate(object):
             if self.confirm_to_remove(ext):
                 with open(ext, mode='w', encoding='utf-8') as f:
                     f.write(content) 
+                if self.remove_bool:
+                    self.generated_files.append(ext)
             
 
     def write_from_template(self):
+
         self.write_relatives('cmd')
         self.write_relatives('sty')
         self.write_relatives('bib')
@@ -204,12 +235,17 @@ class LatexTemplate(object):
             return False
         with open(self.tex, mode='w', encoding='utf-8') as f:
             f.write(content)
+        if self.remove_bool:
+            self.generated_files.append(self.tex)
 
         opener = FileOpener()
-        opener.OpenTxt(self.tex)
+        if not self.force_bool:
+            opener.OpenTxt(self.tex)
         return True
 
+
     def compile(self):
+
         compiler = self.templates.get(self.template, 'compiler', fallback=None)
         if compiler is None:
             if self.force_bool:
@@ -228,7 +264,13 @@ class LatexTemplate(object):
             texer.parse_args(compiler)        
             texer.compile()
 
+        if self.remove_bool:
+            for i in self.generated_files:
+                os.remove(i)
+
+
     def make(self):
+
         if not self.templates.has_section(self.template):
             print('"{}" is not defined.'.format(self.template))
             return False
@@ -240,7 +282,9 @@ class LatexTemplate(object):
             if not self.defy_bool:           
                 self.compile()                
 
-    def show_templates(self, columns=4):      
+
+    def show_templates(self, columns=4):  
+
         """Print the list of template names."""  
         templates = sorted(self.templates.sections(), key=str.casefold)
         width = 0
@@ -259,7 +303,9 @@ class LatexTemplate(object):
             i += columns
             print(line)
 
+
     def show_details(self):
+
         if not self.templates.has_section(self.template):
             print('"{}" is not defined.'.format(self.template))
             return 

@@ -96,7 +96,7 @@ tex:    `\documentclass{article}
 		`}
 		`
 		`\NewDocumentCommand \ShowGlyphsByUnicode { m m m } 
-		``{
+		`{
 		`	\setlength\parskip{-2ex}
 		`	\setmainfont{#1}\fontsize{11pt}{13pt}\selectfont
 		`	\group_begin:			
@@ -2954,8 +2954,8 @@ sty:	`\ProvidesPackage{oesolscript}[2020/05/26 v0.3.3]
 		`{
 		`	fontfile	.tl_set:N = \g_fontfile_tl,
 		`	uivowel		.choice:,
-		`		uivowel/ui	.code:n = { \bool_gset_true:N \g_ui_bool },
-		`		uivowel/wi	.code:n = { \bool_gset_false:N \g_ui_bool },
+		`	uivowel/ui	.code:n = { \bool_gset_true:N \g_ui_bool },
+		`	uivowel/wi	.code:n = { \bool_gset_false:N \g_ui_bool },
 		`}
 		`
 		`\keys_set:nn { oesolscript }
@@ -3794,8 +3794,8 @@ tex: 	`\documentclass[a4paper]{article}
 		`    Language=Korean,
 		`    BoldFont={* Medium}
 		`]
-		``\jamotransparency{FF}
-		`'
+		`\jamotransparency{FF}
+		`
 		`\ExplSyntaxOn
 		`
 		`\clist_new:N \l_color_jung_clist
@@ -3937,16 +3937,16 @@ tex: 	`\documentclass[a4paper]{article}
 		`}
 		`
 		`\int_new:N \l_code_int
-		`\int_const:Nn \c_start_point { 44032 }   % 가'
+		`\int_const:Nn \c_start_point { 44032 }   %% 가'
 		`\int_new:N \l_basecode_int
 		`\int_new:N \l_cho_int
 		`\int_new:N \l_jung_int
 		`\int_new:N \l_jong_int
 		`
-		`% basecode = 문자코드 - 44032
-		`% 초성코드 = basecode / 588
-		`% 중성코드 = (basecode - 588*초성코드) / 28
-		`% 종성코드 = (basecode - 588*초성코드 - 28*중성코드)
+		`%% basecode = 문자코드 - 44032
+		`%% 초성코드 = basecode / 588
+		`%% 중성코드 = (basecode - 588*초성코드) / 28
+		`%% 종성코드 = (basecode - 588*초성코드 - 28*중성코드)
 		`
 		`\cs_new:Npn \get_lvt_code:n #1
 		`{

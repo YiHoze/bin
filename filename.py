@@ -7,7 +7,7 @@ import shutil
 from datetime import datetime
 import exifread
 
-class FileUtility(object):
+class FileNamer(object):
 
     def __init__(self):
 
@@ -135,6 +135,7 @@ class FileUtility(object):
             curdir = '.'
         return([x[0] for x in os.walk(curdir)])
 
+
     def rename_to_original_date(self):    
 
         for fnpattern in self.args.files:
@@ -144,12 +145,14 @@ class FileUtility(object):
                         tags = exifread.process_file(f, stop_tag='EXIF DateTimeOriginal')
                         date = str(tags['EXIF DateTimeOriginal'])[:10]
                         date = date.replace(':', '-')
+                # if no EXIF data is found, the last modified date is used.
                 except:
                     date = datetime.fromtimestamp(os.path.getmtime(afile))
                     date = date.strftime('%Y-%m-%d')
                 
                 newname = self.date_increment(date, os.path.splitext(afile)[1])
                 os.rename(afile, newname)
+
 
     def date_increment(self, filename, ext):
 
@@ -159,6 +162,7 @@ class FileUtility(object):
             cnt += 1
             basename = filename + "_" + str(cnt) + ext
         return basename
+
 
     def copy_into(self):
 
@@ -177,20 +181,25 @@ class FileUtility(object):
                     shutil.copy(afile, self.args.target_folder)
 
 
+    def determine_task(self):
+
+        if self.args.nospace:
+            self.remove_spaces()
+        elif self.args.uppercase:
+            self.rename_uppercase()
+        elif self.args.lowercase:
+            self.rename_lowercase()
+        elif self.args.remove:
+            self.remove_suffix()
+        elif self.args.copy:
+            self.copy_into()
+        elif self.args.original_date:
+            self.rename_to_original_date()
+        else:
+            self.append_suffix() 
+
+
 if __name__ == '__main__':
-    fu = FileUtility()
-    fu.parse_args()
-    if fu.args.nospace:
-        fu.remove_spaces()
-    elif fu.args.uppercase:
-        fu.rename_uppercase()
-    elif fu.args.lowercase:
-        fu.rename_lowercase()
-    elif fu.args.remove:
-        fu.remove_suffix()
-    elif fu.args.copy:
-        fu.copy_into()
-    elif fu.args.original_date:
-        fu.rename_to_original_date()
-    else:
-        fu.append_suffix() 
+    fn = FileNamer()
+    fn.parse_args()
+    fn.determine_task()

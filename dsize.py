@@ -1,8 +1,9 @@
 import os
+import math
 
 def get_size(start_path='.'):
     total_size = 0
-    seen = {}
+    # seen = {}
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
@@ -10,34 +11,25 @@ def get_size(start_path='.'):
                 stat = os.stat(fp)
             except OSError:
                 continue
-
-            try:
-                seen[stat.st_ino]
-            except KeyError:
-                seen[stat.st_ino] = True
-            else:
-                continue
-
+            # try:
+            #     seen[stat.st_ino]
+            # except KeyError:
+            #     seen[stat.st_ino] = True
+            # else:
+            #     continue
             total_size += stat.st_size
+    print(readable(total_size))
 
-    print(human(total_size))
-    # return total_size
+def readable(size):
 
-def human(size):
+    units = ["B", "KB", "MB", "GB", "TB"]
+    format = "%d %s"
+    radix = 1024
 
-    B = "B"
-    KB = "KB" 
-    MB = "MB"
-    GB = "GB"
-    TB = "TB"
-    UNITS = [B, KB, MB, GB, TB]
-    HUMANFMT = "%f %s"
-    HUMANRADIX = 1024.
+    for u in units[:-1]:
+        if size < radix : return format % (math.ceil(size), u)
+        size /= radix
 
-    for u in UNITS[:-1]:
-        if size < HUMANRADIX : return HUMANFMT % (size, u)
-        size /= HUMANRADIX
-
-    return HUMANFMT % (size,  UNITS[-1])
+    return format % (math.ceil(size),  units[-1])
 
 get_size()

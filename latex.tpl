@@ -4013,7 +4013,7 @@ tex: 	`\documentclass[a4paper]{article}
 [zigzag]
 description: This template makes zigzag-shaped paragraphs.
 output: zigzag
-compiler: -c
+compiler: -w, -c
 sty:	`\RequirePackage{tikzpagenodes}
 		`\RequirePackage{xparse}
 		`
@@ -4337,7 +4337,7 @@ tex:	\documentclass{article}
 [pythontex]
 description: This template shows an example of pythontex.
 output: pytex
-compiler: -py, -w
+compiler: -P, -w
 tex:	\documentclass{article}
 		\usepackage{kotex}
 		\usepackage{xcolor}
@@ -4359,4 +4359,208 @@ tex:	\documentclass{article}
 		utf.show()
 		\end{pyblock}
 		\small \texttt{\printpythontex}
-		\end{document} 
+		\end{document}  
+
+[timeline]
+description: This template draws horizontal graphs to show when ones were born and when they died.
+output: timeline
+compiler: -v
+sty:	`\RequirePackage{tikz}
+		`\RequirePackage{tikz}
+		`\ExplSyntaxOn 
+		`\makeatletter
+		`\cs_if_exist:NT \tikz@ensure@dollar@catcode
+		`{
+		`    \cs_set_eq:NN \tikz@ensure@dollar@catcode \scan_stop:
+		`}
+		`\makeatother
+		`
+		`\keys_define:nn { kstimeline }
+		`{
+		`    length    .dim_set:N = \l_xtllength_dim,
+		`    start    .int_set:N = \l_xtlstart_int,
+		`    stop    .int_set:N = \l_xtlstop_int,
+		`    place    .int_set:N = \l_xtlplace_int,
+		`    nameboxwidth    .dim_set:N = \l_xtlnamebox_dim,
+		`}
+		`
+		`\keys_set:nn { kstimeline }
+		`{
+		`    nameboxwidth = 6em,
+		`    length = 10cm,
+		`    start = 2000,
+		`    stop = 2020,
+		`    place = 2010
+		`}
+		`
+		`\dim_new:N \l_xtlunit_dim
+		`\int_new:N \l_xtlbirth_int
+		`\int_new:N \l_xtldeath_int
+		`\dim_new:N \l_xtlbirth_dim
+		`\dim_new:N \l_xtldeath_dim
+		`\dim_new:N \l_xtlplace_dim
+		`
+		`\NewDocumentCommand \xtlsetup { m }
+		`{
+		`    \keys_set:nn { kstimeline } { #1 }
+		`
+		`    \dim_set:Nn \l_xtlunit_dim { \l_xtllength_dim / ( \l_xtlstop_int - \l_xtlstart_int ) }
+		`    \dim_set:Nn \l_xtlplace_dim { \l_xtlunit_dim * ( \l_xtlplace_int - \l_xtlstart_int ) }
+		`}
+		`
+		`\bool_new:N \l_bday_bool
+		`
+		`\NewDocumentCommand \xtldraw { m m }
+		`{
+		`    \str_if_eq:eeTF { \tl_head:n { #1 } } { * }
+		`    {
+		`        \bool_set_true:N \l_bday_bool
+		`        \tl_set:No \l_tmpb_tl { \tl_tail:n { #1 } }
+		`    }
+		`    {
+		`        \bool_set_false:N \l_bday_bool
+		`        \tl_set:Nn \l_tmpb_tl { #1 }
+		`    }
+		`
+		`    \xtl_split_years:w #2 \q_stop
+		`
+		`    \dim_set:Nn \l_xtlbirth_dim { \l_xtlunit_dim * ( \l_xtlbirth_int - \l_xtlstart_int ) }
+		`
+		`    \dim_set:Nn \l_xtldeath_dim { \l_xtllength_dim -  \l_xtlunit_dim * ( \l_xtlstop_int - 		`\l_xtldeath_int ) }
+		`
+		`    \exp_args:No \xtl_draw_tl:n { \l_tmpb_tl }    
+		`}
+		`
+		`
+		`\cs_new:Npn \xtl_split_years:w #1-#2\q_stop
+		`{
+		`    \int_set:Nn \l_xtlbirth_int { #1 }
+		`    \int_set:Nn \l_xtldeath_int { #2 }
+		`}
+		`
+		`\cs_new:Npn \xtl_draw_tl:n #1
+		`{
+		`    \begin{tikzpicture}
+		`    \node [anchor=west] at (-\dim_use:N \l_xtlnamebox_dim -3em -.5em,0) { \makebox		`[\l_xtlnamebox_dim ][l]{#1} };
+		`    \node [anchor=west] at (-3em-.5em, 0) { \makebox [3em][l]{\int_use:N \l_xtlbirth_int}};
+		`    \draw (0,0) -- ( \dim_use:N \l_xtllength_dim,0);
+		`    \xtltick{0pt};
+		`    \xtltick{\l_xtllength_dim};
+		`    \xtltick{\l_xtlbirth_dim};
+		`    \xtltick{\l_xtldeath_dim};
+		`    \draw [line~width=4pt,gray!120] ( \dim_use:N \l_xtlbirth_dim,0) -- ( \dim_use:N 		`\l_xtldeath_dim,0);
+		`    \draw [fill=white,white] ( \dim_use:N \l_xtlplace_dim - 3mm,2mm) rectangle ( \dim_use:N 		`\l_xtlplace_dim + 3mm, -2mm);
+		`    \bool_if:NTF \l_bday_bool
+		`    {
+		`        \int_set:Nn \l_tmpa_int { \l_xtlplace_int - \l_xtlbirth_int -1 }
+		`    }
+		`    {
+		`        \int_set:Nn \l_tmpa_int { \l_xtlplace_int - \l_xtlbirth_int }
+		`    }
+		`    \node [anchor=center] at ( \dim_use:N \l_xtlplace_dim,0) { \small ( \int_use:N \l_tmpa_int 		`) };
+		`    \node [anchor=west] at ( \dim_use:N \l_xtllength_dim + .5em,0) { \int_use:N \l_xtldeath_int 		`};
+		`    \end{tikzpicture}
+		`    \par
+		`}
+		`
+		`\NewDocumentCommand \xtltick { m }
+		`{
+		`    \draw (#1,2mm) -- (#1,-2mm)
+		`}
+		`
+		`\ior_new:N \l_file_ior
+		`
+		`\NewDocumentEnvironment { xtimeline } { }
+		`{
+		`    \exp_args:Nno \verbatimoutput { \jobname-tllist.txt }
+		`}
+		`{
+		`    \endverbatimoutput
+		`
+		`    \clist_clear:N \l_tmpa_clist
+		`    \ior_open:Nn \l_file_ior { \jobname-tllist.txt }
+		`    \ior_str_map_inline:Nn \l_file_ior
+		`    {
+		`        \clist_put_right:Nx \l_tmpa_clist { ##1 }
+		`    }
+		`    \ior_close:N \l_file_ior
+		`
+		`    \clist_sort:Nn \l_tmpa_clist 
+		`    {
+		`        \tl_set:Nn \l_tmpa_tl { ##1 }
+		`        \tl_set:Nn \l_tmpb_tl { ##2 }
+		`        \regex_replace_all:nnN { [^0-9] } { } \l_tmpa_tl
+		`        \regex_replace_all:nnN { [^0-9] } { } \l_tmpb_tl
+		`        \exp_args:Nx \int_compare:nTF { \l_tmpa_tl > \l_tmpb_tl }
+		`            { \sort_return_swapped: }
+		`            { \sort_return_same: }
+		`    }
+		`
+		`    \clist_map_inline:Nn \l_tmpa_clist
+		`    {
+		`        \xtl_draw_fn:w ##1 \q_stop 
+		`    }
+		`}
+		`
+		`\cs_new:Npn \xtl_draw_fn:w #1 | #2 \q_stop
+		`{
+		`    \xtldraw { #1 } { #2 } 
+		`}
+		`\ExplSyntaxOff
+tex:	\documentclass[9pt, a4paper, oneside]{memoir}
+		\usepackage{kotex}
+		\usepackage{timeline}
+		\setmainfont{TeX Gyre Termes}
+		\setlength\parindent{0pt}
+		\begin{document}
+		\xtlsetup{nameboxwidth=8em,length=8cm,start=1822,stop=1917,place=1874}
+		\begin{boxedverbatim}
+		\xtldraw{*사카타니 시로시}{1822-1881}
+		\xtldraw{미쓰쿠리 슈헤이}{1826-1886}
+		\xtldraw{*니시무라 시게키}{1828-1902}
+		\xtldraw{*스기 코지}{1828-1917}
+		\end{boxedverbatim}
+		\xtldraw{*사카타니 시로시}{1822-1881}
+		\xtldraw{미쓰쿠리 슈헤이}{1826-1886}
+		\xtldraw{*니시무라 시게키}{1828-1902}
+		\xtldraw{*스기 코지}{1828-1917}
+		\begin{boxedverbatim}
+		\begin{xtimeline}
+		*쓰다 마미치 | 1829-1903
+		*미쓰쿠리 린쇼 | 1846-1897
+		*모리 아리노리 | 1847-1889
+		니시 아마네 | 1829-1897
+		*시미즈 우사부로 | 1829-1910
+		*간다 다카히라 | 1830-1898
+		미쓰쿠리 슈헤이 | 1826-1886
+		*니시무라 시게키 | 1828-1902
+		*나카무라 마사나오 | 1832-1891
+		*가시와바라 다카아키 | 1835-1910
+		후쿠자와 유키치 | 1835-1901
+		*사카타니 시로시 | 1822-1881
+		*스기 코지 | 1828-1917
+		*가토 히로유키 | 1836-1916
+		*쓰다 센 | 1837-1908
+		*시바타 쇼키치 | 1842-1901
+		\end{xtimeline}
+		\end{boxedverbatim}
+		\xtlsetup{nameboxwidth=10em,length=8.5cm,start=1822,stop=1917,place=1874}
+		\begin{xtimeline}
+		*쓰다 마미치 | 1829-1903
+		*미쓰쿠리 린쇼 | 1846-1897
+		*모리 아리노리 | 1847-1889
+		니시 아마네 | 1829-1897
+		*시미즈 우사부로 | 1829-1910
+		*간다 다카히라 | 1830-1898
+		미쓰쿠리 슈헤이 | 1826-1886
+		*니시무라 시게키 | 1828-1902
+		*나카무라 마사나오 | 1832-1891
+		*가시와바라 다카아키 | 1835-1910
+		후쿠자와 유키치 | 1835-1901
+		*사카타니 시로시 | 1822-1881
+		*스기 코지 | 1828-1917
+		*가토 히로유키 | 1836-1916
+		*쓰다 센 | 1837-1908
+		*시바타 쇼키치 | 1842-1901
+		\end{xtimeline}
+		\end{document}

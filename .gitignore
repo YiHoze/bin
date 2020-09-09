@@ -4,9 +4,11 @@ build/
 coverage/
 dist/
 inquisitive/
+node_modules/
 pandoc/
 pdf2htmlEX/
 *.cls
+*.json
 *.sty
 *.spec
 daily.ini

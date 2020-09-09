@@ -156,7 +156,7 @@ class LatexTemplate(object):
         if os.path.exists(pdf):
             os.remove(pdf)
 
-        # Make a file that contains a list of image files
+        # Make a file to contain a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
         for img in image_type:
@@ -314,7 +314,8 @@ class LatexTemplate(object):
             print('"{}" has no decription'.format(self.template))
         else: 
             print('\n{}\n'.format(usage))
- 
+
+
 if __name__ == '__main__':
     mytex = LatexTemplate()
     if mytex.ini_bool:

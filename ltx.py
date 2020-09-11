@@ -324,7 +324,7 @@ class LatexCompiler(object):
         return line
 
     def clear_aux(self):
-        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb", "pytxcode")
+        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb", "pytxcode", "tmp")
         for ext in extensions:
             fnpattern = '*.' + ext
             for afile in glob.glob(fnpattern):

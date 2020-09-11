@@ -4564,3 +4564,148 @@ tex:	\documentclass[9pt, a4paper, oneside]{memoir}
 		*시바타 쇼키치 | 1842-1901
 		\end{xtimeline}
 		\end{document}
+
+[tenthousand]
+description: This template groups every four digits.
+output: tenthousand
+compiler: -c
+tex:	`\documentclass[a4paper, oneside]{memoir}
+		`\usepackage{kotex}
+		`\ExplSyntaxOn
+		`\bool_new:N \g_num_tenthousand_bool
+		`\int_new:N \g_num_decimal_places_int
+		`\NewDocumentCommand \SetDecimalPlaces { m }
+		`{
+		`    \int_gset:Nn \g_num_decimal_places_int { #1 }
+		`}
+		`\SetDecimalPlaces{2}
+		`\NewDocumentCommand \SeparateThousands {}
+		`{
+		`    \bool_gset_false:N \g_num_tenthousand_bool
+		`}
+		`\NewDocumentCommand \SeparateTenThousands {}
+		`{
+		`    \bool_gset_true:N \g_num_tenthousand_bool
+		`}
+		`\dim_new:N \l_num_decimal_dim
+		`\dim_new:N \l_num_zero_dim
+		`\NewDocumentCommand \decimalspace {}
+		`{
+		`    \hspace*{\l_num_decimal_dim}
+		`}
+		`\NewDocumentCommand \zerospace {}
+		`{
+		`    \hspace*{\l_num_zero_dim}
+		`}
+		`\NewDocumentCommand \num { s m }
+		`{
+		`    \regex_split:nnN { \. }{ #2 } \l_tmpa_seq 
+		`    \seq_pop:NN \l_tmpa_seq \l_tmpa_tl
+		`    \tl_reverse:N \l_tmpa_tl
+		`    \bool_if:NTF \g_num_tenthousand_bool
+		`    {
+		`        \regex_replace_all:nnN { (\d\d\d\d) } { \1, } \l_tmpa_tl
+		`    }{
+		`        \regex_replace_all:nnN { (\d\d\d) } { \1, } \l_tmpa_tl
+		`    }
+		`    \regex_replace_once:nnN { ,$ } {  } \l_tmpa_tl
+		`    \tl_reverse:N \l_tmpa_tl
+		`
+		`    \IfBooleanTF{ #1 }
+		`    {
+		`        \seq_pop:NNTF \l_tmpa_seq \l_tmpb_tl
+		`        {
+		`            \int_set:Nn \l_tmpb_int { \tl_count:V \l_tmpb_tl }
+		`            \int_step_inline:nn { \int_eval:n { \g_num_decimal_places_int - \l_tmpb_int } }
+		`            {
+		`                \tl_put_right:Nn \l_tmpb_tl { \zerospace  }
+		`            }
+		`            \seq_push:NV \l_tmpa_seq \l_tmpb_tl            
+		`            \seq_push:NV \l_tmpa_seq \l_tmpa_tl
+		`        }{
+		`            \tl_put_right:Nn \l_tmpa_tl { \decimalspace }
+		`            \int_step_inline:nn { \g_num_decimal_places_int }  
+		`            {
+		`                \tl_put_right:Nn \l_tmpa_tl { \zerospace  }
+		`            }
+		`            \seq_push:NV \l_tmpa_seq \l_tmpa_tl
+		`        }
+		`    }{
+		`        \seq_push:NV \l_tmpa_seq \l_tmpa_tl
+		`    }    
+		`    \seq_use:Nnnn \l_tmpa_seq {.}{}{}    
+		`}
+		`\NewDocumentEnvironment{numbers}{}
+		`{
+		`    \exp_args:Nno \verbatimoutput { \jobname.tmp }
+		`}{
+		`    \endverbatimoutput
+		`
+		`    \clist_clear:N \l_tmpa_clist
+		`    \ior_open:Nn \g_tmpa_ior { \jobname.tmp }
+		`    \ior_str_map_inline:Nn \g_tmpa_ior
+		`    {
+		`        \clist_put_right:Nx \l_tmpa_clist { ##1 }
+		`    }
+		`    \ior_close:N \g_tmpa_ior
+		`
+		`    \hbox_set:Nn \l_tmpa_box { . }
+		`    \dim_set:Nn \l_num_decimal_dim  { \box_wd:N \l_tmpa_box }
+		`    \hbox_set:Nn \l_tmpa_box { 0 }
+		`    \dim_set:Nn \l_num_zero_dim  { \box_wd:N \l_tmpa_box }
+		`
+		`    \raggedleft
+		`    \clist_map_inline:Nn \l_tmpa_clist
+		`    {
+		`        \num*{##1} \\        
+		`    }    
+		`}
+		`\ExplSyntaxOff
+		`\setlength\parindent{0pt}
+		`\begin{document}
+		`
+		`\begin{boxedverbatim}
+		`\SeparateThousands
+		`\num{123456.7890} 
+		`\end{boxedverbatim}
+		`
+		`\SeparateThousands
+		`\num{123456.7890} 
+		`
+		`\begin{boxedverbatim}
+		`\SeparateTenThousands
+		`\num{123456.7890} 
+		`\end{boxedverbatim}
+		`
+		`\SeparateTenThousands
+		`\num{123456.7890} 
+		`
+		`\bigskip
+		`
+		`\begin{boxedverbatim}
+		`\SetDecimalPlaces{4}
+		`\begin{minipage}{.25\linewidth}
+		`\begin{numbers}
+		`2345.89
+		`123
+		`2345.9
+		`97698.573
+		`8976231
+		`768923121
+		`\end{numbers}
+		`\end{minipage}
+		`\end{boxedverbatim}
+		`
+		`\SetDecimalPlaces{4}
+		`\begin{minipage}{.25\linewidth}
+		`\begin{numbers}
+		`2345.89
+		`123
+		`2345.9
+		`97698.573
+		`8976231
+		`768923121
+		`\end{numbers}
+		`\end{minipage}
+		`
+		`\end{document}

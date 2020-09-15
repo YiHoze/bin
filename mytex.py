@@ -104,7 +104,14 @@ class LatexTemplate(object):
             dest = 'list',
             action = 'store_true',
             default = False,
-            help = 'Show the list of templates.'
+            help = 'Enumerate templates'
+        )
+        parser.add_argument(
+            '-L',
+            dest = 'List',
+            action = 'store_true',
+            default = False,
+            help = 'Enumerate tempaltes with description.'
         )
         parser.add_argument(
             '-d',
@@ -118,6 +125,7 @@ class LatexTemplate(object):
         self.substitutes = args.substitutes
         self.output = args.output
         self.list_bool = args.list
+        self.List_bool = args.List
         self.detail_bool = args.detail
         self.defy_bool = args.defy
         self.force_bool = args.force
@@ -283,7 +291,19 @@ class LatexTemplate(object):
                 self.compile()                
 
 
-    def show_templates(self, columns=4):  
+    def enumerate_with_description(self):
+
+        templates = sorted(self.templates.sections(), key=str.casefold)
+        for i in templates:
+            description = self.templates.get(i, 'description', fallback=None)
+            if description is None:
+                description = ''
+            else:
+                description = description.split('\n')[0]
+            print('{:20} {}'.format(i, description))
+
+
+    def enumerate_without_description(self, columns=4):  
 
         """Print the list of template names."""  
         templates = sorted(self.templates.sections(), key=str.casefold)
@@ -303,7 +323,6 @@ class LatexTemplate(object):
             i += columns
             print(line)
 
-
     def show_details(self):
 
         if not self.templates.has_section(self.template):
@@ -320,8 +339,10 @@ if __name__ == '__main__':
     mytex = LatexTemplate()
     if mytex.ini_bool:
         mytex.parse_args()
-        if mytex.list_bool:
-            mytex.show_templates()
+        if mytex.List_bool:
+            mytex.enumerate_with_description()
+        elif mytex.list_bool:
+            mytex.enumerate_without_description()
         elif mytex.detail_bool:
             mytex.show_details()
         else:

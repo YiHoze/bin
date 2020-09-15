@@ -1,5 +1,11 @@
 import os
 import math
+import argparse
+
+parser = argparse.ArgumentParser(
+    description = 'Get the sum of all file sizes, including subdirectories.'
+)
+args = parser.parse_args()
 
 def get_size(start_path='.'):
     total_size = 0

@@ -46,7 +46,7 @@ class ConvertUnit(object):
         parser = argparse.ArgumentParser(
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description='Convert a unit of measurement to another.'
+            description = 'Convert a unit of measurement to another.'
         )
         parser.add_argument(
             'numeral',

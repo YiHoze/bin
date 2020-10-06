@@ -27,19 +27,19 @@ class DateCalculator(object):
 
         example = '''examples:
     datecal.py -20 -10 10 20
-        This shows dates 20 and 10 days before and after today.
+        shows dates 20 and 10 days before and after today.
     datecal.py -b 2010-07-07 10
         These show the date 10 days after 2010-07-07.
     datecal.py -w 10
-        This shows the date 10 weeks after today.
+        shows the date 10 weeks after today.
     datecal.py 2021-01-01
-        This shows the number of days between tody and 2021-01-01.
+        shows the number of days between tody and 2021-01-01.
     datecal.py -W 2021-01-01
-        This shows the day of week on 2021-01-01.
+        shows the day of week on 2021-01-01.
     datecal.py -c 2021-01
-        This displays a monthly calendar for January 2021.
+        displays a monthly calendar for January 2021.
     datecal.py -c 2021
-        This displays a yearly calendar for 2021.
+        displays a yearly calendar for 2021.
     ''' 
 
         parser = argparse.ArgumentParser(

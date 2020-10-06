@@ -9,6 +9,7 @@ dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
+
 class LatexCompiler(object):
 
     def __init__(self, tex=None,
@@ -16,7 +17,7 @@ class LatexCompiler(object):
         view=False, compile=True, bibtex=False, luatex=False,
         index=False, language='korean', komkindex=False, index_style='kotex.ist',
         bookmark_index=False, bookmark_python=False, 
-        final=False, draft=False, python=False):
+        final=False, draft=False, python=False, asy=False):
         
         self.tex = tex
         self.batch_bool = batch
@@ -38,8 +39,11 @@ class LatexCompiler(object):
         self.final_bool = final
         self.draft_bool = draft
         self.python_bool = python
+        self.asy_bool = asy
 
-    def get_ready(self):        
+
+    def get_ready(self):
+
         if self.luatex_bool:
             self.compiler = 'lualatex.exe'
         else:
@@ -80,12 +84,47 @@ class LatexCompiler(object):
             self.ind = filename + '.ind'
             self.pdf = filename + '.pdf'
             self.py = filename + '.pytxcode'
+            self.asy = filename + '-*.asy'
             if not os.path.exists(self.tex):                
                 print('%s is not found.' %(self.tex))
                 self.tex = None
 
+
     def parse_args(self, argv=None):
+
+        example = '''examples:
+    ltx.py -b -s foo.xxx
+        Any filename extension is ignored.
+        foo.tex is compiled in batch mode and shell commands are allowed during compilation.
+    ltx.py -l foo
+        lualatex is used instead of xelatex.         
+    ltx.py -w -i foo
+        foo.tex is compiled twice and index entries (foo.idx) are sorted by texindy in between.
+    ltx.py -i -L french -n foo
+        foo.idx is sorted by french without compilation.
+    ltx.py -k -I foo.ist foo
+        foo.idx is sorted by komkindex instead of texindy with foo.ist after a compilation.
+    ltx.py -i -m foo
+        foo.ind is altered so that index entries are added as bookmarks. 
+        Use "-p" to bookmark ones from python docstrings.
+    ltx.py -f -a foo
+        If foo.idx exists, foo.tex is compiled four times and foo.idx is sorted in between.
+        Otherwise, it is compiled three times. 
+        Without "-a", every auxiliary file is deleted after compilation is completed. 
+    ltx.py -B foo
+        Bibtex runs after a compilation.
+    ltx.py -P foo
+        Pythontex runs after a compilation.
+    ltx.py -c
+        Auxiliary files are cleared.
+    ltx.py -F/-D foo
+        These options are available only with the hzguide latex class.
+        See https://hoze.tistory.com/1598
+    '''
+
         parser = argparse.ArgumentParser(
+            epilog = example,
+            formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Convert a TeX file to PDF using XeLaTeX or LuaLaTeX.'
         )
         parser.add_argument(
@@ -174,7 +213,7 @@ class LatexCompiler(object):
             dest = 'keep_aux',
             action = 'store_true',
             default = False,
-            help = 'After a full compilation (-f), auxiliary files are deleted. Use this option to keep them.'    
+            help = 'Keep auxiliary files after a full compilation. Without this option, they are altogether deleted.'            
         )
         parser.add_argument(
             '-m',
@@ -188,7 +227,7 @@ class LatexCompiler(object):
             dest = 'bookmark_python',
             action = 'store_true',
             default = False,
-            help = 'Bookmark index entries which are Python functions extracted from docstrings. This option is available only with -f or -i options.'
+            help = 'Bookmark index entries which are python functions extracted from docstrings. This option is available only with -f or -i options.'
         )
         parser.add_argument(
             '-c',
@@ -225,6 +264,13 @@ class LatexCompiler(object):
             default = False,
             help = 'Run pythontex.exe.'    
         )
+        parser.add_argument(
+            '-A',
+            dest = 'asy',
+            action = 'store_true',
+            default = False,
+            help = 'Run asy.'
+        )
 
         args = parser.parse_args(argv)
 
@@ -249,8 +295,11 @@ class LatexCompiler(object):
         self.final_bool = args.final
         self.draft_bool = args.draft
         self.python_bool = args.python
+        self.asy_bool = args.asy
+
 
     def compile_once(self, cmd_tex):
+
         os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
@@ -258,8 +307,12 @@ class LatexCompiler(object):
             self.sort_index()
         if self.python_bool:
             self.pythontex()    
+        if self.asy_bool:
+            self.asymptote()
+
 
     def compile_twice(self, cmd_tex):
+
         os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
@@ -267,14 +320,20 @@ class LatexCompiler(object):
             self.sort_index()
         if self.python_bool:
             self.pythontex() 
+        if self.asy_bool:
+            self.asymptote()
         os.system(cmd_tex) 
 
+
     def compile_fully(self, cmd_tex):
+
         os.system(cmd_tex)
         if self.bibtex_bool:
             self.run_bibtex()
         if self.python_bool:
             self.pythontex()
+        if self.asy_bool:
+            self.asymptote()
         os.system(cmd_tex)
         self.sort_index()       
         if os.path.exists(self.ind):
@@ -283,10 +342,14 @@ class LatexCompiler(object):
         if not self.keep_aux_bool:
             self.clear_aux()
 
+
     def run_bibtex(self):    
+
         os.system('bibtex.exe %s' %(self.aux))
 
+
     def sort_index(self):
+
         if not os.path.exists(self.idx):
             print('%s is not found' % (self.idx))
             return
@@ -298,7 +361,9 @@ class LatexCompiler(object):
         if self.bm_index_bool or self.bm_python_bool:
             self.bookmark_index()
 
+
     def bookmark_index(self):
+
         tmp = 't@mp.ind'
         if os.path.exists(tmp):
             os.remove(tmp)
@@ -312,7 +377,9 @@ class LatexCompiler(object):
         os.remove(self.ind)
         os.rename(tmp, self.ind)
 
+
     def bookmark_item(self, line, pattern):
+
         entry = re.search(pattern, line)
         if entry: 
             entry = entry.group(1).replace('\\spxentry{', '')
@@ -323,8 +390,10 @@ class LatexCompiler(object):
             line +=  append
         return line
 
+
     def clear_aux(self):
-        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "synctex*", "snm", "toc*", "upa", "upb", "pyg.lst", "pyg.sty", "vrb", "pytxcode", "tmp")
+
+        extensions = ("aux", "bbl", "blg", "idx", "ilg", "ind", "loe", "lof", "log", "lop", "loq", "lot", "minted*", "mw", "nav", "out", "pre", "pyg.lst", "pyg.sty", "pytxcode", "synctex*", "snm", "toc", "tmp", "upa", "upb", "vrb")
         for ext in extensions:
             fnpattern = '*.' + ext
             for afile in glob.glob(fnpattern):
@@ -332,24 +401,37 @@ class LatexCompiler(object):
         for dir in glob.glob('pythontex-files-*'):        
             shutil.rmtree(dir)
 
+
     def finalizer_on(self):
+
         with open(self.tex, mode = 'r', encoding = 'utf-8') as f:
             content = f.read()
         content = re.sub("\\\\FinalizerOff", "\\\\FinalizerOn", content)
         with open(self.tex, mode = 'w', encoding = 'utf-8') as f:
             f.write(content)
 
+
     def finalizer_off(self):
+
         with open(self.tex, mode = 'r', encoding = 'utf-8') as f:
             content = f.read()
         content = re.sub("\\\\FinalizerOn", "\\\\FinalizerOff", content)
         with open(self.tex, mode = 'w', encoding = 'utf-8') as f:
             f.write(content)
 
+
     def pythontex(self):
+
         os.system('pythontex.exe --runall=true %s' %(self.py))
 
+
+    def asymptote(self):
+
+        print('asy.exe %s' %(self.asy))
+        os.system('asy.exe %s' %(self.asy))
+
     def compile(self):
+
         self.get_ready()
         if self.tex:
             if self.final_bool:
@@ -380,7 +462,8 @@ class LatexCompiler(object):
             if os.path.exists(self.pdf):                 
                 opener = FileOpener()
                 opener.OpenPDF(self.pdf)
-    
+
+
 if __name__ == "__main__":
     texer = LatexCompiler()
     texer.parse_args()

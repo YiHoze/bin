@@ -26,7 +26,7 @@ class IdleTexnician(object):
     i.py -x
         Select one from the list of tex files.
     i.py -z
-        The selected one is compiled as specified by tex.conf, if available.
+        Select one from the list of tex files and it will be compiled as specified by tex.conf, if available.
         The purpose of this option is to compile a single subfile.
     '''
 

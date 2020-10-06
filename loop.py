@@ -1,26 +1,38 @@
-# loop.py "command foo_* goo_*"
-# which processes command for each one seleted
-
 import os
 import sys
 import glob
 import argparse
 import re
 
+example = '''examples:
+loop.py "cpdf -pages *.pdf"
+    cpdf will display the number of pages in each PDF file.
+loop.py -c "pdfcrop foo_*.pdf goo_*.pdf" 
+    This is the same as
+        pdfcrop foo_1.pdf goo_1.pdf
+        pdfcrop foo_2.pdf goo_2.pdf        
+loop.py -c "magick -rotate 90 foo_*.png foo_*.png"
+    This is the same as
+        magick -rotate 90 foo_1.png foo_1.png
+        magick -rotate 90 foo_2.png foo_2.png
+'''
+
 parser = argparse.ArgumentParser(
-    description = 'A given command will be repeated with each one matching a wildcard expresson.'
+    epilog = example,
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+    description = 'A given command will be repeated with each one matching wildcard characters.'
 )
 parser.add_argument(
     'cmd',
     nargs = 1,
-    help = 'Type a command with arguments.'
+    help = 'Type a command with arguments including wildcard characters.'
 )
 parser.add_argument(
     '-c',
-    dest = 'check_bool',
-    action = 'store_false',
-    default = True,
-    help = 'Do not check if files matching the wildcard expression exist.'
+    dest = 'consecutive_bool',
+    action = 'store_true',
+    default = False,
+    help = 'Change wildcard characters to consecutive numbers and check if matching files exist.'
 )
 args = parser.parse_args()
 
@@ -32,16 +44,18 @@ for i in cmd:
         break
 
 cmd = ' '.join(cmd)
-if args.check_bool:
+if args.consecutive_bool:
     for i in glob.glob(selection):
-        num = re.findall('\d+', i)
+        num = re.findall(r'\d+', i)
         if len(num) > 0:
             real_cmd = cmd.replace('*', num[0])
-            os.system(real_cmd)
+            os.system(real_cmd)            
         else:
             print('No numbered files are found.')
             break
 else:    
     for i in glob.glob(selection):
-        real_cmd = cmd.replace(selection, i)
+        filename = os.path.splitext(os.path.basename(i))[0]
+        real_cmd = re.sub('\*.+?(?=\.)', filename, cmd)
         os.system(real_cmd)
+        # print(real_cmd)

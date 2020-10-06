@@ -4709,3 +4709,54 @@ tex:	`\documentclass[a4paper, oneside]{memoir}
 		`\end{minipage}
 		`
 		`\end{document}
+
+[graphviz]
+description: This template shows an example for graphviz.
+output: graphviz
+cmd:	dot -T pdf graphviz.gv -o latex_process.pdf
+		ltx.py graphviz -v
+gv:		`digraph G {
+		`	 margin=0;
+		`    rankdir=TB;
+		`    node [fontname=D2Coding, fontsize=10, penwidth=0.25];
+		`    edge [arrowhead=vee, arrowsize=0.5, fontname=Arial, fontsize=9];
+		`
+		`    node [shape=ellipse, style=filled, fillcolor=lightgrey];
+		`        { rank=same; 
+		`            tex[label="foo.tex", fillcolor=lightsalmon]; 
+		`            pdf[label="foo.pdf", fillcolor=navy, fontcolor=white]; }
+		`        latex [shape=box, style=filled, fillcolor=lightblue];
+		`        { rank=same; 
+		`            aux[label="foo.aux"]; 
+		`            toc[label="foo.toc"]; 
+		`            idx[label="foo.idx"]; 
+		`            log[label="foo.log"]; }
+		`        { rank=same;             
+		`            makeindex[shape=box, style=filled, fillcolor=lightblue];
+		`            bib[label="ref.bib", fillcolor=lightsalmon];
+		`            bibtex[shape=box, style=filled, fillcolor=lightblue]; }
+		`        { rank=same; 
+		`            ist[label="goo.ist", fillcolor=khaki3]; 
+		`            ind [label="foo.ind"]; 
+		`            bst[label="hoo.ist", fillcolor=khaki3]; 
+		`            bbl[label="foo.bbl"];  }
+		`
+		`    tex -> latex -> {pdf; log}
+		`    latex -> {aux; toc} [dir=both, arrowtail=vee];
+		`    latex -> idx -> makeindex -> ind -> latex;
+		`    ist -> makeindex;
+		`    aux -> bibtex -> bbl -> latex;
+		`    { bst; bib } -> bibtex;
+		`} 
+tex:	\documentclass[a4paper]{article}
+		\usepackage{graphicx}
+		\begin{document}
+		\noindent\includegraphics[width=\textwidth]{latex_process}
+		\begin{verbatim}
+		latex = pdflatex / xelatex / lualatex
+		.toc = .lof / .lot
+		makeindex = komkindex / texindy
+		.ist = .xdy
+		bibtex = biber
+		\end{verbatim}
+		\end{document}

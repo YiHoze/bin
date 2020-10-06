@@ -20,6 +20,7 @@ class LatexTemplate(object):
         self.output = output
         self.defy_bool = defy
         self.list_bool = False
+        self.List_bool = False
         self.cmd = None
         self.ini_bool = self.initialize() 
         self.generated_files = []   
@@ -227,22 +228,25 @@ class LatexTemplate(object):
 
     def write_from_template(self):
 
-        self.write_relatives('cmd')
-        self.write_relatives('sty')
         self.write_relatives('bib')
-        self.write_relatives('xdy')
+        self.write_relatives('cmd')
         self.write_relatives('css')
+        self.write_relatives('gv')
         self.write_relatives('map')
-        if not self.confirm_to_remove(self.tex):
-            return False
-        try:
-            content = self.templates.get(self.template, 'tex')
-            content = self.fill_placeholders(content)
-        except:
-            print('Make sure to have latex.tpl set properly.')
-            return False
-        with open(self.tex, mode='w', encoding='utf-8') as f:
-            f.write(content)
+        self.write_relatives('sty')
+        self.write_relatives('xdy')
+        # self.confirm_to_remove(self.tex)
+        
+        if self.confirm_to_remove(self.tex):        
+            try:
+                content = self.templates.get(self.template, 'tex')
+                content = self.fill_placeholders(content)
+                with open(self.tex, mode='w', encoding='utf-8') as f:
+                    f.write(content)
+            except:
+                print('Make sure to have latex.tpl set properly.')
+                return False
+
         if self.remove_bool:
             self.generated_files.append(self.tex)
 

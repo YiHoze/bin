@@ -4738,7 +4738,7 @@ gv:		`digraph G {
 		`        { rank=same; 
 		`            ist[label="goo.ist", fillcolor=khaki3]; 
 		`            ind [label="foo.ind"]; 
-		`            bst[label="hoo.ist", fillcolor=khaki3]; 
+		`            bst[label="hoo.bst", fillcolor=khaki3]; 
 		`            bbl[label="foo.bbl"];  }
 		`
 		`    tex -> latex -> {pdf; log}

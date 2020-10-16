@@ -23,7 +23,9 @@ class LatexTemplate(object):
         self.List_bool = False
         self.cmd = None
         self.ini_bool = self.initialize() 
-        self.generated_files = []   
+        self.generated_files = []
+        self.remove_bool = False
+        self.force_bool = False
 
 
     def initialize(self):
@@ -121,7 +123,9 @@ class LatexTemplate(object):
             default = False,
             help = 'Show the details about the specified template.'            
         )
+
         args = parser.parse_args()
+
         self.template = args.template
         self.substitutes = args.substitutes
         self.output = args.output

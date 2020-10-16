@@ -6,14 +6,18 @@ import configparser
 import subprocess
 
 class FileOpener(object):
+
     def __init__(self, files=None, Adobe=False, texlive=False):
+
         self.ini = self.initialize()
         self.files = files
-        self.Adobe = Adobe
-        self.texlive = texlive
+        self.Adobe_bool = Adobe
+        self.texlive_bool = texlive
         self.edopt = ''
 
+
     def initialize(self):        
+
         inipath = os.path.dirname(__file__) 
         ini = os.path.join(inipath, 'docenv.ini')
         if os.path.exists(ini):
@@ -23,7 +27,8 @@ class FileOpener(object):
                 self.editor = config.get('Text Editor', 'path')
                 self.associations = config.get('Text Editor', 'associations')
                 self.PDFviewer = config.get('SumatraPDF', 'path')
-                self.AdobeReader = config.get('Adobe Reader', 'path')
+                self.Adobe_boolReader = config.get('Adobe Reader', 'path')
+                self.WebBrowser = config.get('Web Browser', 'path')
                 return True
             except:
                 print('Make sure to have docenv.ini set properly.')
@@ -32,28 +37,36 @@ class FileOpener(object):
             print('Docenv.ini is not found in %s.' %(inipath))
             return False
 
+
     def check_editor(self):
+
         if os.path.exists(self.editor):
             return True
         else:
             print('Check the path to the text editor.')
             return False
 
+
     def check_PDFviewer(self):
+
         if os.path.exists(self.PDFviewer):
             return True
         else:
             print('Check the path to the PDF viewer.')
             return False
     
+
     def check_AdobeReader(self):
-        if os.path.exists(self.AdobeReader):
+
+        if os.path.exists(self.Adobe_boolReader):
             return True
         else:
             print('Check the path to the Adobe Reader.')
             return False
 
+
     def parse_args(self):
+
         parser = argparse.ArgumentParser(
             description = 'Open text files and others with an appropriate application.'
         )
@@ -94,15 +107,26 @@ class FileOpener(object):
             default = False,
             help = 'Force to open as text.'
         )
+        parser.add_argument(
+            '-w',
+            dest = 'web',
+            action = 'store_true',
+            default = False,
+            help = 'Access the given website.'
+        )
+
         args = parser.parse_args()
         self.files = args.files
         self.editor = args.editor
         self.edopt = args.edopt
-        self.Adobe = args.Adobe
-        self.texlive = args.texlive
-        self.force = args.force
+        self.Adobe_bool = args.Adobe
+        self.texlive_bool = args.texlive
+        self.force_bool = args.force
+        self.web_bool = args.web
+
 
     def DetermineFileType(self, afile):
+
         ext = os.path.splitext(afile)[1]        
         if ext.lower() in self.associations:
             return 'txt'
@@ -111,11 +135,13 @@ class FileOpener(object):
         else:
             return 'another'
 
+
     def OpenHere(self, files):
+
         for fnpattern in files:
             for afile in glob.glob(fnpattern):
                 filetype = self.DetermineFileType(afile)
-                if filetype == 'txt' or self.force:
+                if filetype == 'txt' or self.force_bool:
                     self.OpenTxt(afile)
                 elif filetype ==  'pdf':
                     self.OpenPDF(afile)
@@ -123,22 +149,28 @@ class FileOpener(object):
                     cmd = 'start \"\" \"%s\"' % (afile)
                     os.system(cmd)
 
+
     def OpenTxt(self, afile):
+
         if self.check_editor():
             cmd = '\"%s\" %s %s' % (self.editor, self.edopt, afile)
             subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
+
     def OpenPDF(self, afile):
-        if self.Adobe:
+
+        if self.Adobe_bool:
             if self.check_AdobeReader():
-                cmd = '\"%s\" \"%s\"' % (self.AdobeReader, afile)
+                cmd = '\"%s\" \"%s\"' % (self.Adobe_boolReader, afile)
                 subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
         else:   
             if self.check_PDFviewer():
                 cmd = '\"%s\" \"%s\"' % (self.PDFviewer, afile)
                 subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
 
+
     def SearchTeXLive(self, files):
+
         if self.check_editor():
             for afile in files:
                 try:
@@ -149,14 +181,26 @@ class FileOpener(object):
                 except subprocess.CalledProcessError:
                     print('%s is not found in TeX Live.' %(afile))
 
+
+    def OpenWeb(self, urls):
+
+        for url in urls:
+            cmd = '\"%s\" \"%s\"' % (self.WebBrowser, url)
+            subprocess.Popen(cmd)
+
+
     def open(self, files=None):
+
         if self.ini:           
             if files == None:
                 files = self.files
-            if self.texlive:
+            if self.texlive_bool:
                 self.SearchTeXLive(files)
+            elif self.web_bool:
+                self.OpenWeb(files)
             else:
                 self.OpenHere(files)
+
 
 if __name__ == '__main__':
     opener = FileOpener()    

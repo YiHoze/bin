@@ -7,6 +7,7 @@ import subprocess
 import re
 import unicodedata
 
+
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
@@ -42,6 +43,7 @@ class WordUtility(object):
 ]
 &"""
 
+
     def parse_args(self):
 
         example = '''examples:
@@ -61,9 +63,10 @@ class WordUtility(object):
         with "-tor", a brief description of the syntax of Tortoise Tagger 
             is added to the output. 
             Be aware that the output file is encoded in EUC-KR.'
-    wordutil.py -b -u aZ가힣
+    wordutil.py -b aZ가힣
         For the given characters, their UTF-8 bytes are analyzed.
-        With "-u", uppercase letters are used for hexadecimal numbers.
+    wordutil.py -c foo.txt
+        foo_utf8.txt is generated in UTF-8 from foo.txt encoded in EUC-KR.
     '''
         parser = argparse.ArgumentParser(
             epilog = example,  
@@ -130,6 +133,13 @@ class WordUtility(object):
             default = False,
             help = 'Analyze UTF-8 bytes of given characters.',
         )
+        parser.add_argument(
+            '-c',
+            dest = 'convert',
+            action = 'store_true',
+            default = False,
+            help = 'Covert ones encoded in EUC-KR to UTF-8.'
+        )
 
         args = parser.parse_args()
 
@@ -142,6 +152,8 @@ class WordUtility(object):
         self.tortoise_bool = args.tortoise
         self.suffix = args.suffix
         self.utf_byte_bool = args.utf_byte
+        self.encoding_covert_bool = args.convert
+
 
     def check_TeXLive(self):
 
@@ -187,6 +199,7 @@ class WordUtility(object):
                 r'\w*\d\w*'
             ]
 
+
     def check_to_remove(self, afile):
 
         if os.path.exists(afile):
@@ -198,6 +211,7 @@ class WordUtility(object):
                 return False
         else:
             return True
+
 
     def count_words(self, afile):
 
@@ -212,6 +226,7 @@ class WordUtility(object):
         f.close()
         msg = '%s\n Lines: %d\n Words: %d\n Characters: %d\n' % (afile, lines, words, chars)
         print(msg) 
+
 
     def extract_words(self, afile):
 
@@ -234,6 +249,7 @@ class WordUtility(object):
         opener = FileOpener()
         opener.OpenTxt(output) 
 
+
     def display_unicode(self, string):
 
         codes = ''
@@ -242,6 +258,7 @@ class WordUtility(object):
             if (c != '\n') and (c != ' ') and ( c != '\t'):
                 codes += '%s\tU+%04X\t%s\n' %(c, ord(c), unicodedata.name(c).lower())
         return codes
+
 
     def get_unicode(self, afile):
 
@@ -255,6 +272,7 @@ class WordUtility(object):
                 outfile.write(codes)
         opener = FileOpener()
         opener.OpenTxt(output) 
+
 
     def check_if_pdf(self, afile):
 
@@ -273,6 +291,7 @@ class WordUtility(object):
                 return None
         else:
             return afile
+
 
     def pick_tex_macro(self, afile):
 
@@ -313,6 +332,16 @@ class WordUtility(object):
         opener = FileOpener()
         opener.OpenTxt(output) 
 
+    
+    def convert_euckr_utf8(self, afile):
+
+        output = afile.replace('.', '_utf8.')
+        with open(afile, mode='r', encoding='euc-kr') as f:
+            content = f.read()
+        with open(output, mode='w', encoding='utf-8') as f:
+            f.write(content)
+
+
     def determine_task(self):
 
         if self.utf_byte_bool:
@@ -332,8 +361,11 @@ class WordUtility(object):
                             self.get_unicode(afile)
                         elif self.tex_bool:                
                             self.pick_tex_macro(afile)
+                        elif self.encoding_covert_bool:
+                            self.convert_euckr_utf8(afile)
                         else:
-                            self.count_words(afile)
+                            self.count_words(afile)    
+
 
 class UTFanalyzer(object):
 
@@ -375,6 +407,7 @@ class UTFanalyzer(object):
                 byte = byte.zfill(24)
                 return head + byte[0:6] + tail + byte[6:12] + head + byte[12:18] + tail + byte[18:24] + normal
 
+
     def highlight_Bbyte(self, byte_number, byte_index, byte):
 
         if self.tex_bool:
@@ -405,6 +438,7 @@ class UTFanalyzer(object):
                     return head + byte[:4] + tail + byte[4:] + normal
                 elif byte_number == 4:
                     return head + byte[:5] + tail + byte[5:] + normal
+
 
     def show(self):
 
@@ -444,6 +478,7 @@ class UTFanalyzer(object):
                     print(char, Dcode, '\\tab', Hcode, Bcode, '\\\\')
                 else:
                     print(char, Dcode, Hcode, Bcode, charname)
+
 
 if __name__ == '__main__':
     wordutil = WordUtility()

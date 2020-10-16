@@ -29,14 +29,18 @@ class ConvertUnit(object):
     def parse_args(self):
     
         example = '''examples:
+    unit.py 
+        Supported units are displayed.
     unit.py 10 mi 20
         10 to 20 miles are converted to kilometers.
+    unit.py 99 fah
+        A temperature in Fahrenheit is converted to Celsius.
     unit.py -c 0000FF
-        This RGB value is converted to CMYK.
+        This type of RGB value is converted to CMYK.
     unit.py -c 240,120,99
-        This RGB value is converted to CMYK.
+        This type of RGB value is converted to CMYK.
     unit.py -c 0.1,0.33,0.01
-        This CMYK value is converted to RGB.
+        This type of CMYK value is converted to RGB.
         
     To use a comma as thousand separator in Powershell, 
     wrap the number with quotes or use the escape character.
@@ -46,12 +50,12 @@ class ConvertUnit(object):
         parser = argparse.ArgumentParser(
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description = 'Convert a unit of measurement to another.'
+            description = 'Convert non-metric units to the metric system.'
         )
         parser.add_argument(
             'numeral',
             nargs='*',
-            help='Enter a numeric value with the full word or the first some letters of a unit type.'                
+            help='Enter a numeric value with the full word or the first some letters of a non-metric unit.'
         )
         parser.add_argument(
             '-c',

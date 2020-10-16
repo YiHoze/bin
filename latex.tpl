@@ -4760,3 +4760,231 @@ tex:	\documentclass[a4paper]{article}
 		bibtex = biber
 		\end{verbatim}
 		\end{document}
+
+[symbol]
+description: This template collects frequently-used symbols using the HCR Batang font.
+output: symbols
+compiler: -c
+sty:	`\RequirePackage{xparse}
+		`\RequirePackage{etoolbox}
+		`\AtEndPreamble{
+		`	\@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}
+		`}
+		`\ExplSyntaxOn 
+		`\tl_set:Nn \keyfontname { HCR~Batang }
+		`\prop_new:N \g_hcrkey_prop
+		`\prop_set_from_keyval:Nn \g_hcrkey_prop
+		`{
+		`	f1 = \char"F035F,
+		`	f2 = \char"F0360,
+		`	f3 = \char"F0361,
+		`	f4 = \char"F0362,
+		`	f5 = \char"F0363,
+		`	f6 = \char"F0364,
+		`	f7 = \char"F0365,
+		`	f8 = \char"F0366,
+		`	f9 = \char"F0367,
+		`	f10 = \char"F0368,
+		`	f11 = \char"F0369,
+		`	f12 = \char"F036A,
+		`	alt = \char"F036B,
+		`	ctrl = \char"F036D,
+		`	shift = \char"F036C,
+		`	tab = \char"F036E,
+		`	space = \char"F039E,
+		`	esc = \char"F03A2,
+		`	backquote = \char"F036F,
+		`	tilde = \char"F036F,
+		`	! = \char"F0370,
+		`	1 = \char"F0370,
+		`	@ = \char"F0371,
+		`	2 = \char"F0371,
+		`	hash = \char"F0372,
+		`	3 = \char"F0372,
+		`	dollar = \char"F0373,
+		`	4 = \char"F0373,
+		`	percent = \char"F0374,
+		`	5 = \char"F0374,
+		`	caret = \char"F0375,
+		`	6 = \char"F0375,
+		`	ampersand = \char"F0376,
+		`	7 = \char"F0376,
+		`	* = \char"F0377,
+		`	8 = \char"F0377,
+		`	( = \char"F0378,
+		`	9 = \char"F0378,
+		`	) = \char"F0379,
+		`	0 = \char"F0379,
+		`	- = \char"F037A,
+		`	_ = \char"F037A,
+		`	+ = \char"F037B,
+		`	{=} = \char"F037B,
+		`	| = \char"F037C,
+		`	backslash = \char"F037C,
+		`	a = \char"F037D,
+		`	b = \char"F037E,
+		`	c = \char"F037F,
+		`	d = \char"F0380,
+		`	e = \char"F0381,
+		`	f = \char"F0382,
+		`	g = \char"F0383,
+		`	h = \char"F0384,
+		`	i = \char"F0385,
+		`	j = \char"F0386,
+		`	k = \char"F0387,
+		`	l = \char"F0388,
+		`	m = \char"F0389,
+		`	n = \char"F038A,
+		`	o = \char"F038B,
+		`	p = \char"F038C,
+		`	q = \char"F038D,
+		`	r = \char"F038E,
+		`	s = \char"F038F,
+		`	t = \char"F0390,
+		`	u = \char"F0391,
+		`	v = \char"F0392,
+		`	w = \char"F0393,
+		`	x = \char"F0394,
+		`	y = \char"F0395,
+		`	z = \char"F0396,
+		` 	\{ = \char"F0397,
+		`	leftbrace = \char"F0397,
+		`	[ = \char"F0397,
+		`	\} = \char"F0398,
+		`	rightbrace = \char"F0398,
+		`	] = \char"F0398,
+		`	: = \char"F0399,
+		`	; = \char"F0399,
+		`	" = \char"F039A,
+		`	' = \char"F039A,
+		`	< = \char"F039B,
+		`	, = \char"F039B,
+		`	> = \char"F039C,
+		`	. = \char"F039C,
+		`	? = \char"F039D,
+		`	/ = \char"F039D,
+		`	space = \char"F039E,
+		`	backspace = \char"F03A1,
+		`	enter = \char"F03A0,
+		`	capslock = \char"F039F,
+		`	numlock = \char"F03A3,
+		`	scrolllock = \char"F03A4,
+		`	sysreq = \char"F03A5,
+		`	numprtsc = \char"F03A6,
+		`	num+ = \char"F03A8,
+		`	num- = \char"F03A7,
+		`	numdel = \char"F03A9,
+		`	numdot = \char"F03A9,
+		`	numins = \char"F03AA,
+		`	num0 = \char"F03AA,
+		`	numend = \char"F03AB,
+		`	num1 = \char"F03AB,
+		`	numdown = \char"F03AC,
+		`	num2 = \char"F03AC,
+		`	numpgdn = \char"F03AD,
+		`	num3 = \char"F03AD,
+		`	numleft = \char"F03AE,
+		`	num4 = \char"F03AE,
+		`	num5 = \char"F03AF,
+		`	numright = \char"F03B0,
+		`	num6 = \char"F03B0,
+		`	numhome = \char"F03B1,
+		`	num7 = \char"F03B1,
+		`	numup = \char"F03B2,
+		`	num8 = \char"F03B2,
+		`	numpgup = \char"F03B3,
+		`	num9 = \char"F03B3,
+		`	numenter = \char"F03C0,
+		`	num* = \char"F03C1,
+		`	num/ = \char"F03C2,
+		`	prtsc = \char"F03C3,
+		`	numpause = \char"F03C4,
+		`	pause = \char"F03C4,
+		`	insert = \char"F03B6,
+		`	ins = \char"F03B6,
+		`	delete = \char"F03B7,
+		`	del = \char"F03B7,
+		`	home = \char"F03B8,
+		`	end = \char"F03B9,
+		`	pageup = \char"F03BA,
+		`	pgup = \char"F03BA,
+		`	pagedown = \char"F03BB,
+		`	pgdn = \char"F03BB,
+		`	left = \char"F03BC,
+		`	right = \char"F03BD,
+		`	up = \char"F03BE,
+		`	down = \char"F03BF,
+		`	blank = \char"F03C5,
+		`}
+		`
+		`\NewDocumentCommand \hcrkey { m }
+		`{
+		`	\tl_set:Nx \l_tmpa_tl { \str_foldcase:n { #1 } }
+		`	\str_case_e:nnF { \l_tmpa_tl } 
+		`	{
+		`		{ windows }
+		`		  {
+		`    		\group_begin:
+		`    		\fontspec {\keyfontname} 
+		`    		\raisebox{-.09em}{\includegraphics[width=.9em]{hcrkey_winlogo}\hspace{.05em}}
+		`    		\hbox_overlap_left:n { \char"F03C5 }
+		`    		\group_end:
+		`		  }
+		`		{ fn }  
+		`		  {
+		`        	\group_begin:
+		`        	\fontspec { \keyfontname }
+		`        	\hbox_set:Nn \l_tmpa_box { \sffamily Fn \hspace{.1em} }
+		`        	\box_resize_to_wd:Nn \l_tmpa_box { .9em }
+		`        	\box_use_drop:N \l_tmpa_box 
+		`        	\hbox_overlap_left:n { \char"F03C5 }
+		`        	\group_end:
+		`		  }
+		`	}
+		`	{
+		`    	\prop_get:NVN \g_hcrkey_prop \l_tmpa_tl \l_tmpb_tl
+		`    	\quark_if_no_value:NF \l_tmpb_tl
+		`    	  {
+		`        	  \group_begin: 
+		`        		\exp_args:No \fontspec {\keyfontname}
+		`        		\tl_use:N \l_tmpb_tl
+		`        	  \group_end:
+		`    	  }
+		`	 }
+		`}
+		`\ExplSyntaxOff
+
+tex:	\documentclass{article}
+		\usepackage{fontspec}
+		\usepackage{symbols}
+		\setmainfont{HCR Batang}
+		\def\keyfontname{HCR Batang}
+		\setlength\parindent{0pt}
+		\begin{document}
+		\Large
+		− minus \\
+		– en dash \\
+		— em dash \\
+		″ double prime for inch \\
+		〜 wave dash (301C) \\
+		• · 『 』「 」≪ ≫ … ⧵ \\
+		± ÷ × ² ³ ₂ ₃ \\
+		 ◯ ✓ ✔ ✗ ✘ □ ☐ ☑ \\
+		°C °F ㈜ ₩ © ® ™ \\
+		≤ ≥ ← → ↑ ↓ ► ◄ ▲ ▼ \\
+		① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ \\
+		Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ Ⅵ Ⅶ Ⅷ Ⅸ Ⅹ \\
+		Α	α	Β	β	Γ	γ	Δ	δ	Ε	ε	Ζ	ζ	Η	η	Θ	θ	Ι	ι	Κ	κ	Λ	λ	Μ	μ	\\
+		Ν	ν	Ξ	ξ	Ο	ο	Π	π	Ρ	ρ	Σ	σ ς Τ	τ	Υ	υ	Φ	φ	Χ	χ	Ψ	ψ	Ω	ω \\
+		↵ \\
+		\hcrkey{f1} \hcrkey{f2} \hcrkey{f3} \hcrkey{f4} \hcrkey{f5} \hcrkey{f6} \hcrkey{f7} \hcrkey{f8} \hcrkey{f9} \hcrkey{f10} \hcrkey{f11} \hcrkey{f12} \\
+		\hcrkey{a} \hcrkey{b} \hcrkey{c} \hcrkey{d} \hcrkey{e} \hcrkey{f} \hcrkey{g} \hcrkey{h} \hcrkey{i} \hcrkey{j} \hcrkey{k} \hcrkey{l} \hcrkey{m} \hcrkey{n} \hcrkey{o} \hcrkey{p} \hcrkey{q} \hcrkey{r} \hcrkey{s} \hcrkey{t} \hcrkey{u} \hcrkey{v} \hcrkey{w} \hcrkey{x} \hcrkey{y} \hcrkey{z} \\
+		\hcrkey{ESC} \hcrkey{Alt} \hcrkey{Ctrl} \hcrkey{TAB} \hcrkey{capslock} \hcrkey{Shift} \hcrkey{space} \hcrkey{backspace} \hcrkey{del} \hcrkey{ins} \hcrkey{enter} \\
+		\hcrkey{left} \hcrkey{right} \hcrkey{up} \hcrkey{down} \hcrkey{pgup} \hcrkey{pgdn} \hcrkey{home} \hcrkey{end} \\
+		\hcrkey{backquote} \hcrkey{1} \hcrkey{2} \hcrkey{3} \hcrkey{4} \hcrkey{5} \hcrkey{6} \hcrkey{7} \hcrkey{8} \hcrkey{9} \hcrkey{0}\\
+		\hcrkey{-} \hcrkey{+} \hcrkey{\{} \hcrkey{\}} \hcrkey{backslash} \hcrkey{:} \hcrkey{"} \hcrkey{<} \hcrkey{>} \hcrkey{?}\\
+		\hcrkey{PrtSc} \hcrkey{ScrollLock} \hcrkey{Pause} \hcrkey{NumLock} \\
+		\hcrkey{num/} \hcrkey{num*} \hcrkey{num-} \hcrkey{num+} \hcrkey{numEnter} \\
+		\hcrkey{num1} \hcrkey{num2} \hcrkey{num3} \hcrkey{num4} \hcrkey{num5} \hcrkey{num6} \hcrkey{num7} \hcrkey{num8} \hcrkey{num9} \\
+		\hcrkey{numins} \hcrkey{numdel} 
+		\end{document}

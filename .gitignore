@@ -11,4 +11,5 @@ pdf2htmlEX/
 *.json
 *.sty
 *.spec
+*.log
 daily.ini

@@ -4768,153 +4768,157 @@ compiler: -c
 sty:	`\RequirePackage{xparse}
 		`\RequirePackage{etoolbox}
 		`\AtEndPreamble{
+		`	\@ifpackageloaded{fontspec}{}{\RequirePackage{fontspec}}
 		`	\@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}
 		`}
 		`\ExplSyntaxOn 
-		`\tl_set:Nn \keyfontname { HCR~Batang }
+		`\tl_if_exist:NF \keyfontname
+		`{
+		`	\tl_set:Nn \keyfontname { HCR~Batang }
+		`}
 		`\prop_new:N \g_hcrkey_prop
 		`\prop_set_from_keyval:Nn \g_hcrkey_prop
 		`{
-		`	f1 = \char"F035F,
-		`	f2 = \char"F0360,
-		`	f3 = \char"F0361,
-		`	f4 = \char"F0362,
-		`	f5 = \char"F0363,
-		`	f6 = \char"F0364,
-		`	f7 = \char"F0365,
-		`	f8 = \char"F0366,
-		`	f9 = \char"F0367,
-		`	f10 = \char"F0368,
-		`	f11 = \char"F0369,
-		`	f12 = \char"F036A,
-		`	alt = \char"F036B,
-		`	ctrl = \char"F036D,
-		`	shift = \char"F036C,
-		`	tab = \char"F036E,
-		`	space = \char"F039E,
-		`	esc = \char"F03A2,
-		`	backquote = \char"F036F,
-		`	tilde = \char"F036F,
-		`	! = \char"F0370,
-		`	1 = \char"F0370,
-		`	@ = \char"F0371,
-		`	2 = \char"F0371,
-		`	hash = \char"F0372,
-		`	3 = \char"F0372,
-		`	dollar = \char"F0373,
-		`	4 = \char"F0373,
-		`	percent = \char"F0374,
-		`	5 = \char"F0374,
-		`	caret = \char"F0375,
-		`	6 = \char"F0375,
-		`	ampersand = \char"F0376,
-		`	7 = \char"F0376,
-		`	* = \char"F0377,
-		`	8 = \char"F0377,
-		`	( = \char"F0378,
-		`	9 = \char"F0378,
-		`	) = \char"F0379,
-		`	0 = \char"F0379,
-		`	- = \char"F037A,
-		`	_ = \char"F037A,
-		`	+ = \char"F037B,
-		`	{=} = \char"F037B,
-		`	| = \char"F037C,
-		`	backslash = \char"F037C,
-		`	a = \char"F037D,
-		`	b = \char"F037E,
-		`	c = \char"F037F,
-		`	d = \char"F0380,
-		`	e = \char"F0381,
-		`	f = \char"F0382,
-		`	g = \char"F0383,
-		`	h = \char"F0384,
-		`	i = \char"F0385,
-		`	j = \char"F0386,
-		`	k = \char"F0387,
-		`	l = \char"F0388,
-		`	m = \char"F0389,
-		`	n = \char"F038A,
-		`	o = \char"F038B,
-		`	p = \char"F038C,
-		`	q = \char"F038D,
-		`	r = \char"F038E,
-		`	s = \char"F038F,
-		`	t = \char"F0390,
-		`	u = \char"F0391,
-		`	v = \char"F0392,
-		`	w = \char"F0393,
-		`	x = \char"F0394,
-		`	y = \char"F0395,
-		`	z = \char"F0396,
-		` 	\{ = \char"F0397,
-		`	leftbrace = \char"F0397,
-		`	[ = \char"F0397,
-		`	\} = \char"F0398,
-		`	rightbrace = \char"F0398,
-		`	] = \char"F0398,
-		`	: = \char"F0399,
-		`	; = \char"F0399,
-		`	" = \char"F039A,
-		`	' = \char"F039A,
-		`	< = \char"F039B,
-		`	, = \char"F039B,
-		`	> = \char"F039C,
-		`	. = \char"F039C,
-		`	? = \char"F039D,
-		`	/ = \char"F039D,
-		`	space = \char"F039E,
-		`	backspace = \char"F03A1,
-		`	enter = \char"F03A0,
-		`	capslock = \char"F039F,
-		`	numlock = \char"F03A3,
-		`	scrolllock = \char"F03A4,
-		`	sysreq = \char"F03A5,
-		`	numprtsc = \char"F03A6,
-		`	num+ = \char"F03A8,
-		`	num- = \char"F03A7,
-		`	numdel = \char"F03A9,
-		`	numdot = \char"F03A9,
-		`	numins = \char"F03AA,
-		`	num0 = \char"F03AA,
-		`	numend = \char"F03AB,
-		`	num1 = \char"F03AB,
-		`	numdown = \char"F03AC,
-		`	num2 = \char"F03AC,
-		`	numpgdn = \char"F03AD,
-		`	num3 = \char"F03AD,
-		`	numleft = \char"F03AE,
-		`	num4 = \char"F03AE,
-		`	num5 = \char"F03AF,
-		`	numright = \char"F03B0,
-		`	num6 = \char"F03B0,
-		`	numhome = \char"F03B1,
-		`	num7 = \char"F03B1,
-		`	numup = \char"F03B2,
-		`	num8 = \char"F03B2,
-		`	numpgup = \char"F03B3,
-		`	num9 = \char"F03B3,
-		`	numenter = \char"F03C0,
-		`	num* = \char"F03C1,
-		`	num/ = \char"F03C2,
-		`	prtsc = \char"F03C3,
-		`	numpause = \char"F03C4,
-		`	pause = \char"F03C4,
-		`	insert = \char"F03B6,
-		`	ins = \char"F03B6,
-		`	delete = \char"F03B7,
-		`	del = \char"F03B7,
-		`	home = \char"F03B8,
-		`	end = \char"F03B9,
-		`	pageup = \char"F03BA,
-		`	pgup = \char"F03BA,
-		`	pagedown = \char"F03BB,
-		`	pgdn = \char"F03BB,
-		`	left = \char"F03BC,
-		`	right = \char"F03BD,
-		`	up = \char"F03BE,
-		`	down = \char"F03BF,
-		`	blank = \char"F03C5,
+		`	f1 = F035F,
+		`	f2 = F0360,
+		`	f3 = F0361,
+		`	f4 = F0362,
+		`	f5 = F0363,
+		`	f6 = F0364,
+		`	f7 = F0365,
+		`	f8 = F0366,
+		`	f9 = F0367,
+		`	f10 = F0368,
+		`	f11 = F0369,
+		`	f12 = F036A,
+		`	alt = F036B,
+		`	ctrl = F036D,
+		`	shift = F036C,
+		`	tab = F036E,
+		`	space = F039E,
+		`	esc = F03A2,
+		`	backquote = F036F,
+		`	tilde = F036F,
+		`	! = F0370,
+		`	1 = F0370,
+		`	@ = F0371,
+		`	2 = F0371,
+		`	hash = F0372,
+		`	3 = F0372,
+		`	dollar = F0373,
+		`	4 = F0373,
+		`	percent = F0374,
+		`	5 = F0374,
+		`	caret = F0375,
+		`	6 = F0375,
+		`	ampersand = F0376,
+		`	7 = F0376,
+		`	* = F0377,
+		`	8 = F0377,
+		`	( = F0378,
+		`	9 = F0378,
+		`	) = F0379,
+		`	0 = F0379,
+		`	- = F037A,
+		`	_ = F037A,
+		`	+ = F037B,
+		`	{=} = F037B,
+		`	| = F037C,
+		`	backslash = F037C,
+		`	a = F037D,
+		`	b = F037E,
+		`	c = F037F,
+		`	d = F0380,
+		`	e = F0381,
+		`	f = F0382,
+		`	g = F0383,
+		`	h = F0384,
+		`	i = F0385,
+		`	j = F0386,
+		`	k = F0387,
+		`	l = F0388,
+		`	m = F0389,
+		`	n = F038A,
+		`	o = F038B,
+		`	p = F038C,
+		`	q = F038D,
+		`	r = F038E,
+		`	s = F038F,
+		`	t = F0390,
+		`	u = F0391,
+		`	v = F0392,
+		`	w = F0393,
+		`	x = F0394,
+		`	y = F0395,
+		`	z = F0396,
+		` 	\{ = F0397,
+		`	leftbrace = F0397,
+		`	[ = F0397,
+		`	\} = F0398,
+		`	rightbrace = F0398,
+		`	] = F0398,
+		`	: = F0399,
+		`	; = F0399,
+		`	" = F039A,
+		`	' = F039A,
+		`	< = F039B,
+		`	, = F039B,
+		`	> = F039C,
+		`	. = F039C,
+		`	? = F039D,
+		`	/ = F039D,
+		`	space = F039E,
+		`	backspace = F03A1,
+		`	enter = F03A0,
+		`	capslock = F039F,
+		`	numlock = F03A3,
+		`	scrolllock = F03A4,
+		`	sysreq = F03A5,
+		`	numprtsc = F03A6,
+		`	num+ = F03A8,
+		`	num- = F03A7,
+		`	numdel = F03A9,
+		`	numdot = F03A9,
+		`	numins = F03AA,
+		`	num0 = F03AA,
+		`	numend = F03AB,
+		`	num1 = F03AB,
+		`	numdown = F03AC,
+		`	num2 = F03AC,
+		`	numpgdn = F03AD,
+		`	num3 = F03AD,
+		`	numleft = F03AE,
+		`	num4 = F03AE,
+		`	num5 = F03AF,
+		`	numright = F03B0,
+		`	num6 = F03B0,
+		`	numhome = F03B1,
+		`	num7 = F03B1,
+		`	numup = F03B2,
+		`	num8 = F03B2,
+		`	numpgup = F03B3,
+		`	num9 = F03B3,
+		`	numenter = F03C0,
+		`	num* = F03C1,
+		`	num/ = F03C2,
+		`	prtsc = F03C3,
+		`	numpause = F03C4,
+		`	pause = F03C4,
+		`	insert = F03B6,
+		`	ins = F03B6,
+		`	delete = F03B7,
+		`	del = F03B7,
+		`	home = F03B8,
+		`	end = F03B9,
+		`	pageup = F03BA,
+		`	pgup = F03BA,
+		`	pagedown = F03BB,
+		`	pgdn = F03BB,
+		`	left = F03BC,
+		`	right = F03BD,
+		`	up = F03BE,
+		`	down = F03BF,
+		`	blank = F03C5,
 		`}
 		`
 		`\NewDocumentCommand \hcrkey { m }
@@ -4927,7 +4931,12 @@ sty:	`\RequirePackage{xparse}
 		`    		\group_begin:
 		`    		\fontspec {\keyfontname} 
 		`    		\raisebox{-.09em}{\includegraphics[width=.9em]{hcrkey_winlogo}\hspace{.05em}}
-		`    		\hbox_overlap_left:n { \char"F03C5 }
+		`			\sys_if_engine_luatex:TF 
+		`			{
+		`				\hbox_overlap_left:n { \symbol { "F03C7 } }
+		`			}{
+		`				\hbox_overlap_left:n { \symbol{"F03C5 } }
+		`			}
 		`    		\group_end:
 		`		  }
 		`		{ fn }  
@@ -4937,30 +4946,39 @@ sty:	`\RequirePackage{xparse}
 		`        	\hbox_set:Nn \l_tmpa_box { \sffamily Fn \hspace{.1em} }
 		`        	\box_resize_to_wd:Nn \l_tmpa_box { .9em }
 		`        	\box_use_drop:N \l_tmpa_box 
-		`        	\hbox_overlap_left:n { \char"F03C5 }
+		`			\sys_if_engine_luatex:TF
+		`			{
+		`				\hbox_overlap_left:n { \symbol { "F03C7 } }
+		`			}{
+		`				\hbox_overlap_left:n { \symbol{"F03C5 } }
+		`			}
 		`        	\group_end:
 		`		  }
-		`	}
-		`	{
+		`	}{
 		`    	\prop_get:NVN \g_hcrkey_prop \l_tmpa_tl \l_tmpb_tl
-		`    	\quark_if_no_value:NF \l_tmpb_tl
-		`    	  {
-		`        	  \group_begin: 
-		`        		\exp_args:No \fontspec {\keyfontname}
-		`        		\tl_use:N \l_tmpb_tl
-		`        	  \group_end:
-		`    	  }
+		`    	\sys_if_engine_luatex:T 
+		`		{ 
+		`			\exp_args:NNx \int_set:Nn \l_tmpa_int { \exp_args:No \int_from_hex:n { \l_tmpb_tl } }
+		`			\int_add:Nn \l_tmpa_int { 2 }
+		`			\tl_set:Nx \l_tmpb_tl { \exp_args:No \int_to_Hex:n { \l_tmpa_int } }
+		`		}
+		`		\quark_if_no_value:NF \l_tmpb_tl
+		`		{
+		`			\group_begin: 
+		`				\exp_args:No \fontspec {\keyfontname}
+		`				\exp_args:Nx \symbol { " \l_tmpb_tl }
+		`			\group_end:
+		`		}
 		`	 }
 		`}
 		`\ExplSyntaxOff
 
 tex:	\documentclass{article}
-		\usepackage{fontspec}
 		\usepackage{symbols}
-		\setmainfont{HCR Batang}
 		\def\keyfontname{HCR Batang}
 		\setlength\parindent{0pt}
 		\begin{document}
+		\setmainfont{HCR Batang}
 		\Large
 		− minus \\
 		– en dash \\

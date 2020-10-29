@@ -47,13 +47,44 @@ class ImageUtility(object):
             self.Inkscape = 'inkscape.com'
             self.Magick = 'magick.exe'
 
+
     def parse_args(self):
+
+        example = '''With this script you can: 
+    1) view a bitmap image's information; 
+    2) resize bitmap images by changing their resolution or scale; 
+    3) convert bitmap images to another format; 
+    4) convert vector images to another vector or bitmap format. 
+    Be aware that SVG cannot be the target format.
+examples:
+    iu.py
+        Supported image formats are enumerated.
+    iu.py foo.eps
+        foo.pdf is created from foo.eps.
+    iu -t png -R *.eps
+        Every EPS file, including those in all subdirectories, is converted to PNG.
+    iu.py -t png *.jpg
+        Every JPG file is converted to PNG.
+    iu.py -i foo.jpg
+        foo.jpg's details are displayed, including pixel size.
+    iu.py -r foo.jpg
+        foo.jpg is resized to 100 PPC by default.
+    iu.py -r -d 150 foo.jpg
+        foo.jpg is resized to 150 PPC.
+    iu.py -r -s 75 foo.jpg
+        foo.jpg is resized to 75%.
+    iu.py -r -m 800 *.jpg
+        JPG files wider than 800 pixels are resized.
+    '''
+
         parser = argparse.ArgumentParser(
-            description = "This script requires TeX Live, Inkscape, and ImageMagick. With this script you can: 1) view bitmap images' information; 2) resize bitmap images by changing their resolution or scale; 3) convert bitmap images to another format; 4) convert vector images to another vector or bitmap format. Be aware that SVG cannot be the target format."
+            epilog = example,
+            formatter_class = argparse.RawDescriptionHelpFormatter,
+            description = "Convert image files to other formats using TeX Live, Inkscape, and ImageMagick."
         )
         parser.add_argument(
             'images',
-            nargs = '+',
+            nargs = '*',
             help = 'Specify one or more images.'
         )
         parser.add_argument(
@@ -119,8 +150,8 @@ class ImageUtility(object):
         self.density = args.density
         self.maxwidth = args.maxwidth
         self.scale = args.scale
-        self.recursive = args.recursive
         self.gray_bool = args.gray 
+        self.recursive = args.recursive
 
     def check_TeXLive(self):
         try:
@@ -315,18 +346,28 @@ class ImageUtility(object):
         elif not self.info_bool:
             print('%d file(s) have been converted.' %(self.cnt))
 
-    def diverge(self):
-        if self.info_bool:
-            if self.check_ImageMagick():
-                self.run_recursive(self.get_info)
-        elif self.resize_bool:
-            if self.check_ImageMagick(): 
-                self.run_recursive(self.resize_bitmap)
-        else:
-            self.convert()
-        self.count()
+
+    def display_formats(self):
+        bitmaps = ', '.join(self.bitmaps)
+        vectors = ', '.join(self.vectors)
+        print("Bitmap:", bitmaps)
+        print("Vector:", vectors)
+
+    def determine_task(self):
+        if len(self.images) == 0:
+            self.display_formats()
+        else:          
+            if self.info_bool:
+                if self.check_ImageMagick():
+                    self.run_recursive(self.get_info)
+            elif self.resize_bool:
+                if self.check_ImageMagick(): 
+                    self.run_recursive(self.resize_bitmap)
+            else:
+                self.convert()
+            self.count()
 
 if __name__ == '__main__':
     iu = ImageUtility()
     iu.parse_args()
-    iu.diverge()
+    iu.determine_task()

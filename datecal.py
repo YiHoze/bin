@@ -1,6 +1,9 @@
 import argparse
 from datetime import datetime, date, timedelta
 import calendar
+import pytz
+from dateutil.relativedelta import relativedelta
+
 calendar.setfirstweekday(calendar.SUNDAY)
 
 class DateCalculator(object):
@@ -23,6 +26,17 @@ class DateCalculator(object):
             6:'Sunday'
         }
 
+        self.timezones = {
+            'London':'Europe/London',
+            'Los Angeles':'America/Los_Angeles',
+            'New York':'America/New_York',
+            'Paris':'Europe/Paris',
+            'Rome':'Europe/Rome',
+            'Seoul':'Asia/Seoul',
+            'Sydney':'Australia/Sydney',
+            'Toronto':'America/Toronto'
+        }
+
     def parse_args(self):
 
         example = '''examples:
@@ -40,6 +54,8 @@ class DateCalculator(object):
         displays a monthly calendar for January 2021.
     datecal.py -c 2021
         displays a yearly calendar for 2021.
+    datecal.py -z Toronto
+        shows Toronto's current local time.
     ''' 
 
         parser = argparse.ArgumentParser(
@@ -80,6 +96,13 @@ class DateCalculator(object):
             default = False,
             help = 'Display calendars.'
         )
+        parser.add_argument(
+            '-z',
+            dest = 'timezone',
+            action = 'store_true',
+            default = False,
+            help = "Display a given city's current local time."
+        )
        
         args = parser.parse_args()
 
@@ -88,7 +111,7 @@ class DateCalculator(object):
         self.week_bool = args.week
         self.weekday_bool = args.weekday
         self.calendar_bool = args.calendar
-
+        self.timezone_bool = args.timezone
 
     def validate(self, basis:str):
 
@@ -151,6 +174,34 @@ class DateCalculator(object):
         else:
             print(calendar.month(target_date.year, target_date.month))
 
+
+    def print_local_time(self):
+
+        # for i in pytz.all_timezones:
+        #     print(i)
+
+        utcnow = pytz.timezone('utc').localize(datetime.utcnow())        
+        here_time = utcnow.astimezone(pytz.timezone('Asia/Seoul')).replace(tzinfo=None)
+
+        for city in self.daydate:
+            city = ' '.join([word.capitalize() for word in city.split(" ")])
+            try:
+                city_timezone = self.timezones[city]
+                there_time = utcnow.astimezone(pytz.timezone(city_timezone)).replace(tzinfo=None)
+                offset = relativedelta(there_time, here_time) 
+                output = 'The current local time at {} is {}, {} hours from Seoul.'.format(city, there_time.strftime('%H:%M on %Y-%m-%d'), offset.hours)
+            except:
+                output = '{} is not in the list of time zones.'.format(city)
+            print(output)
+
+        # for city in self.timezones:
+        #     city_timezone = self.timezones[city]
+        #     there_time = utcnow.astimezone(pytz.timezone(city_timezone)).replace(tzinfo=None)
+        #     offset = relativedelta(there_time, here_time) 
+        #     output = 'The current local time at {} is {}, {} hours from Seoul.'.format(city, there_time.strftime('%H:%M on %Y-%m-%d'), offset.hours)
+        #     print(output)
+
+
     def calculate(self):
 
         for i in self.daydate:
@@ -169,7 +220,15 @@ class DateCalculator(object):
                     self.print_days(daydate)
 
 
+    def determine_task(self):
+
+        if self.timezone_bool:
+            self.print_local_time()
+        else:
+            self.calculate()
+
+
 if __name__ == '__main__':
     datecal = DateCalculator()
     datecal.parse_args()
-    datecal.calculate()
+    datecal.determine_task()

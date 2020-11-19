@@ -45,15 +45,22 @@ class FileNamer(object):
             help = 'Remove spaces from filenames.'
         )
         parser.add_argument(
-            '-u',
+            '-U',
             dest = 'uppercase',
             action = 'store_true',
             default = False,
             help = 'Rename files to uppercase.'
         )
         parser.add_argument(
-            '-l',
+            '-L',
             dest = 'lowercase',
+            action = 'store_true',
+            default = False,
+            help = 'Rename files to lowercase.'
+        )
+        parser.add_argument(
+            '-l',
+            dest = 'ext_lowercase',
             action = 'store_true',
             default = False,
             help = 'Rename files to lowercase.'
@@ -91,12 +98,15 @@ class FileNamer(object):
                 os.rename(afile, newname)
 
 
-    def rename_lowercase(self):
+    def rename_lowercase(self, extension=False):
 
         for fnpattern in self.args.files:
             for afile in glob.glob(fnpattern):
                 filename = os.path.splitext(afile)
-                newname = filename[0].lower() +  filename[1].lower()            
+                if not extension:
+                    newname = filename[0].lower() +  filename[1].lower()
+                else:
+                    newname = filename[0] +  filename[1].lower()
                 os.rename(afile, newname)
 
 
@@ -189,6 +199,8 @@ class FileNamer(object):
             self.rename_uppercase()
         elif self.args.lowercase:
             self.rename_lowercase()
+        elif self.args.ext_lowercase:
+            self.rename_lowercase(extension=True)
         elif self.args.remove:
             self.remove_suffix()
         elif self.args.copy:

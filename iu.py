@@ -22,7 +22,7 @@ class ImageUtility(object):
         self.gray_bool = gray
         self.recursive = recursive
         self.vectors = ('.eps', '.pdf', '.svg')
-        self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', 'jpeg', '.pbm', '.png', '.ppm', '.tga', '.tiff', '.webp')
+        self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.jpeg', '.pbm', '.png', '.ppm', '.tga', '.tiff', '.webp')
         self.cnt = 0
         self.initialize()
 

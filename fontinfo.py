@@ -24,7 +24,7 @@ class FontInfo(object):
     fontinfo.py "Noto Serif"
         "NotoSerif.pdf" is created, which contains multilingual text.
     fontinfo.py -i NotoSerif-Regular.ttf
-        The font defails are displayed, including the full name.         
+        The font details are displayed, including the full name.         
     fontinfo.py -i "Noto Serif"
         Every font that belongs to the same family is enumerated.
         '''

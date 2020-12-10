@@ -18,7 +18,7 @@ class FileNamer(object):
     def parse_args(self):
 
         parser = argparse.ArgumentParser(
-            description = 'Append a date or suffix to filenames'
+            description = 'Append a date or suffix to file names'
         )
         parser.add_argument(
             'files',
@@ -35,14 +35,14 @@ class FileNamer(object):
             dest = 'remove',
             action = 'store_true',
             default = False,
-            help = 'Remove a suffix from filenames.'
+            help = 'Remove a suffix from file names.'
         )
         parser.add_argument(
             '-n',
             dest = 'nospace',
             action = 'store_true',
             default = False,
-            help = 'Remove spaces from filenames.'
+            help = 'Remove spaces from file names.'
         )
         parser.add_argument(
             '-U',
@@ -63,7 +63,7 @@ class FileNamer(object):
             dest = 'ext_lowercase',
             action = 'store_true',
             default = False,
-            help = 'Rename files to lowercase.'
+            help = 'Change file extension to lowercase.'
         )
         parser.add_argument(
             '-c',
@@ -82,7 +82,7 @@ class FileNamer(object):
             dest = 'original_date',
             action = 'store_true',
             default = False,
-            help = "Change images' filenames to their creation dates, extracting from the metadata."
+            help = "Change images' file names to their creation dates, extracting from the metadata."
         )
         self.args = parser.parse_args()
         if self.args.suffix is not None:

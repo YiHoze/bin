@@ -4994,6 +4994,7 @@ tex:	\documentclass{article}
 		Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ Ⅵ Ⅶ Ⅷ Ⅸ Ⅹ \\
 		Α	α	Β	β	Γ	γ	Δ	δ	Ε	ε	Ζ	ζ	Η	η	Θ	θ	Ι	ι	Κ	κ	Λ	λ	Μ	μ	\\
 		Ν	ν	Ξ	ξ	Ο	ο	Π	π	Ρ	ρ	Σ	σ ς Τ	τ	Υ	υ	Φ	φ	Χ	χ	Ψ	ψ	Ω	ω \\
+		ø diameter \\
 		↵ \\
 		\hcrkey{f1} \hcrkey{f2} \hcrkey{f3} \hcrkey{f4} \hcrkey{f5} \hcrkey{f6} \hcrkey{f7} \hcrkey{f8} \hcrkey{f9} \hcrkey{f10} \hcrkey{f11} \hcrkey{f12} \\
 		\hcrkey{a} \hcrkey{b} \hcrkey{c} \hcrkey{d} \hcrkey{e} \hcrkey{f} \hcrkey{g} \hcrkey{h} \hcrkey{i} \hcrkey{j} \hcrkey{k} \hcrkey{l} \hcrkey{m} \hcrkey{n} \hcrkey{o} \hcrkey{p} \hcrkey{q} \hcrkey{r} \hcrkey{s} \hcrkey{t} \hcrkey{u} \hcrkey{v} \hcrkey{w} \hcrkey{x} \hcrkey{y} \hcrkey{z} \\

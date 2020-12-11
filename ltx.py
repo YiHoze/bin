@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import argparse
+import configparser
 import re
 import shutil
 
@@ -9,12 +10,11 @@ dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
-
 class LatexCompiler(object):
 
     def __init__(self, tex=None,
         batch=False, shell=False, twice=False, fully=False, keep_aux=False, clear=False,
-        view=False, compile=True, bibtex=False, luatex=False,
+        view=False, compile=True, bibtex=False, luatex=False, xetex=False,
         index=False, language='korean', komkindex=False, index_style='kotex.ist',
         bookmark_index=False, bookmark_python=False, 
         final=False, draft=False, python=False, asy=False):
@@ -30,6 +30,7 @@ class LatexCompiler(object):
         self.compile_bool = compile
         self.bibtex_bool = bibtex
         self.luatex_bool = luatex
+        self.xetex_bool = xetex
         self.index_bool = index
         self.lang = language
         self.komkindex_bool = komkindex
@@ -41,12 +42,23 @@ class LatexCompiler(object):
         self.python_bool = python
         self.asy_bool = asy
 
+        if self.luatex_bool == False and self.xetex_bool == False:
+            ini = os.path.join(dirCalled, 'docenv.ini')
+            if os.path.exists(ini):
+                config = configparser.ConfigParser()
+                config.read(ini)
+                try:
+                    self.compiler = config.get('LaTeX', 'compiler')
+                except:
+                    self.compiler = "lualatex.exe"
+            else:
+                self.compiler = "lualatex.exe"
 
     def get_ready(self):
 
         if self.luatex_bool:
             self.compiler = 'lualatex.exe'
-        else:
+        if self.xetex_bool:
             self.compiler = 'xelatex.exe'
 
         # Compile mode
@@ -187,7 +199,14 @@ class LatexCompiler(object):
             dest = 'luatex',
             action = 'store_true',
             default = False,
-            help = 'Use LuaLaTeX instead of XeLaTeX.'
+            help = 'Use LuaLaTeX.'
+        )
+        parser.add_argument(
+            '-x',
+            dest = 'xetex',
+            action = 'store_true',
+            default = False,
+            help = 'Use XeLaTeX.'
         )
         parser.add_argument(
             '-L',
@@ -286,6 +305,7 @@ class LatexCompiler(object):
         self.compile_bool = args.compile
         self.bibtex_bool = args.bibtex
         self.luatex_bool = args.luatex
+        self.xetex_bool = args.xetex
         self.index_bool = args.index
         self.lang = args.language
         self.komkindex_bool = args.komkindex
@@ -427,7 +447,7 @@ class LatexCompiler(object):
 
     def asymptote(self):
 
-        print('asy.exe %s' %(self.asy))
+        # print('asy.exe %s' %(self.asy))
         os.system('asy.exe %s' %(self.asy))
 
     def compile(self):

@@ -178,7 +178,7 @@ class LatexTemplate(object):
         if len(images) == 0:
             print('No image files are found.')
             return False
-        images.sort()
+        images.sort(key=str.lower)
         images = '\n'.join(images)        
         with open(image_list_file, mode='w', encoding='utf-8') as f:
             f.write(images)

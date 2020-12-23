@@ -1990,8 +1990,8 @@ description: This template shows how to typeset Japanese.
 output: japanese
 tex: 	\documentclass[a4paper]{article}
 		\usepackage{xeCJK}
-		\setCJKmainfont{Noto Serif CJK JP}
-		\setCJKsansfont{Noto Sans CJK JP}
+		\setCJKmainfont{Noto Serif CJK JP}[Language=Japanese,Script=Kana]
+		\setCJKsansfont{Noto Sans CJK JP}[Language=Japanese,Script=Kana]
 		\punctstyle{fullwidth}
 
 		\begin{document}

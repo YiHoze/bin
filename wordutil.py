@@ -447,8 +447,7 @@ class UTFanalyzer(object):
             # decimal code points
             Dcode = ord(char)
             # hexadecimal code points
-            Hcode = hex(Dcode).replace('0x', '')
-            Hcode = Hcode.upper()
+            Hcode = hex(Dcode).upper().replace('0X', '0x')
             # binary code points
             Bcode = bin(Dcode).replace('0b', '')
             # Bcode = Bcode.zfill(8)

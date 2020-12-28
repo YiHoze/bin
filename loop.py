@@ -53,9 +53,9 @@ if args.consecutive_bool:
         else:
             print('No numbered files are found.')
             break
-else:    
-    for i in glob.glob(selection):
-        filename = os.path.splitext(os.path.basename(i))[0]
-        real_cmd = re.sub('\*.+?(?=\.)', filename, cmd)
-        os.system(real_cmd)
-        # print(real_cmd)
+else:   
+    ext =  os.path.splitext(os.path.basename(selection))[1]
+    for i in glob.glob(selection):  
+        filename = os.path.splitext(os.path.basename(i))[0] + ext
+        real_cmd = cmd.replace(selection, filename)
+        os.system(real_cmd)        

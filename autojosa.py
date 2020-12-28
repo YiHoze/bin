@@ -18,7 +18,7 @@ class AutoJosa(object):
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
-            description = 'Replace 조사 with 자동 조사 such as \\를.'
+            description = 'Replace 조사 with 자동 조사 such as \를.'
         )
         parser.add_argument(
             'tex',

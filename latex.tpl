@@ -164,7 +164,7 @@ description: Use this template to write manuals such as user guides.
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 output: manual
 compiler: -w
-tex:	\documentclass[10pt, openany, english]{hzguide}
+tex:	\documentclass[10pt, openany, english, template]{hzguide}
 		
 		\LayoutSetup{}
 		\HeadingSetup{chapterstyle=tandh, chaptercontents}

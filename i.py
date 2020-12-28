@@ -24,16 +24,16 @@ class IdleTexnician(object):
     i.py foo
         The first file out of *foo*.tex is compiled.
     i.py -x
-        Select one from the list of tex files.
+        Select one from the list of found tex files.
     i.py -z
-        Select one from the list of tex files and it will be compiled as specified by tex.conf, if available.
+        Select one from the list of found tex files and it will be compiled as specified by tex.conf, if available.
         The purpose of this option is to compile a single subfile.
     '''
 
         parser = argparse.ArgumentParser(
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description = 'Find a tex file to compile it using ltx.py. Options unknown to this script are passed to ltx.py.'
+            description = 'Find and compile a tex file using ltx.py. Options unknown to this script are passed to ltx.py.'
         )
         parser.add_argument(
             'tex',

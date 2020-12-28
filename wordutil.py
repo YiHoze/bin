@@ -6,7 +6,7 @@ import glob
 import subprocess
 import re
 import unicodedata
-
+from PyPDF2 import PdfFileReader
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -15,6 +15,12 @@ from open import FileOpener
 class WordUtility(object):
 
     def __init__(self):
+
+        self.lines = 0
+        self.chars = 0
+        self.words = 0
+        self.pages = 0
+
         self.tex_picked = 'tex_picked.txt'
         self.tortoise = r"""~~~FindAsIs
 ~~~WriteAsIs
@@ -49,11 +55,13 @@ class WordUtility(object):
         example = '''examples:
     wordutil.py foo.txt
         Word and character counts are displayed.
-    wordutil.py foo.txt
-        This also counts words and characters. This option requires TeX Live.
+    wordutil.py foo.pdf
+        This also counts words and characters. This feature requires pdftotext included in TeX Live.
+    wordutil.py -p foo.pdf 
+        Pages are counted.
     wordutil.py -U foo.txt
         foo_unicode.txt is created to show Unicode code points 
-        except space, tab and line feed.
+        except space, tab and line feed characters.
     wordutil.py -e -k foo.tex
         Words are extracted into foo_extracted.txt
         With "-k", numbers and TeX macros are also extracted.
@@ -78,6 +86,13 @@ class WordUtility(object):
             type=str,
             nargs='+',
             help='Specify one or more text files, or instead type characters with "-b".'
+        )
+        parser.add_argument(
+            '-p',
+            dest = 'page',
+            action = 'store_true',
+            default = False,
+            help = 'Count PDF pages.'
         )
         parser.add_argument(
             '-U',
@@ -143,7 +158,9 @@ class WordUtility(object):
 
         args = parser.parse_args()
 
+        self.word_count_bool = False
         self.files = args.files
+        self.page_count_bool = args.page
         self.unicode_bool = args.unicode
         self.extract_bool = args.extract
         self.with_tex_bool = args.keep
@@ -164,6 +181,7 @@ class WordUtility(object):
             print('pdftotext.exe is needed to deal with PDF files but not found')
             return False
 
+
     def determine_suffix(self):
 
         if self.suffix is None:
@@ -177,6 +195,7 @@ class WordUtility(object):
             return self.check_to_remove(self.tex_picked)
         else:
             return True                
+
 
     def determine_tex_patterns(self):
 
@@ -224,9 +243,32 @@ class WordUtility(object):
             this = line.split(None)
             words += len(this)
         f.close()
-        msg = '%s\n Lines: %d\n Words: %d\n Characters: %d\n' % (afile, lines, words, chars)
-        print(msg) 
+        print( '{}\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(afile, lines, words, chars) )
+        self.lines += lines
+        self.words += words
+        self.chars += chars
 
+
+    def count_pdf_pages(self, afile):
+
+        with open(afile, 'rb') as f:
+            pdf = PdfFileReader(f)
+            # info = pdf.getDocumentInfo()
+            pages = pdf.getNumPages()
+        
+#         output = f"""
+# {afile}
+#     Author: {info.author}
+#     Creator: {info.creator}
+#     Producer: {info.producer}
+#     Subject: {info.subject}
+#     Title: {info.title}
+#     Pages: {pages}"""
+#         print(output)
+#         self.pages += pages
+
+        print('{}: {}'.format(afile, pages))
+        self.pages += pages
 
     def extract_words(self, afile):
 
@@ -279,16 +321,19 @@ class WordUtility(object):
         basename = os.path.basename(afile)
         filename, ext = os.path.splitext(basename)    
         if ext.lower() == '.pdf':
-            if self.check_TeXLive():
-                txt = filename + '.txt'
-                if self.check_to_remove(txt) is False:
-                    return None
-                else:
-                    cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 %s' % (afile)
-                    os.system(cmd)            
-                    return txt
+            if self.page_count_bool:
+                return afile
             else:
-                return None
+                if self.check_TeXLive():
+                    txt = filename + '.txt'
+                    if self.check_to_remove(txt) is False:
+                        return None
+                    else:
+                        cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 {}'.format(afile)
+                        os.system(cmd)            
+                        return txt
+                else:
+                    return None
         else:
             return afile
 
@@ -355,7 +400,9 @@ class WordUtility(object):
                 for afile in glob.glob(fnpattern):
                     afile = self.check_if_pdf(afile)
                     if afile is not None:
-                        if self.extract_bool:
+                        if self.page_count_bool:
+                            self.count_pdf_pages(afile)                            
+                        elif self.extract_bool:
                             self.extract_words(afile)
                         elif self.unicode_bool:
                             self.get_unicode(afile)
@@ -364,7 +411,12 @@ class WordUtility(object):
                         elif self.encoding_covert_bool:
                             self.convert_euckr_utf8(afile)
                         else:
-                            self.count_words(afile)    
+                            self.count_words(afile)  
+                            self.word_count_bool = True  
+            if self.page_count_bool:
+                print( 'Total pages: {:,}'.format(self.pages) )
+            elif self.word_count_bool:
+                print( 'Total\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(self.lines, self.words, self.chars) )
 
 
 class UTFanalyzer(object):

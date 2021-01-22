@@ -224,24 +224,21 @@ tex:	\documentclass[10pt, openany, english, template]{hzguide}
 [album]
 description: This template generates an album which contains the image files (jpg, png, pdf) gathered from the current directory. 
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
-	usage: mytex.py album -s COLUMNS IMAGE_SCALE 
-	defaults: 2 1
+	usage: mytex.py album -s IMAGE_SCALE 
+	defaults: 1
 output: album
 image_list: im@ges.txt
-placeholders: 2
-defaults: 2, 1
+placeholders: 1
+defaults: 1
 compiler: -c
 tex:	`\documentclass{hzguide}
 		`
-		`\usepackage{multicol}
 		`\LayoutSetup{ulmargin=15mm, lrmargin=15mm}
-		`\HeadingSetup{type=article}
+		`\HeadingSetup{article}
 		`
 		`\begin{document}
-		`\begin{multicols}{\1}
-		`\MakeAlbum[\2]{%(image_list)s}
+		`\MakeAlbum[\1]{%(image_list)s}
 		`%% use \MakeAlbum* to hide image names.
-		`\end{multicols}
 		`\end{document}
 
 [merge]

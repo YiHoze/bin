@@ -23,9 +23,9 @@ class IdleTexnician(object):
         The first found tex file is compiled.
     i.py foo
         The first file out of *foo*.tex is compiled.
-    i.py -x
+    i.py -X
         Select one from the list of found tex files.
-    i.py -z
+    i.py -Z
         Select one from the list of found tex files and it will be compiled as specified by tex.conf, if available.
         The purpose of this option is to compile a single subfile.
     '''

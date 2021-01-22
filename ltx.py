@@ -376,7 +376,7 @@ class LatexCompiler(object):
         if self.komkindex_bool:
             cmd = 'komkindex.exe -s %s %s' %(self.index_style, self.idx)
         else:
-            cmd = 'texindy.exe --module %s %s' %(self.xindy, self.idx) 
+            cmd = 'texindy.exe --module hzguide.xdy --module %s %s' %(self.xindy, self.idx) 
         os.system(cmd)    
         if self.bm_index_bool or self.bm_python_bool:
             self.bookmark_index()

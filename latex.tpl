@@ -167,18 +167,18 @@ compiler: -w
 tex:	\documentclass[10pt, openany, english, template]{hzguide}
 		
 		\LayoutSetup{}
-		\HeadingSetup{chapterstyle=tandh, chaptercontents}
+		\HeadingSetup{chapterstyle=tandh}		
 		\setsecnumdepth{chapter}
 		\SectionNewpageOn
 		\DecolorHyperlinks*[blue]
-		
+		\ChapterContentsEnable(5)
+
 		\CoverSetup{    
 			FrontLogoImage = {alertsymbol},
 			BackLogoImage = {alertsymbol},
 			ProductImage = {uncertain},
 			title = {Product X},
 			DocumentType = {User Guide},
-			PubYear = 2018,
 			revision = {Rev. 1},
 			note = {Keep this manual for later use.},
 			manufacturer = Manufacturer,
@@ -205,7 +205,7 @@ tex:	\documentclass[10pt, openany, english, template]{hzguide}
 		\section{Checking X}\tplprocedure
 		\section{Starting X}\tpllist*
 		\chapter{Operation}\tplactions
-		\chapter{Troubleshooting}\listofproblems*\tplproblems
+		\chapter{Troubleshooting}\tplproblems
 		\chapter{Maintenance}
 		\section{Precautions for Maintenance}\tpllist
 		\section{Scheduled Inspection}\tpllist

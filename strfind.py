@@ -132,6 +132,8 @@ class StringFinder(object):
             return
 
     def replace(self, afile):
+        print(self.target)
+        print(self.substitute)
         tmp = 't@mp.t@mp'
         try:
             with open(afile, mode='r', encoding='utf-8') as f:

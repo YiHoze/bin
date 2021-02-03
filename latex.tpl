@@ -4350,10 +4350,9 @@ tex:	\documentclass{article}
 		\begin{pyblock}
 		import sys
 		sys.path.append('c:\\home\\bin')
-		from wordutil import UTFanalyzer
-		utf = UTFanalyzer( chars="aA가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎", \
-		    upper=True, tex=True)
-		utf.show()
+		from wordig import UnicodeDigger
+		utf = UnicodeDigger( chars="aA가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎", totex=True)
+		utf.print()
 		\end{pyblock}
 		\small \texttt{\printpythontex}
 		\end{document}  

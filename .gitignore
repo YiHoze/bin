@@ -5,6 +5,7 @@ coverage/
 dist/
 inquisitive/
 node_modules/
+obsolete/
 pandoc/
 pdf2htmlEX/
 *.cls

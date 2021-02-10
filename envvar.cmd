@@ -1,1 +1,0 @@
-control.exe sysdm.cpl,System,3

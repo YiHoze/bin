@@ -160,7 +160,7 @@ tex:    `\documentclass{article}
 		`\end{document}
 
 [manual]
-description: Use this template to write manuals such as user guides.
+description: Use this template to write a manual such as user guide.
 	This requires the hzguide class, which is available from https://github.com/YiHoze/HzGuide.
 output: manual
 compiler: -w
@@ -204,11 +204,11 @@ tex:	\documentclass[10pt, openany, english, template]{hzguide}
 		\section{Installing X}\tplprocedure[5]
 		\section{Checking X}\tplprocedure
 		\section{Starting X}\tpllist*
-		\chapter{Operation}\tplactions
-		\chapter{Troubleshooting}\tplproblems
+		\chapter{Operation}\tpltopics
 		\chapter{Maintenance}
 		\section{Precautions for Maintenance}\tpllist
 		\section{Scheduled Inspection}\tpllist
+		\chapter{Troubleshooting}\tplproblems
 		\chapter{Warranty}
 		\section{Warranty Coverage}\tplpara*
 		\section{Limitation of Liability}\tplpara*\tpllist
@@ -4990,8 +4990,8 @@ tex:	\documentclass{article}
 		Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ Ⅵ Ⅶ Ⅷ Ⅸ Ⅹ \\
 		Α	α	Β	β	Γ	γ	Δ	δ	Ε	ε	Ζ	ζ	Η	η	Θ	θ	Ι	ι	Κ	κ	Λ	λ	Μ	μ	\\
 		Ν	ν	Ξ	ξ	Ο	ο	Π	π	Ρ	ρ	Σ	σ ς Τ	τ	Υ	υ	Φ	φ	Χ	χ	Ψ	ψ	Ω	ω \\
-		⌀ diameter, available with Noto Sans Symbols \\
-		ø o with stroke, as an alternative to ⌀ \\		
+		⌀ diameter \\
+		ø o with stroke \\		
 		↵ \\
 		\hcrkey{f1} \hcrkey{f2} \hcrkey{f3} \hcrkey{f4} \hcrkey{f5} \hcrkey{f6} \hcrkey{f7} \hcrkey{f8} \hcrkey{f9} \hcrkey{f10} \hcrkey{f11} \hcrkey{f12} \\
 		\hcrkey{a} \hcrkey{b} \hcrkey{c} \hcrkey{d} \hcrkey{e} \hcrkey{f} \hcrkey{g} \hcrkey{h} \hcrkey{i} \hcrkey{j} \hcrkey{k} \hcrkey{l} \hcrkey{m} \hcrkey{n} \hcrkey{o} \hcrkey{p} \hcrkey{q} \hcrkey{r} \hcrkey{s} \hcrkey{t} \hcrkey{u} \hcrkey{v} \hcrkey{w} \hcrkey{x} \hcrkey{y} \hcrkey{z} \\

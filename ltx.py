@@ -131,13 +131,12 @@ class LatexCompiler(object):
         Auxiliary files are cleared.
     ltx.py -F/-D foo
         These options are available only with the hzguide latex class.
-        See https://hoze.tistory.com/1598
     '''
 
         parser = argparse.ArgumentParser(
             epilog = example,
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description = 'Convert a TeX file to PDF using XeLaTeX or LuaLaTeX.'
+            description = 'Let LuaLaTeX or XeLaTeX generate a PDF file from a TeX file.'
         )
         parser.add_argument(
             'tex',

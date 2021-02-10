@@ -22,22 +22,17 @@ class LatexTemplate(object):
         self.list_bool = False
         self.List_bool = False
         self.cmd = None
-        self.ini_bool = self.initialize() 
         self.generated_files = []
         self.remove_bool = False
         self.force_bool = False
-
-
-    def initialize(self):
 
         tpl = os.path.join(dirCalled, 'latex.tpl')
         if os.path.exists(tpl):
             self.templates = configparser.ConfigParser()
             self.templates.read(tpl, encoding='utf-8')
-            return True
         else:
             print('latex.tpl is not found.')
-            return False
+            sys.exit()
 
 
     def parse_args(self):
@@ -140,7 +135,7 @@ class LatexTemplate(object):
     def confirm_to_remove(self, afile):
 
         if os.path.exists(afile):
-            answer = input('%s alread exists. Are you sure to overwrite it? [y/N] ' %(afile))
+            answer = input('%s already exists. Are you sure to overwrite it? [y/N] ' %(afile))
             if answer.lower() == 'y':
                 os.remove(afile)
                 return True
@@ -345,13 +340,12 @@ class LatexTemplate(object):
 
 if __name__ == '__main__':
     mytex = LatexTemplate()
-    if mytex.ini_bool:
-        mytex.parse_args()
-        if mytex.List_bool:
-            mytex.enumerate_with_description()
-        elif mytex.list_bool:
-            mytex.enumerate_without_description()
-        elif mytex.detail_bool:
-            mytex.show_details()
-        else:
-            mytex.make()
+    mytex.parse_args()
+    if mytex.List_bool:
+        mytex.enumerate_with_description()
+    elif mytex.list_bool:
+        mytex.enumerate_without_description()
+    elif mytex.detail_bool:
+        mytex.show_details()
+    else:
+        mytex.make()

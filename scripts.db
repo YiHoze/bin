@@ -1,0 +1,1294 @@
+[gencode]
+output=gencode.py
+description=Generate barcodes or QR codes in PNG. 
+content=
+ `# pip python-barcode
+ `# pip install qrcode[pil]
+ `
+ `import os, argparse
+ `import barcode, qrcode, qrcode.image.svg, codecs, re, webbrowser
+ `from pyzbar.pyzbar import decode
+ `from PIL import Image
+ `from barcode.writer import ImageWriter
+ `from barcode import generate
+ `
+ `class GenerateCode(object):
+ `    def __init__(self, code=None, qrcode=False, filename='barcode', svg=False, decode=False):
+ `        self.code = code
+ `        self.qrcode_bool = qrcode
+ `        self.output = filename
+ `        self.svg_bool = svg
+ `        self.decode_bool = decode
+ `
+ `    def parse_args(self):
+ `        example = '''examples:
+ `    gencode.py 979118986911
+ `        A barcode image named "barcode.png" is created.
+ `    gencode.py 979118986911 -s
+ `        "barcode.svg" is created in addition to barcode.png.
+ `    gencdoe.py 979118986911 -o foo
+ `        "foo.png" is created.
+ `    gencode.py 979118986911 979118986912
+ `        "barcode_01.png" and "barcode_02.png" are created.
+ `    gencode.py -q https://github.com/yihoze
+ `        A QR code image named "qrcode.png" is created.
+ `    gencode.py -d qrcode.png.
+ `        The decoded result is displayed.
+ `        If the content is a web address, it is opened by the default web browser.
+ `        '''
+ `        parser = argparse.ArgumentParser(
+ `            epilog = example,  
+ `            formatter_class = argparse.RawDescriptionHelpFormatter,
+ `            description = '''Generate barcodes or QR codes in PNG. 
+ `            The last check digit of barcode will be automatically corrected if it is wrong.'''
+ `        )
+ `        parser.add_argument(
+ `            'code',
+ `            nargs = '+',
+ `            help = 'Specify a 13-digit number or more for barcodes or a text or more for QR  `codes.'
+ `        )
+ `        parser.add_argument(
+ `            '-q',
+ `            dest = 'qrcode',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Create QR codes.'
+ `        )
+ `        parser.add_argument(
+ `            '-o',
+ `            dest = 'output',
+ `            default = 'barcode',
+ `            help = 'Specify a file name for output. The default is "barcode" or "qrcode.'
+ `        )
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'svg',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Additionaly generate barcodes or QR codes in SVG.'
+ `        )
+ `        parser.add_argument(
+ `            '-d',
+ `            dest = 'decode',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Decode a QR code of PNG or JPG image.'
+ `        )
+ `        args = parser.parse_args()
+ `        self.code = args.code
+ `        self.qrcode_bool = args.qrcode
+ `        self.output = args.output
+ `        self.svg_bool = args.svg
+ `        self.decode_bool = args.decode
+ `
+ `    def name_file(self, counter):
+ `        name = os.path.splitext(self.output)[0]
+ `        if len(self.code) > 1:
+ `            return "{}_{:02d}".format(name, counter)
+ `        else:
+ `            return name
+ `
+ `    def encode_barcode(self):
+ `        EAN = barcode.get_barcode_class('ean13')
+ `        counter = 1
+ `        for code in self.code:
+ `            filename = self.name_file(counter)
+ `            ean = EAN(code, writer=ImageWriter())
+ `            ean.save(filename)
+ `            if self.svg_bool:
+ `                generate('EAN13', code, output=filename)
+ `            counter += 1
+ `
+ `    def encode_qrcode(self):   
+ `        if self.output == 'barcode':
+ `            self.output = 'qrcode'
+ `        counter = 1 
+ `        qr = qrcode.QRCode(
+ `            version=1,
+ `            error_correction=qrcode.constants.ERROR_CORRECT_M,
+ `            box_size=10,
+ `            border=4,
+ `        )
+ `        for code in self.code:
+ `            filename = self.name_file(counter)       
+ `            qr.add_data(code)
+ `            qr.make(fit=True)
+ `            img = qr.make_image()
+ `            png = filename + '.png'
+ `            img.save(png)        
+ `            qr.clear()
+ `            if self.svg_bool:
+ `                factory = qrcode.image.svg.SvgPathImage
+ `                img = qrcode.make(code, image_factory=factory)
+ `                svg = filename + '.svg'
+ `                img.save(svg)
+ `            counter +=1 
+ `
+ `    def decode_qrcode(self):
+ `        for img in self.code:
+ `            if not os.path.exists(img):
+ `                print('{} does not exist.'.format(img))
+ `                return
+ `            data = decode(Image.open(img))[0][0]    
+ `            data = data.decode('utf-8')        
+ `            link = data.replace('\\:', ':')
+ `            link = link.replace(';', '')
+ `            result = re.search('http.*', link)
+ `            if result is not None:
+ `                uri = result.group()
+ `                print(uri)
+ `                webbrowser.open_new_tab(uri)    
+ `            else:
+ `                print(data)
+ `
+ `if __name__ == '__main__':
+ `    gencode = GenerateCode()
+ `    gencode.parse_args()
+ `    if gencode.decode_bool:
+ `        gencode.decode_qrcode()
+ `    else:
+ `        if gencode.qrcode_bool:
+ `            gencode.encode_qrcode()
+ `        else:
+ `            gencode.encode_barcode()
+
+[tlconf]
+output=tlconf.cmd
+description=Configure for your TeX Live.
+content=
+ @echo off
+ 
+ for /f "usebackq delims=" %%%%p in (`kpsewhich -var-value=TEXMFROOT`) do set tlroot=%%%%p
+ set tlroot=%%tlroot:/=\%%
+ 
+ if /i .%%1. == .. goto help
+ if /i .%%1. == .cnf. goto cnf
+ if /i .%%1. == .texedit. goto texedit
+ if /i .%%1. == .texmfhome. goto texmfhome
+ if /i .%%1. == .sumatrapdf. goto SumatraPDF
+ if /i .%%1. NEQ .batch. goto eof
+ 
+ :cnf
+ rem checking if TeX Live is found
+ kpsewhich -var-value=TEXMFROOT >nul 2>&1
+ if errorlevel 1 (
+ echo TeX Live not on searchpath. Aborting.
+ exit /b
+ )
+ 
+ rem updating texmf.cnf
+ set cnf=%%tlroot%%\texmf.cnf
+ set org=%%tlroot%%\texmf.org
+ dir %%org%% >nul 2>&1
+ if errorlevel == 1 copy %%cnf%% %%org%%
+ echo OSFONTDIR=$SystemRoot/fonts//;$localappdata/Microsoft/Windows/Fonts// > %%cnf%%
+ echo TEXLIVE_WINDOWS_TRY_EXTERNAL_PERL = 0 >> %%cnf%%
+ echo %%cnf%%:
+ type %%cnf%%
+ 
+ rem creating local.conf
+ set localconf=%%tlroot%%\texmf-var\fonts\conf\local.conf
+ set content=%%LOCALAPPDATA%%/Microsoft/Windows/Fonts
+ set content=%%content:\=/%%
+ set "content=^<dir^>%%content%%^</dir^>"
+ echo %%content%% > %%localconf%%
+ echo %%localconf%%:
+ type %%localconf%%
+ if /i .%%1. NEQ .batch. goto eof
+ 
+ :texedit
+ if .%%2. == .. (
+ setx TEXEDIT "\"%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe\" -r -g \"%%%%s\":%%%%d"
+ ) else (
+ setx TEXEDIT "%%2"
+ )
+ reg query HKEY_CURRENT_USER\Environment /v TEXEDIT
+ if /i .%%1. NEQ .batch. goto eof
+ 
+ :texmfhome
+ if .%%2. == .. (
+ setx TEXMFHOME "C:\home\texmf"
+ ) else (
+ setx TEXMFHOME "%%2"
+ )
+ reg query HKEY_CURRENT_USER\Environment /v TEXMFHOME
+ if /i .%%1. NEQ .batch. goto eof
+ 
+ :SumatraPDF
+ reg query HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Applications\SumatraPDF.exe\DefaultIcon >nul 2>&1
+ if errorlevel 1 (
+ echo SumatraPDF is not found.
+ goto eof
+ ) else (
+ for /f "usebackq tokens=3-4 delims=, " %%%%x in (`reg query  HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Applications\SumatraPDF.exe\DefaultIcon`) do set  sumatra="%%%%x %%%%y"
+ )
+ set sumatra=start "" %%sumatra%% -inverse-search
+ if .%%2. == .. (
+ %%sumatra%% "\"%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe\" -r -g \"%%%%f\":%%%%l"
+ ) else (
+ %%sumatra%% %%2
+ )
+ goto eof
+ 
+ :help
+ set cnf=%%tlroot%%\texmf.cnf
+ echo %%cnf%%:
+ type %%cnf%%
+ 
+ set localconf=%%tlroot%%\texmf-var\fonts\conf\local.conf
+ echo %%localconf%%:
+ type %%localconf%%
+ 
+ echo tlconf cnf              : Add the user's font folder to texmf.cnf and to local.cnf.
+ echo tlconf texedit [...]    : Set the TEXEIDT environment variable. The default is 
+ echo                           "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%s":%%%%d
+ echo tlconf texmfhome [...]  : Set the TEXMFHOME environment variable. The default is 
+ echo                           C:\home\texmf
+ echo tlconf sumatrapdf [...] : Set the inverse search command-line option of SumatraPDF. The  defualt is
+ echo                           "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%f":%%%%l
+ echo tlconf batch            : Proceed with all options.
+ 
+ :eof
+
+[pdfpages]
+output=pdfpages.ps1
+description=Count pages in multiple PDF files.
+content=
+ # get-childitem -name *.pdf | foreach-object {write-host $_ ; pdfinfo $_ | select-string 'Pages'}
+ $pdfpages = @()
+ $total = 0
+ foreach ($f in get-childitem -name *.pdf) 
+ {     
+     $p = pdfinfo.exe $f | select-string 'Pages'
+     $p = $p -replace "Pages:"
+     $p = $p.trim()
+     $total = $total + $p
+     $p = $f + ": " + $p
+     $pdfpages = $pdfpages + $p
+ }
+ $pdfpages
+ write-host "Total:" $total
+
+[crypto]
+output=crypto.py
+description=Encrypt or decrypt files.
+content=
+ `import os
+ `import argparse
+ `from cryptography.fernet import Fernet
+ `
+ `class FileEncryptor(object):
+ `
+ `    def parse_args(self):
+ `
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Encrypt or decrypt files.'
+ `        )
+ `
+ `        parser.add_argument(
+ `            'files',
+ `            nargs = '+',
+ `            help = 'Specify one or more text files.'
+ `        )
+ `        parser.add_argument(
+ `            '-k',
+ `            dest = 'key_file',
+ `            default = 'crypto.key',
+ `            help = 'Specify a key file.'
+ `        )
+ `        parser.add_argument(
+ `            '-d',
+ `            dest = 'decrypt',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Decrypt files.'
+ `        )
+ `
+ `        args = parser.parse_args()
+ `
+ `        self.files = args.files
+ `        self.key_file = args.key_file
+ `        self.decrypt_bool  = args.decrypt
+ `
+ `    def generate_key(self):
+ `
+ `        key = Fernet.generate_key()
+ `        with open(self.key_file, "wb") as key_file:
+ `            key_file.write(key)
+ `
+ `    def load_key(self):
+ `
+ `        if not os.path.exists(self.key_file):
+ `            self.generate_key()
+ `        return open(self.key_file, "rb").read()
+ `
+ `    def encrypt_file(self, file):
+ `       
+ `        with open(file, mode='rb') as f:
+ `            content = f.read()        
+ `        
+ `        # content = content.encode()
+ `        content = self.encryptor.encrypt(content)
+ `        
+ `        output = self.add_suffix(file)
+ `        with open(output, mode='wb') as f:
+ `            f.write(content)
+ `
+ `    def decrypt_file(self, file):
+ `
+ `        with open(file, mode='rb') as f:
+ `            content = f.read()
+ `        
+ `        content = self.encryptor.decrypt(content)
+ `        # content = content.decode()
+ `
+ `        output = self.add_suffix(file)
+ `        with open(output, mode='wb') as f:
+ `            f.write(content)
+ `
+ `    def add_suffix(self, file):
+ `            basename = os.path.basename(file)
+ `            filename = os.path.splitext(basename)[0]
+ `            extension = os.path.splitext(basename)[1]
+ `            if self.decrypt_bool:
+ `                if '_encrypted' in filename:
+ `                    return filename.replace('_encrypted', '_decrypted') + extension
+ `                else:
+ `                    return filename + '_decrypted' + extension
+ `
+ `            else:
+ `                return filename + '_encrypted' + extension
+ `
+ `    def determine_task(self):
+ `        
+ `        self.key = self.load_key()
+ `        self.encryptor = Fernet(self.key)
+ `        for f in self.files:        
+ `            if self.decrypt_bool:
+ `                self.decrypt_file(f)
+ `            else:
+ `                self.encrypt_file(f)
+ `
+ `if __name__ == "__main__":
+ `    fencryptor = FileEncryptor()
+ `    fencryptor.parse_args()  
+ `    fencryptor.determine_task()  
+
+
+[bookspine]
+output=bookspine.py
+description=Get the spine width for a book.
+content=
+ `import argparse
+ `
+ `class BookSpineWidth(object):
+ `    def __init__(self, pages=0, type='vellum', weight=120, margin=1):
+ `        self.papers = {
+ `            'vellum':{70:0.08, 80:0.09, 95:0.115, 100:0.12, 120:0.14, 150:0.17, 180:0.2, 220:0.24},
+ `            'art':{80:0.06, 100:0.08, 120:0.095, 150:0.12, 180:0.15, 200:0.17, 250:0.22, 300:0.27},
+ `            'snow': {80:0.07, 100:0.09, 120:0.105, 150:0.14, 180:0.18, 200:0.19, 250:0.26},
+ `            'mat':{70:0.07, 80:0.08, 90:0.095, 100:0.11},
+ `            'elight':{70:0.11, 80:0.13},
+ `            'arte':{105:0.155, 130:0.19, 160:0.23, 190:0.27, 210:0.3, 230:0.32},
+ `            'rendezvous':{90:0.13, 105:0.14, 130:0.17, 160:0.22, 190:0.25, 210:0.29, 240:0.33},
+ `            'montblanc':{90:0.12, 100:0.13, 130:0.18, 160:0.23, 190:0.26, 210:0.29, 240:0.32}
+ `        }
+ `        self.paper_types = {
+ `            'vellum':'Vellum', 
+ `            'art':'Art', 
+ `            'snow':'Snow', 
+ `            'mat':'M-Mat', 
+ `            'elight':'E-Light', 
+ `            'arte':'Arte', 
+ `            'rendezvous':'Rendezvous', 
+ `            'montblanc':'Mont Blanc'
+ `        }
+ `        self.pages = pages
+ `        self.paper_type = type
+ `        self.paper_weight = weight
+ `        self.margin = margin
+ `        self.list_bool = False
+ `
+ `    def parse_args(self):
+ `        example = '''examples:
+ `    bookspine.py -t snow -w 80 200
+ `        caculates the spine width for 200 pages with Snow paper whose weight is 80 grams.
+ `        '''
+ `        parser = argparse.ArgumentParser(
+ `            epilog = example,
+ `            formatter_class = argparse.RawDescriptionHelpFormatter,
+ `            description = 'Get the spine width for a book.'
+ `        )
+ `        parser.add_argument(
+ `            'pages',
+ `            nargs = '?',
+ `            type = int,
+ `            help = 'Specify a page count'
+ `        )
+ `        parser.add_argument(
+ `            '-t',
+ `            dest = 'paper_type',
+ `            default = 'vellum',
+ `            help = 'Specify a paper type. The default is vellum'
+ `        )
+ `        parser.add_argument(
+ `            '-w',
+ `            dest = 'paper_weight', 
+ `            type = int,   
+ `            default = 120,
+ `            help = 'Specify the paper weight. The default is 120.'
+ `        )
+ `        parser.add_argument(
+ `            '-m',
+ `            dest = 'margin',
+ `            type = int,
+ `            default = 1,
+ `            help = 'Specify the margin for binding. The default is 1 (mm).'
+ `        )
+ `        parser.add_argument(
+ `            '-l',
+ `            dest = 'list',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Display paper details.'
+ `        )
+ `        args = parser.parse_args()
+ `        self.pages = args.pages
+ `        self.paper_type = args.paper_type
+ `        self.paper_weight = args.paper_weight
+ `        self.margin = args.margin
+ `        self.list_bool = args.list
+ `
+ `    def show_papers(self):
+ `        for paper in self.paper_types:
+ `            print('\n%s:' %(self.paper_types[paper]))
+ `            paper_feature = self.papers[paper]
+ `            for weight in paper_feature:
+ `                print('%3d g \t %s mm' %(weight, paper_feature[weight]))
+ `            answer = input('\nPress Enter to continue or Q to quit.')
+ `            if answer.lower() == 'q':
+ `                return
+ `
+ `    def calculate(self): 
+ `        try:
+ `            name = self.paper_types[self.paper_type]
+ `            thickness = self.papers[self.paper_type][self.paper_weight]
+ `            msg = '\nWith %d g %s paper of which thickness is %0.3f mm, %d pages make the spine:' %(self.paper_weight,  `name, thickness, self.pages)
+ `            print(msg)
+ `            spine = (self.pages / 2 * thickness) + self.margin    
+ `            msg = '%0.2f mm with a margin of %d mm from the paper thickness' %(spine, self.margin)
+ `            print(msg)
+ `        except:
+ `            print('\nNo corresponding thickness data is found.')
+ `        spine = (self.paper_weight * self.pages * 0.6 / 1000) + self.margin
+ `        msg = '%0.2f mm with a margin of %d mm from the paper weight\n' %(spine, self.margin)
+ `        print(msg)
+ `
+ `if __name__ == '__main__':
+ `    spine = BookSpineWidth()
+ `    spine.parse_args()
+ `    if spine.list_bool:
+ `        spine.show_papers()
+ `    else:
+ `        spine.calculate()
+
+[loop]
+output=loop.py
+description=A given command will be repeated with each one matching wildcard characters.
+content=
+ `import os
+ `import sys
+ `import glob
+ `import argparse
+ `import re
+ `
+ `example = '''examples:
+ `loop.py "cpdf -pages *.pdf"
+ `    cpdf will display the number of pages in each PDF file.
+ `loop.py -c "pdfcrop foo_*.pdf goo_*.pdf" 
+ `    This is the same as
+ `        pdfcrop foo_1.pdf goo_1.pdf
+ `        pdfcrop foo_2.pdf goo_2.pdf        
+ `loop.py -c "magick -rotate 90 foo_*.png foo_*.png"
+ `    This is the same as
+ `        magick -rotate 90 foo_1.png foo_1.png
+ `        magick -rotate 90 foo_2.png foo_2.png
+ `'''
+ `
+ `parser = argparse.ArgumentParser(
+ `    epilog = example,
+ `    formatter_class = argparse.RawDescriptionHelpFormatter,
+ `    description = 'A given command will be repeated with each one matching wildcard characters.'
+ `)
+ `parser.add_argument(
+ `    'cmd',
+ `    nargs = 1,
+ `    help = 'Type a command with arguments including wildcard characters.'
+ `)
+ `parser.add_argument(
+ `    '-c',
+ `    dest = 'consecutive_bool',
+ `    action = 'store_true',
+ `    default = False,
+ `    help = 'Change wildcard characters to consecutive numbers and check if matching files exist.'
+ `)
+ `args = parser.parse_args()
+ `
+ `# find the argument that contains '*'
+ `cmd = args.cmd[0].split(' ')
+ `for i in cmd:
+ `    if i.count('*') > 0:
+ `        selection = i
+ `        break
+ `
+ `cmd = ' '.join(cmd)
+ `if args.consecutive_bool:
+ `    for i in glob.glob(selection):
+ `        num = re.findall(r'\d+', i)
+ `        if len(num) > 0:
+ `            real_cmd = cmd.replace('*', num[0])
+ `            os.system(real_cmd)            
+ `        else:
+ `            print('No numbered files are found.')
+ `            break
+ `else:   
+ `    ext =  os.path.splitext(os.path.basename(selection))[1]
+ `    for i in glob.glob(selection):  
+ `        filename = os.path.splitext(os.path.basename(i))[0] + ext
+ `        real_cmd = cmd.replace(selection, filename)
+ `        os.system(real_cmd)        
+
+[datecal]
+output=datecal.py
+description=Find out the date certain days before or after a given date.
+content=
+ `import argparse
+ `from datetime import datetime, date, timedelta
+ `import calendar
+ `import pytz
+ `from dateutil.relativedelta import relativedelta
+ `
+ `calendar.setfirstweekday(calendar.SUNDAY)
+ `
+ `class DateCalculator(object):
+ `
+ `    def __init__(self, daydate=None, basis=None, week=False, weekday=False, calendar=False):
+ `
+ `        self.daydate = daydate
+ `        self.basis = basis
+ `        self.week_bool = week
+ `        self.weekday_bool = weekday
+ `        self.calendar_bool = calendar
+ `
+ `        self.weekdays = { 
+ `            0:'Monday',
+ `            1:'Tuesday',
+ `            2:'Wednesday',
+ `            3:'Thursday',
+ `            4:'Friday',
+ `            5:'Saturday',
+ `            6:'Sunday'
+ `        }
+ `
+ `        self.timezones = {
+ `            'London':'Europe/London',
+ `            'Los Angeles':'America/Los_Angeles',
+ `            'New York':'America/New_York',
+ `            'Paris':'Europe/Paris',
+ `            'Rome':'Europe/Rome',
+ `            'Seoul':'Asia/Seoul',
+ `            'Sydney':'Australia/Sydney',
+ `            'Toronto':'America/Toronto'
+ `        }
+ `
+ `    def parse_args(self):
+ `
+ `        example = '''examples:
+ `    datecal.py -20 -10 10 20
+ `        shows dates 20 and 10 days before and after today.
+ `    datecal.py -b 2010-07-07 10
+ `        These show the date 10 days after 2010-07-07.
+ `    datecal.py -w 10
+ `        shows the date 10 weeks after today.
+ `    datecal.py 2021-01-01
+ `        shows the number of days between tody and 2021-01-01.
+ `    datecal.py -W 2021-01-01
+ `        shows the day of week on 2021-01-01.
+ `    datecal.py -c 2021-01
+ `        displays a monthly calendar for January 2021.
+ `    datecal.py -c 2021
+ `        displays a yearly calendar for 2021.
+ `    datecal.py -z Toronto
+ `        shows Toronto's current local time.
+ `    ''' 
+ `
+ `        parser = argparse.ArgumentParser(
+ `            epilog = example,
+ `            formatter_class = argparse.RawDescriptionHelpFormatter,
+ `            description = 'Find out the date certain days before or after a given date.'
+ `        )
+ `
+ `        parser.add_argument(
+ `            'daydate',
+ `            nargs = '+',
+ `            help = 'Specify one or more days or dates.'
+ `        )
+ `        parser.add_argument(
+ `            '-b',
+ `            dest = 'basis',
+ `            default = None,
+ `            help = 'Specify a date in the yyyy-mm-dd format.'
+ `        )
+ `        parser.add_argument(
+ `            '-w',
+ `            dest = 'week',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Use week as the unit of time.'
+ `        )
+ `        parser.add_argument(
+ `            '-W',
+ `            dest = 'weekday',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Find days of week.'
+ `        )
+ `        parser.add_argument(
+ `            '-c',
+ `            dest = 'calendar',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Display calendars.'
+ `        )
+ `        parser.add_argument(
+ `            '-z',
+ `            dest = 'timezone',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = "Display a given city's current local time."
+ `        )
+ `       
+ `        args = parser.parse_args()
+ `
+ `        self.daydate = args.daydate
+ `        self.basis = self.validate(args.basis)
+ `        self.week_bool = args.week
+ `        self.weekday_bool = args.weekday
+ `        self.calendar_bool = args.calendar
+ `        self.timezone_bool = args.timezone
+ `
+ `    def validate(self, basis:str):
+ `
+ `        if basis is None:
+ `            return date.today()
+ `
+ `        try:
+ `            basis = datetime.strptime(basis, '%%Y-%%m-%%d')
+ `        except:
+ `            try: 
+ `                basis = datetime.strptime(basis, '%%Y-%%m')
+ `            except: 
+ `                print('This date is wrong so today is used as the basis.')
+ `                basis = date.today()
+ `
+ `        return basis
+ `
+ `
+ `    def days_or_date(self, daydate):
+ `
+ `        try:
+ `            daydate = int(daydate)
+ `            return daydate
+ `        except:
+ `            daydate = self.validate(daydate)
+ `            return daydate
+ `
+ `
+ `    def print_date(self, days: int):
+ `
+ `        if self.week_bool:
+ `            days = days * 7
+ `        diff = timedelta(days = days)  
+ `        result = self.basis + diff
+ `        output = '{}: {} days from {}'.format(result.strftime('%%Y-%%m-%%d'), days, self.basis.strftime('%%Y-%%m-%%d'))
+ `        print(output)
+ `
+ `
+ `    def print_days(self, target_date):
+ `
+ `        date1 = self.basis.strftime('%%Y-%%m-%%d')
+ `        date2 = target_date.strftime('%%Y-%%m-%%d')
+ `        result = datetime.strptime(date1, '%%Y-%%m-%%d') - datetime.strptime(date2, '%%Y-%%m-%%d')
+ `        output = '{} days between {} and {}'.format(abs(result.days), date1, date2)
+ `        print(output)
+ `
+ `
+ `    def print_weekday(self, target_date):
+ `
+ `        weekday = self.weekdays[target_date.weekday()]
+ `        output = '{} on {}'.format(weekday, target_date.strftime('%%Y-%%m-%%d'))
+ `        print(output)        
+ `
+ `
+ `    def print_calendar(self, target_date):
+ `
+ `        if type(target_date) is int:
+ `            print(calendar.calendar(target_date))
+ `        else:
+ `            print(calendar.month(target_date.year, target_date.month))
+ `
+ `
+ `    def print_local_time(self):
+ `
+ `        utcnow = pytz.timezone('utc').localize(datetime.utcnow())        
+ `        here_time = utcnow.astimezone(pytz.timezone('Asia/Seoul')).replace(tzinfo=None)
+ `
+ `        for city in self.daydate:
+ `            city = ' '.join([word.capitalize() for word in city.split(" ")])
+ `            try:
+ `                city_timezone = self.timezones[city]
+ `                there_time = utcnow.astimezone(pytz.timezone(city_timezone)).replace(tzinfo=None)
+ `                offset = relativedelta(there_time, here_time) 
+ `                output = 'The current local time at {} is {}, {} hours from Seoul.'.format(city, there_time.strftime           ('%%H:%%M on %%Y-%%m-%%d'), offset.hours)
+ `            except:
+ `                output = '{} is not in the list of time zones.'.format(city)
+ `            print(output)
+ `
+ `
+ `    def calculate(self):
+ `
+ `        for i in self.daydate:
+ `            daydate = self.days_or_date(i)
+ `            if type(daydate) is int:
+ `                if self.calendar_bool:
+ `                    self.print_calendar(daydate)
+ `                else:
+ `                    self.print_date(daydate)
+ `            else:
+ `                if self.weekday_bool:
+ `                    self.print_weekday(daydate)
+ `                elif self.calendar_bool:
+ `                    self.print_calendar(daydate)
+ `                else:
+ `                    self.print_days(daydate)
+ `
+ `
+ `    def determine_task(self):
+ `
+ `        if self.timezone_bool:
+ `            self.print_local_time()
+ `        else:
+ `            self.calculate()
+ `
+ `
+ `if __name__ == '__main__':
+ `    datecal = DateCalculator()
+ `    datecal.parse_args()
+ `    datecal.determine_task()
+
+[dsize]
+output=dsize.py
+description=Get the total size of all the files, including those in subdirectories.
+content=
+ `import os
+ `import math
+ `import argparse
+ `
+ `parser = argparse.ArgumentParser(
+ `    description = 'Get the total size of all the files, including those in subdirectories.'
+ `)
+ `args = parser.parse_args()
+ `
+ `def get_size(start_path='.'):
+ `    total_size = 0
+ `    for dirpath, dirnames, filenames in os.walk(start_path):
+ `        for f in filenames:
+ `            fp = os.path.join(dirpath, f)
+ `            try:
+ `                stat = os.stat(fp)
+ `            except OSError:
+ `                continue
+ `            total_size += stat.st_size
+ `    print(readable(total_size))
+ `
+ `def readable(size):
+ `
+ `    units = ["B", "KB", "MB", "GB", "TB"]
+ `    format = "%%d %%s"
+ `    radix = 1024
+ `
+ `    for u in units[:-1]:
+ `        if size < radix : return format %% (math.ceil(size), u)
+ `        size /= radix
+ `
+ `    return format %% (math.ceil(size),  units[-1])
+ `
+ `get_size()
+
+[increase]
+output=increase.py
+description=increase.py 26 5000 (5000*1 + 5000*2 + ... + 5000*26)
+content=
+ `import argparse
+ `
+ `parser = argparse.ArgumentParser(
+ `    description = 'Multiply an increase by step and add to the sum'
+ `)
+ `parser.add_argument(
+ `    'numbers',
+ `    type = int,
+ `    nargs = '+',
+ `    help = 'Enter numbers for steps and increase.'
+ `)
+ `args = parser.parse_args()
+ `
+ `numbers = len(args.numbers)
+ `if numbers < 2:
+ `    final = args.numbers[0]
+ `    increase = 1
+ `elif numbers < 3:
+ `    final = args.numbers[0]
+ `    increase = args.numbers[1]
+ `
+ `sum = 0
+ `print('Step Increased Sum')
+ `for n in range(final):
+ `    n += 1
+ `    multiplied_increase = n * increase
+ `    sum = sum + multiplied_increase
+ `    print('{: 3} {: 10,} {: 10,}'.format(n, multiplied_increase, sum))
+
+[webimage]
+output=wi.py
+description=Download images from the Web.
+content=
+ `import os
+ `import sys
+ `import argparse
+ `import requests
+ `from urllib.parse import urlparse
+ `from pathlib import Path
+ `import shutil
+ `
+ `class WebImage(object):
+ `
+ `    def __init__(self, url=None, output=None):
+ `        self.url = url
+ `        self.output = output
+ `        
+ `    def parse_args(self):
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Download images from the Web.'
+ `        )
+ `        parser.add_argument(
+ `            'url',
+ `            nargs = '+',
+ `            help = 'Specify an image URL.'
+ `        )
+ `        parser.add_argument(
+ `            '-o',
+ `            dest = 'output',
+ `            help = 'Specify a file name for output.'
+ `        )
+ `        args = parser.parse_args()
+ `        self.url = args.url
+ `        self.output = args.output
+ `
+ `    def name_file(self, url):
+ `        org_name = Path(urlparse(url).path).name
+ `        if self.output is None:            
+ `            filename = org_name
+ `        else:
+ `            name = os.path.splitext(self.output)[0]            
+ `            ext = os.path.splitext(org_name)[1]
+ `            filename = '{}{}'.format(name, ext)
+ `        counter = 0
+ `        while os.path.exists(filename):
+ `            counter += 1
+ `            filename = '{}({}){}'.format(name, counter, ext)
+ `        return filename
+ `
+ `    def download_image(self):
+ `        for url in self.url:
+ `            filename = self.name_file(url)  
+ `            resp = requests.get(url, stream=True)
+ `            local_file = open(filename, 'wb')
+ `            resp.raw.decode_content = True
+ `            shutil.copyfileobj(resp.raw, local_file)
+ `
+ `if __name__ == '__main__':
+ `    WI = WebImage()
+ `    WI.parse_args()
+ `    WI.download_image()
+
+[factorial]
+output=factorial.py
+description=Find a number's factorial.
+content=
+ `import argparse
+ `from math import factorial
+ `from PyQt5.QtWidgets import  QWidget, QDesktopWidget, QLabel, QLineEdit, QPushButton, QPlainTextEdit, QGridLayout, QApplication
+ `
+ `parser = argparse.ArgumentParser(
+ `    description = "Find a number's factorial."
+ `)
+ `
+ `parser.add_argument(
+ `    'integers',
+ `    nargs = '*',
+ `    type = int,
+ `    help = 'Specify one or more integers.'
+ `)
+ `parser.add_argument(
+ `    '-g',
+ `    dest = 'GUI',
+ `    action = 'store_true',
+ `    default = False,
+ `    help = 'Open the GUI.'
+ `)
+ `args = parser.parse_args()
+ `
+ `class factorial_GUI(QWidget):
+ `
+ `    def __init__(self, input=None):        
+ `        super().__init__()        
+ `        self.input = input
+ `        self.initUI()
+ `
+ `    def initUI(self):
+ `        self.setWindowTitle('Factorial')
+ `        self.resize(500, 300)
+ `        self.center() 
+ `        
+ `        inputLabel = QLabel('Enter an integer')
+ `        self.inputEdit = QLineEdit()
+ `        clearButton = QPushButton('Clear')
+ `        self.result = QPlainTextEdit('0')
+ `        self.result.setReadOnly(True)
+ `        
+ `        grid = QGridLayout()        
+ `        grid.addWidget(inputLabel, 1, 0)
+ `        grid.addWidget(self.inputEdit, 1, 1)
+ `        grid.addWidget(clearButton, 2, 0)
+ `        grid.addWidget(self.result, 2, 1)        
+ `        self.setLayout(grid)
+ `        
+ `        self.inputEdit.returnPressed.connect(self.onChanged)
+ `        clearButton.clicked.connect(self.clear)
+ `        if self.input is not None:
+ `            self.GetFactorial(self.input)
+ `        self.show()
+ `
+ `    def onChanged(self):
+ `        val = self.inputEdit.text()
+ `        self.GetFactorial(val)
+ `        
+ `    def GetFactorial(self, val):
+ `        try:
+ `            r = factorial(int(val))
+ `            r = format(r, ',')        
+ `            self.result.setPlainText(r)
+ `        except:
+ `            msg = '"{}" is not an integer'.format(val)
+ `            self.result.setPlainText(msg)
+ `
+ `
+ `    def clear(self):
+ `        self.inputEdit.clear()
+ `        self.result.clear()
+ `        
+ `    def center(self):        
+ `        qr = self.frameGeometry()
+ `        cp = QDesktopWidget().availableGeometry().center()
+ `        qr.moveCenter(cp)
+ `        self.move(qr.topLeft())       
+ `
+ `if __name__ == '__main__':  
+ `    if args.GUI:  
+ `        app = QApplication([])
+ `        fac = factorial_GUI(args.integers[0])
+ `        app.exec_()
+ `    else:
+ `        for i in args.integers:
+ `            r = factorial(i)
+ `            print('{:,}'.format(r))
+
+[myip]
+output=myip.py
+description=Find your local and public IP addresses.
+content=
+ `import argparse
+ `import socket
+ `from requests import get
+ `
+ `parser = argparse.ArgumentParser(description='Find your local and public IP addresses.')
+ `args = parser.parse_args()
+ `
+ `ip = socket.gethostbyname(socket.gethostname())
+ `print('Your local IP address is: ', ip)
+ `ip = get('https://api.ipify.org').text
+ `print('Your public IP address is: ', ip)
+
+[hike]
+output=hike.py
+description=Calculate a hiking trail's true 3D distance.
+content=
+ `import argparse
+ `
+ `formula = '''
+ `3D distance = 2D distance × 1.1
+ `Lead time = 3D distance ÷ 3 km/h
+ `'''
+ `
+ `parser = argparse.ArgumentParser(
+ `    epilog = formula,
+ `    formatter_class = argparse.RawDescriptionHelpFormatter,
+ `    description = "This script roughly calculates a hiking trail's true 3D distance in the unit of kilometer and the time required."
+ `)
+ `parser.add_argument(
+ `    'lengths',
+ `    nargs = '*',
+ `    help = "Enter one or more 2D distances."
+ `)
+ `args = parser.parse_args()
+ `
+ `if len(args.lengths) == 0:
+ `    parser.print_help()
+ `else:    
+ `    for i in args.lengths:
+ `        true_distance = float(i) * 1.1
+ `        lead_time = true_distance / 3
+ `        hours, minutes = divmod(lead_time, 1)
+ `        hours = round(hours)
+ `        minutes = round(minutes * 60)
+ `        result = '{:>5s} ► {:4.1f} km in {:2d} hours {:2d} minutes'.format(i, true_distance, hours, minutes)
+ `        print(result)
+
+[dogage]
+output=dogage.py
+description=Calculate a dog's age as human.
+content=
+ `import argparse
+ `import numpy as np
+ `import matplotlib.pyplot as plt
+ `
+ `class DogAge(object):
+ `    def __init__(self, age=[1], plot=False):
+ `        self.age = age
+ `        self.plot_bool = plot
+ `
+ `    def parse_args(self):
+ `        parser = argparse.ArgumentParser(
+ `            description = "Calculate a dog's age as human."
+ `        )
+ `        parser.add_argument(
+ `            'age',
+ `            nargs = '*',
+ `            type = float,
+ `            default = [1],
+ `            help = 'Enter a number, or two numbers as a range.'
+ `        )
+ `        parser.add_argument(
+ `            '-p',
+ `            dest = 'plot',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = "Draw a curve plot displaying dog's age rate"
+ `        )
+ `        args = parser.parse_args()
+ `        self.age = args.age
+ `        self.plot_bool = args.plot
+ `        if len(self.age) == 1:
+ `            self.age.append(self.age[0])
+ `
+ `    def age_print(self, age):
+ `        dog, human = self.age_calculate(age)
+ `        print('{0:5.2f} ≈ {1:5.2f}'.format(dog, human))
+ `
+ `    def age_calculate(self, dog):
+ `        human = 16 * np.log(dog) + 31
+ `        return(dog, human)
+ `
+ `    def age_draw(self, age):
+ `        dogs, humans = [], []
+ `        i = 0
+ `        if age < 1:
+ `            incr = 0.1
+ `        else:
+ `            incr = 1
+ `        while i <= age:
+ `            i = i + incr
+ `            dog, human = self.age_calculate(i)
+ `            dogs.append(dog)
+ `            humans.append(human)
+ `        plt.xlabel('Dog age')
+ `        plt.ylabel('Human age')
+ `        plt.title("Dog's age as human")
+ `        plt.plot(dogs, humans)
+ `        plt.show()
+ `
+ `    def compare(self):
+ `        if self.plot_bool:
+ `            self.age_draw(self.age[0])
+ `        else:
+ `            print('dog year(s) ≈ human year(s)')
+ `            if self.age[0] < self.age[1]:
+ `                age_limit = self.age[1]
+ `            else:
+ `                age_limit = self.age[0]
+ `            age = self.age[0]
+ `            while age <= age_limit:
+ `                self.age_print(age)
+ `                age += 1
+ `
+ `if __name__ == '__main__':
+ `    dogage = DogAge()
+ `    dogage.parse_args()
+ `    dogage.compare()
+
+[msdoc]
+output=msdoc.vbs
+description=Convert a document into another format.
+content=
+ `'#>msdoc.vbs directory source_format target_format
+ `'#>msdoc . docx pdf
+ `
+ `'Const wdFormatDocument = 0
+ `'Const wdFormatDocument97 = 0
+ `'Const wdFormatDocumentDefault = 16
+ `'Const wdFormatDOSText = 4
+ `'Const wdFormatDOSTextLineBreaks = 5
+ `'Const wdFormatEncodedText = 7
+ `'Const wdFormatFilteredHTML = 10
+ `'Const wdFormatFlatXML = 19
+ `'Const wdFormatFlatXMLMacroEnabled = 20
+ `'Const wdFormatFlatXMLTemplate = 21
+ `'Const wdFormatFlatXMLTemplateMacroEnabled = 22
+ `'Const wdFormatHTML = 8
+ `'Const wdFormatPDF = 17
+ `'Const wdFormatRTF = 6
+ `'Const wdFormatTemplate = 1
+ `'Const wdFormatTemplate97 = 1
+ `'Const wdFormatText = 2
+ `'Const wdFormatTextLineBreaks = 3
+ `'Const wdFormatUnicodeText = 7
+ `'Const wdFormatWebArchive = 9
+ `'Const wdFormatXML = 11
+ `'Const wdFormatXMLDocument = 12
+ `'Const wdFormatXMLDocumentMacroEnabled = 13
+ `'Const wdFormatXMLTemplate = 14
+ `'Const wdFormatXMLTemplateMacroEnabled = 15
+ `'Const wdFormatXPS = 18
+ `'Const wdFormatOfficeDocumentTemplate = 23
+ `
+ `Option Explicit 
+ `
+ `Sub main()
+ `Dim ArgCount
+ `ArgCount = WScript.Arguments.Count
+ `Select Case ArgCount 
+ `	Case 3	
+ `		Dim SrcFilePaths,objshell, SrcFileExtension, TrgFileExtension
+ `		SrcFilePaths = WScript.Arguments(0)
+ `		SrcFileExtension = WScript.Arguments(1)
+ `		TrgFileExtension = WScript.Arguments(2)
+ `		StopWordApp
+ `		Set objshell = CreateObject("scripting.filesystemobject")
+ `		If objshell.FolderExists(SrcFilePaths) Then  
+ `			Dim flag,FileNumber
+ `			flag = 0 
+ `			FileNumber = 0 	
+ `			Dim Folder,TrgFiles,TrgFile		
+ `			Set Folder = objshell.GetFolder(SrcFilePaths)
+ `			Set TrgFiles = Folder.Files
+ `			For Each TrgFile In TrgFiles  
+ `				FileNumber=FileNumber+1 
+ `				SrcFilePath = TrgFile.Path
+ `				If GetSrcFile(SrcFilePath, SrcFileExtension) Then  
+ `					ConvertSrcToTrg SrcFilePath, TrgFileExtension
+ `					flag=flag+1
+ `				End If 	
+ `			Next 
+ `			WScript.Echo  flag & " files in the folder are converted."
+ `		Else 
+ `			If GetSrcFile(SrcFilePaths, SrcFileExtension) Then  
+ `				Dim SrcFilePath
+ `				SrcFilePath = SrcFilePaths				
+ `				ConvertSrcToTrg SrcFilePath, TrgFileExtension
+ `				WScript.Echo  SrcFilePath & " is successfully converted."
+ `			End If  
+ `		End If 			
+ `	Case  Else 
+ `	 	WScript.Echo "Usage: msdoc.vbs path source-extension target-extension."
+ `End Select 
+ `End Sub 
+ `
+ `Function GetFileType(FileType)
+ `	Dim i, FileTypes(8,2)
+ `	FileTypes(0,0) = "doc"
+ `	FileTypes(0,1) = 0
+ `	FileTypes(1,0) = "rtf"
+ `	FileTypes(1,1) = 6
+ `	FileTypes(2,0) = "txt"
+ `	FileTypes(2,1) = 7
+ `	FileTypes(3,0) = "html"
+ `	FileTypes(3,1) = 8
+ `	FileTypes(4,0) = "xml"
+ `	FileTypes(4,1) = 11
+ `	FileTypes(5,0) = "docx"
+ `	FileTypes(5,1) = 16
+ `	FileTypes(6,0) = "pdf"
+ `	FileTypes(6,1) = 17
+ `	For i=0 to UBound(FileTypes)
+ `		If StrComp(FileType, FileTypes(i, 0), vbTextCompare) = 0 Then
+ `			GetFileType = FileTypes(i, 1)
+ `			Exit For
+ `		End If
+ `	Next
+ `End Function
+ `
+ `Function ConvertSrcToTrg(SrcFilePath, TrgFileExtension)
+ `	Dim objshell, ParentFolder, BaseName, WordFilePath, wordapp, doc
+ `	Set objshell= CreateObject("scripting.filesystemobject")
+ `	ParentFolder = objshell.GetParentFolderName(SrcFilePath) 
+ `	BaseName = objshell.GetBaseName(SrcFilePath) 
+ `	WordFilePath = parentFolder & "\" & BaseName & "." & TrgFileExtension  
+ `	Set wordapp = CreateObject("Word.Application")
+ `	Set doc = wordapp.documents.open(SrcFilePath)
+ `	doc.saveas WordFilePath, GetFileType(TrgFileExtension)
+ `	doc.close
+ `	wordapp.quit
+ `	Set objshell = Nothing 
+ `End Function 
+ `
+ `Function GetSrcFile(SrcFilePath, SrcFileExtension) 
+ `	Dim objshell
+ `	Set objshell= CreateObject("scripting.filesystemobject")
+ `	Dim Arrs ,Arr
+ `	Arrs = Array(SrcFileExtension) 
+ `	Dim blnIsTrgFile,FileExtension
+ `	blnIsTrgFile= False 
+ `	FileExtension = objshell.GetExtensionName(SrcFilePath)  
+ `	For Each Arr In Arrs
+ `		If InStr(UCase(FileExtension),UCase(Arr)) <> 0 Then 
+ `			blnIsTrgFile= True
+ `			Exit For 
+ `		End If 
+ `	Next 
+ `	GetSrcFile = blnIsTrgFile
+ `	Set objshell = Nothing 
+ `End Function 
+ `
+ `Function StopWordApp 
+ `	Dim strComputer,objWMIService,colProcessList,objProcess 
+ `	strComputer = "."
+ `	Set objWMIService = GetObject("winmgmts:" _
+ `		& "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+ `	Set colProcessList = objWMIService.ExecQuery _
+ `		("SELECT * FROM Win32_Process WHERE Name = 'Winword.exe'")
+ `	For Each objProcess in colProcessList
+ `		objProcess.Terminate()
+ `	Next
+ `End Function 
+ `
+ `Call main

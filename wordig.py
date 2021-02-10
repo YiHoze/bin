@@ -45,6 +45,52 @@ class WordDigger(object):
                 r'\s(\w+=)'
             ]
 
+        self.detex_tsv = r'''(?<!\\)%.+?\n	\n
+\\title\{(.+?)\}	\1
+\\part\{(.+?)\}	\1
+\\chapter\{(.+?)\}	\1
+\\section\{(.+?)\}	\1
+\\subsection\{(.+?)\}	\1
+\\subsubsection\{(.+?)\}	\1
+\\caption\{(.+?)\}	\1
+\\textbf\{(.+?)\}	\1
+\\textsf\{(.+?)\}	\1
+\\texttt\{(.+?)\}	\1
+\\textit\{(.+?)\}	\1
+\\textsl\{(.+?)\}	\1
+\\action\{(.+?)\}	\1
+\\ui\{(.+?)\}	\1
+\\term\{(.+?)\}	\1
+\\annotate.?\{(.+?)\}	\1
+\\anota.?\{(.+?)\}	\1
+\\menu.?\{(.+?)\}\{(.+?)\}	\1 \2
+\\item\[(.+?)\]	\1
+\\begin\{.+?\}.*?\n	
+\\end\{.+?\}\n	
+\\CoverSetup\{	
+\\.+?Setup\[.+?\](.|\n)+?\}\n	
+\\.+?Setup(.|\n)+?\}\n	
+\\.+?\{.+?\}\{(.|\n)+?\}\n	 
+\\([가-로]{1,2})	\1
+\\\\	\n
+([#\$%\^&_])	\1
+\\node(.|\n)+?\};	
+\\.+?\{.+?\}\{.+?\}\{.+?\}	
+\\.+?\{.+?\}\{.+?\}	 
+\\.+?\{.+?\}\[.+?\]	 
+\\.+?\[.+?\]\{.+?\}	 
+\\.+?\{.+?\}	 
+\\.+?\s	 
+\\.+?$	 
+\\.+?\n	\n
+\|	
+\{	
+\}	
+(\s*\n){3,}	\n'''
+
+        self.ui_txt = r'''\\ui\{.+?}	
+\\item\[.+?\]'''
+
 
     def parse_args(self):
 
@@ -175,8 +221,7 @@ class WordDigger(object):
             action = 'store_true',
             default = False,
             help = 'Covert EUC-KR to UTF-8.'
-        )        
-
+        )
 
         args = parser.parse_args()
 
@@ -197,8 +242,17 @@ class WordDigger(object):
 
         if self.detex_bool and self.pattern is None:
             self.pattern = os.path.join(dirCalled, 'detex.tsv')
+            if not os.path.exists(self.pattern):
+                # self.pattern = 'detex.tsv'
+                with open(self.pattern, mode='w', encoding='utf-8') as f:
+                    f.write(self.detex_tsv)
+
         if self.extract_string_bool and self.pattern is None:
             self.pattern = os.path.join(dirCalled, 'UI.txt')
+            if not os.path.exists(self.pattern):
+                # self.pattern = 'UI.txt'
+                with open(self.pattern, mode='w', encoding='utf-8') as f:
+                    f.write(self.ui_txt)
 
 
     def run_recursive(self, func):
@@ -226,7 +280,6 @@ class WordDigger(object):
                         print('%5d:\t%s' %(num, line.replace('\n', ' ')))
         except:
             print('is not encoded in UTF-8.')
-            return
 
 
     def replace(self, afile):
@@ -277,6 +330,7 @@ class WordDigger(object):
             if os.path.exists(afile):
                 os.remove(afile)
             os.rename(tmp, afile)
+
 
     def extract_strings(self, afile):
 

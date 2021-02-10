@@ -4,24 +4,26 @@
 [Cmdletbinding()]
 param
 (
-  [String] $directory,
-  [alias("a")][switch] $AppendToPath = $false,
-  [alias("r")][switch] $RemoveFromPath = $false,
-  [alias("s")][switch] $SetToPath = $false,
-  [alias("c")][switch] $IsAdmin = $false,
-  [alias("h")][switch] $help = $false
+  [alias("a")][switch] $append_bool = $false,
+  [alias("r")][switch] $remove_bool = $false,
+  [alias("s")][switch] $set_bool = $false,
+  [alias("c")][switch] $admin_bool = $false,
+  [alias("p")][switch] $system_properties_bool = $false,
+  [alias("h")][switch] $help = $false,
+  [String] $directory
 )
 
 function help()
 {
   write-output "
-  userpath.ps1 manipulates the local path variable.
+  View the local PATH environment variable.
   Usage:
-    userpath.ps1 [directory] [options]
+    userpath.ps1 [option] [directory]
   Options:
     -a: Append to the path
     -r: Remove from the path
     -s: Set to the path
+    -p: Open the System Properties window
     -c: Check if running as administrator
     -h: help
   "
@@ -78,8 +80,9 @@ function SetLocalPath()
 }
 
 if ($help) { help; break }
-if ($IsAdmin) { CheckLocalAdmin; break }
+if ($admin_bool) { CheckLocalAdmin; break }
+if ($system_properties_bool) { control.exe sysdm.cpl,System,3; break }
 if (! $directory) { GetLocalPath; break }
-if ($AppendToPath) { AppendLocalPath; break }
-if ($RemoveFromPath) { RemoveLocalPath; break }
-if ($SetToPath) { SetLocalPath; break }
+if ($append_bool) { AppendLocalPath; break }
+if ($remove_bool) { RemoveLocalPath; break }
+if ($set_bool) { SetLocalPath; break }

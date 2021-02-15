@@ -205,6 +205,7 @@ class LatexTemplate(object):
             cnt += 1
         return content
 
+
     def write_relatives(self, extension):
 
         content = self.templates.get(self.template, extension, fallback=None)

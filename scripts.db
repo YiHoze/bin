@@ -1,7 +1,7 @@
 [gencode]
-output=gencode.py
 description=Generate barcodes or QR codes in PNG. 
-content=
+code_output=gencode.py
+code=
  `# pip python-barcode
  `# pip install qrcode[pil]
  `
@@ -152,10 +152,10 @@ content=
  `        else:
  `            gencode.encode_barcode()
 
-[tlconf]
-output=tlconf.cmd
+[tlconfcmd]
 description=Configure for your TeX Live.
-content=
+code_output=tlconf.cmd
+code=
  @echo off
  
  for /f "usebackq delims=" %%%%p in (`kpsewhich -var-value=TEXMFROOT`) do set tlroot=%%%%p
@@ -188,9 +188,9 @@ content=
  
  rem creating local.conf
  set localconf=%%tlroot%%\texmf-var\fonts\conf\local.conf
- set content=%%LOCALAPPDATA%%/Microsoft/Windows/Fonts
- set content=%%content:\=/%%
- set "content=^<dir^>%%content%%^</dir^>"
+ set code=%%LOCALAPPDATA%%/Microsoft/Windows/Fonts
+ set code=%%content:\=/%%
+ set "code=^<dir^>%%content%%^</dir^>"
  echo %%content%% > %%localconf%%
  echo %%localconf%%:
  type %%localconf%%
@@ -239,21 +239,21 @@ content=
  echo %%localconf%%:
  type %%localconf%%
  
- echo tlconf cnf              : Add the user's font folder to texmf.cnf and to local.cnf.
- echo tlconf texedit [...]    : Set the TEXEIDT environment variable. The default is 
- echo                           "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%s":%%%%d
- echo tlconf texmfhome [...]  : Set the TEXMFHOME environment variable. The default is 
- echo                           C:\home\texmf
- echo tlconf sumatrapdf [...] : Set the inverse search command-line option of SumatraPDF. The  defualt is
- echo                           "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%f":%%%%l
- echo tlconf batch            : Proceed with all options.
+ echo tlconf.cmd cnf              : Add the user's font folder to texmf.cnf and to local.cnf.
+ echo tlconf.cmd texedit [...]    : Set the TEXEIDT environment variable. The default is 
+ echo                               "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%s":%%%%d
+ echo tlconf.cmd texmfhome [...]  : Set the TEXMFHOME environment variable. The default is 
+ echo                               C:\home\texmf
+ echo tlconf.cmd sumatrapdf [...] : Set the inverse search command-line option of SumatraPDF. The  defualt is
+ echo                               "%%LOCALAPPDATA%%\Programs\Microsoft VS Code\code.exe" -r -g  "%%%%f":%%%%l
+ echo tlconf.cmd batch            : Proceed with all options.
  
  :eof
 
 [pdfpages]
-output=pdfpages.ps1
 description=Count pages in multiple PDF files.
-content=
+code_output=pdfpages.ps1
+code=
  # get-childitem -name *.pdf | foreach-object {write-host $_ ; pdfinfo $_ | select-string 'Pages'}
  $pdfpages = @()
  $total = 0
@@ -270,9 +270,9 @@ content=
  write-host "Total:" $total
 
 [crypto]
-output=crypto.py
 description=Encrypt or decrypt files.
-content=
+code_output=crypto.py
+code=
  `import os
  `import argparse
  `from cryptography.fernet import Fernet
@@ -376,9 +376,9 @@ content=
 
 
 [bookspine]
-output=bookspine.py
 description=Get the spine width for a book.
-content=
+code_output=bookspine.py
+code=
  `import argparse
  `
  `class BookSpineWidth(object):
@@ -461,10 +461,10 @@ content=
  `
  `    def show_papers(self):
  `        for paper in self.paper_types:
- `            print('\n%s:' %(self.paper_types[paper]))
+ `            print('\n{}:'.format(self.paper_types[paper]))
  `            paper_feature = self.papers[paper]
  `            for weight in paper_feature:
- `                print('%3d g \t %s mm' %(weight, paper_feature[weight]))
+ `                print('{:>3} g \t {} mm'.format(weight, paper_feature[weight]))
  `            answer = input('\nPress Enter to continue or Q to quit.')
  `            if answer.lower() == 'q':
  `                return
@@ -473,15 +473,15 @@ content=
  `        try:
  `            name = self.paper_types[self.paper_type]
  `            thickness = self.papers[self.paper_type][self.paper_weight]
- `            msg = '\nWith %d g %s paper of which thickness is %0.3f mm, %d pages make the spine:' %(self.paper_weight,  `name, thickness, self.pages)
+ `            msg = '\nWith {} g {} paper of which thickness is {:0.3f} mm, {} pages make the spine:'.format(self.paper_weight,  `name, thickness, self.pages)
  `            print(msg)
  `            spine = (self.pages / 2 * thickness) + self.margin    
- `            msg = '%0.2f mm with a margin of %d mm from the paper thickness' %(spine, self.margin)
+ `            msg = '{:0.2f} mm with a margin of {} mm from the paper thickness'.format(spine, self.margin)
  `            print(msg)
  `        except:
  `            print('\nNo corresponding thickness data is found.')
  `        spine = (self.paper_weight * self.pages * 0.6 / 1000) + self.margin
- `        msg = '%0.2f mm with a margin of %d mm from the paper weight\n' %(spine, self.margin)
+ `        msg = '{:0.2f} mm with a margin of {} mm from the paper weight\n'.format(spine, self.margin)
  `        print(msg)
  `
  `if __name__ == '__main__':
@@ -493,9 +493,9 @@ content=
  `        spine.calculate()
 
 [loop]
-output=loop.py
 description=A given command will be repeated with each one matching wildcard characters.
-content=
+code_output=loop.py
+code=
  `import os
  `import sys
  `import glob
@@ -559,9 +559,9 @@ content=
  `        os.system(real_cmd)        
 
 [datecal]
-output=datecal.py
 description=Find out the date certain days before or after a given date.
-content=
+code_output=datecal.py
+code=
  `import argparse
  `from datetime import datetime, date, timedelta
  `import calendar
@@ -787,9 +787,9 @@ content=
  `    datecal.determine_task()
 
 [dsize]
-output=dsize.py
 description=Get the total size of all the files, including those in subdirectories.
-content=
+code_output=dsize.py
+code=
  `import os
  `import math
  `import argparse
@@ -826,9 +826,9 @@ content=
  `get_size()
 
 [increase]
-output=increase.py
 description=increase.py 26 5000 (5000*1 + 5000*2 + ... + 5000*26)
-content=
+code_output=increase.py
+code=
  `import argparse
  `
  `parser = argparse.ArgumentParser(
@@ -859,9 +859,9 @@ content=
  `    print('{: 3} {: 10,} {: 10,}'.format(n, multiplied_increase, sum))
 
 [webimage]
-output=wi.py
 description=Download images from the Web.
-content=
+code_output=wi.py
+code=
  `import os
  `import sys
  `import argparse
@@ -922,9 +922,9 @@ content=
  `    WI.download_image()
 
 [factorial]
-output=factorial.py
 description=Find a number's factorial.
-content=
+code_output=factorial.py
+code=
  `import argparse
  `from math import factorial
  `from PyQt5.QtWidgets import  QWidget, QDesktopWidget, QLabel, QLineEdit, QPushButton, QPlainTextEdit, QGridLayout, QApplication
@@ -1014,9 +1014,9 @@ content=
  `            print('{:,}'.format(r))
 
 [myip]
-output=myip.py
 description=Find your local and public IP addresses.
-content=
+code_output=myip.py
+code=
  `import argparse
  `import socket
  `from requests import get
@@ -1030,9 +1030,9 @@ content=
  `print('Your public IP address is: ', ip)
 
 [hike]
-output=hike.py
 description=Calculate a hiking trail's true 3D distance.
-content=
+code_output=hike.py
+code=
  `import argparse
  `
  `formula = '''
@@ -1065,9 +1065,9 @@ content=
  `        print(result)
 
 [dogage]
-output=dogage.py
 description=Calculate a dog's age as human.
-content=
+code_output=dogage.py
+code=
  `import argparse
  `import numpy as np
  `import matplotlib.pyplot as plt
@@ -1147,9 +1147,9 @@ content=
  `    dogage.compare()
 
 [msdoc]
-output=msdoc.vbs
 description=Convert a document into another format.
-content=
+code_output=msdoc.vbs
+code=
  `'#>msdoc.vbs directory source_format target_format
  `'#>msdoc . docx pdf
  `
@@ -1292,3 +1292,1847 @@ content=
  `End Function 
  `
  `Call main
+
+[nb2pdf]
+description=Convert Jupyter notebook files (.ipynb) to PDF using nbconvert and LaTeX.
+template_output=nb2pdf.tpl
+template=
+ `((=
+ `  "latex": {
+ `    "title": "An Example of Jupyter Notebook",
+ `    "author": "John Doe",
+ `    "language": "english"
+ `  },
+ `=))
+ `
+ `((*- extends 'display_priority.tplx' -*))
+ `((* block data_text *))
+ `\begin{verbatim}
+ `((( output.data['text/plain'] )))
+ `\end{verbatim}
+ `((* endblock data_text *))
+ `
+ `((* block error *))
+ `\begin{Verbatim}[commandchars=\\\{\}]
+ `((( super() )))
+ `\end{Verbatim}
+ `((* endblock error *))
+ `((* block traceback_line *))
+ `((( line | indent | strip_ansi | escape_latex )))
+ `((* endblock traceback_line *))
+ `
+ `((* block stream *))
+ `\begin{Verbatim}[commandchars=\\\{\}]
+ `((( output.text | escape_latex | ansi2latex )))
+ `\end{Verbatim}
+ `((* endblock stream *))
+ `
+ `((* block data_latex -*))
+ `((( output.data['text/latex'] | strip_files_prefix )))
+ `((* endblock data_latex *))
+ `
+ `((* block data_markdown -*))
+ `((( output.data['text/markdown'] | citation2latex | strip_files_prefix | convert_pandoc('markdown+tex_math_double_backslash', 'latex'))))
+ `((* endblock data_markdown *))
+ `
+ `((*- block data_png -*))((( draw_figure(output.metadata.filenames['image/png']) )))((*- endblock -*))
+ `((*- block data_jpg -*))((( draw_figure(output.metadata.filenames['image/jpeg']) )))((*- endblock -*))
+ `((*- block data_svg -*))((( draw_figure(output.metadata.filenames['image/svg+xml']) )))((*- endblock -*))
+ `((*- block data_pdf -*))((( draw_figure(output.metadata.filenames['application/pdf']) )))((*- endblock -*))
+ `
+ `((* macro draw_figure(filename) -*))
+ `((* set filename = filename | posix_path *))
+ `((*- block figure scoped -*))
+ `\begin{center}
+ `\adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{((( filename )))}
+ `\end{center}
+ `{ \hspace*{\fill} \\}
+ `((*- endblock figure -*))
+ `((*- endmacro *))
+ `
+ `((* block markdowncell scoped *))
+ `    ((( cell.source | citation2latex | strip_files_prefix | convert_pandoc('markdown+tex_math_double_backslash', 'json',extra_args=[]) | resolve_references | convert_pandoc('json','latex'))))
+ `((* endblock markdowncell *))
+ `
+ `((* block unknowncell scoped *))
+ `((* endblock unknowncell *))
+ `
+ `((* block header *))
+ `    ((* block docclass *))
+ `    ((*- if nb.metadata.latex -*))
+ `        ((*- if nb.metadata.latex.language -*))
+ `        \documentclass[((( nb.metadata.latex.language )))]{hzguide}        
+ `        ((*- endif -*))    
+ `    ((*- else -*))
+ `        \documentclass{hzguide}
+ `    ((*- endif -*))    
+ `        \usepackage{hzjupyter}
+ `    ((* endblock docclass *))
+ `
+ `    ((* block title *))
+ `    ((*- if nb.metadata.latex -*))
+ `        ((*- if nb.metadata.latex.title -*))
+ `        \title{((( nb.metadata.latex.title )))}
+ `        ((*- else -*))
+ `        \title{((( resources.metadata.name | ascii_only | escape_latex )))}
+ `        ((*- endif -*))
+ `    ((*- else -*))
+ `        \title{((( resources.metadata.name | ascii_only | escape_latex )))}
+ `    ((*- endif -*))
+ `    ((* endblock title *))
+ `
+ `    ((* block author *))
+ `    ((*- if nb.metadata.latex -*))
+ `        ((*- if nb.metadata.latex.author -*))
+ `        \author{((( nb.metadata.latex.author )))}
+ `        ((*- else -*))
+ `        \author{}
+ `        ((*- endif -*))
+ `    ((*- else -*))
+ `    ((*- endif -*))
+ `    ((* endblock author *))
+ `
+ `    ((* block date *))\date{}((* endblock date *))
+ `((* endblock header *))
+ `
+ `((* block body *))
+ `    \begin{document}
+ `    ((* block predoc *))
+ `    ((* block maketitle *))
+ `        \maketitle
+ `        \tableofcontents*
+ `    ((* endblock maketitle *))
+ `    ((* block abstract *))((* endblock abstract *))
+ `    ((* endblock predoc *))
+ `    ((( super() )))
+ `    ((* block postdoc *))
+ `    ((* block bibliography *))
+ `    \makeatletter
+ `    \if@hangul
+ `        \def\refname{참고 문헌}
+ `        \def\bibname{참고 문헌}
+ `    \fi
+ `    \makeatother
+ `        \bibliographystyle{apacite}
+ `        \bibliography{references}
+ `    ((* endblock bibliography *))
+ `    ((* endblock postdoc *))
+ `    \end{document}
+ `((* endblock body *))
+ `
+ `((* block input scoped *))
+ `    \begin{Verbatim}[commandchars=\\\{\}]
+ `    ((*- if resources.global_content_filter.include_input_prompt *))
+ `    ((( cell.source | highlight_code(strip_verbatim=True, metadata=cell.metadata) | add_prompts )))
+ `    ((* else *))
+ `    ((( cell.source | highlight_code(strip_verbatim=True, metadata=cell.metadata) )))
+ `    ((* endif *))
+ `    \end{Verbatim}
+ `((* endblock input *))
+ `
+ `((* block execute_result scoped *))
+ `    ((*- for type in output.data | filter_data_type -*))
+ `        ((*- if resources.global_content_filter.include_output_prompt -*))
+ `            ((*- if type in ['text/plain'] *))
+ `((( add_prompt(output.data['text/plain'], cell, 'Out') )))
+ `            ((*- else -*))
+ `\verb+Out[((( cell.execution_count )))]:+((( super() )))
+ `            ((*- endif -*))
+ `        ((*- endif -*))
+ `    ((*- endfor -*))
+ `((* endblock execute_result *))
+ `
+ `((* macro add_prompt(text, cell, prompt) -*))
+ `    ((*- if cell.execution_count is defined -*))
+ `    ((*- set execution_count = "" ~ (cell.execution_count | replace(None, " ")) -*))
+ `    ((*- else -*))
+ `    ((*- set execution_count = " " -*))
+ `    ((*- endif -*))
+ `    ((*- set indentation = " " * (execution_count | length + 7) -*))
+ `\begin{verbatim}
+ `(((- text | add_prompts(first=prompt ~ '[' ~ execution_count ~ ']: ', cont=indentation) -)))
+ `\end{verbatim}
+ `((*- endmacro *))
+code_output=nb2pdf.py
+code=
+ `import os
+ `import sys
+ `import configparser
+ `import argparse
+ `import glob 
+ `
+ `dirCalled = os.path.dirname(__file__)
+ `sys.path.append(os.path.abspath(dirCalled))
+ `from ltx import LatexCompiler
+ `
+ `class ipynb_to_pdf(object):
+ `    def __init__(self, ipynb=None):
+ `        self.ini_bool = self.initialize()
+ `        self.ipynb = ipynb
+ `
+ `    def check_template(self):
+ `        if os.path.exists(self.template):
+ `            return True
+ `        else:
+ `            print('{} is not found.'.format(self.template))
+ `            return False
+ `
+ `    def initialize(self):
+ `        inipath = os.path.dirname(__file__) 
+ `        ini = os.path.join(inipath, 'docenv.ini')
+ `        if os.path.exists(ini):
+ `            config = configparser.ConfigParser()
+ `            config.read(ini)
+ `            try:
+ `                self.template = config.get('Jupyter Template', 'latex')
+ `                self.template = os.path.join(inipath, self.template)
+ `                return self.check_template()
+ `            except:
+ `                print('Make sure to have docenv.ini set properly.')
+ `                return False
+ `        else:
+ `            print('Docenv.ini is not found.')
+ `            return False
+ `
+ `    def parse_args(self):
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Convert Jupyter notebook files (.ipynb) to PDF using nbconvert and LaTeX.'
+ `        )
+ `        parser.add_argument(
+ `            'ipynb',
+ `            nargs = '+',
+ `            help = 'Specify one or more Jupyter notebook files.'
+ `        )
+ `        parser.add_argument(
+ `            '-t',
+ `            dest = 'template',
+ `            help = 'To use another latex template, specify the path to it.'
+ `        )
+ `        args, self.compile_option = parser.parse_known_args()
+ `        self.ipynb = args.ipynb
+ `        if args.template is not None:
+ `            self.template = args.template
+ `            self.ini_bool = self.check_template()
+ `
+ `    def convert_each(self, afile):
+ `        basename, ext = os.path.splitext(afile)
+ `        if ext == '.ipynb':
+ `            tex = basename + '.tex'
+ `            # Convert to tex
+ `            cmd = 'jupyter-nbconvert --to=latex --template={} --SVG2PDFPreprocessor.enabled=True {}'.format(self.template, afile)
+ `            os.system(cmd)        
+ `            # Compile tex
+ `            if os.path.exists(tex):                
+ `                texer = LatexCompiler(tex)                
+ `                if len(self.compile_option) == 0:
+ `                     self.compile_option.append('-w')                
+ `                texer.parse_args(self.compile_option)
+ `                texer.compile()         
+ `        else:            
+ `            print('{} is not a Jupyter notebook.'.format(afile))
+ `
+ `    def convert(self):
+ `        if self.ini_bool:
+ `            for fnpattern in self.ipynb:
+ `                for afile in glob.glob(fnpattern):
+ `                    self.convert_each(afile)
+ `
+ `if __name__ == '__main__':
+ `    nb2pdf = ipynb_to_pdf()
+ `    nb2pdf.parse_args()
+ `    nb2pdf.convert()
+
+[locatepy]
+description=Pinpoint a python module.
+code_output=locatepy.py
+code=
+ `import os
+ `import sys
+ `import argparse
+ `
+ `mydir = os.path.dirname(__file__)
+ `sys.path.append(os.path.abspath(mydir))
+ `mydir = os.path.join(mydir, os.pardir)
+ `sys.path.append(os.path.abspath(mydir))
+ `from open import FileOpener
+ `
+ `parser = argparse.ArgumentParser(
+ `    description = 'Locate a python module, view its version or help, or open the file.'
+ `)
+ `parser.add_argument(
+ `    'module',
+ `    nargs = '?',
+ `    help = 'Specify a python module.'
+ `)
+ `parser.add_argument(
+ `    '-H',
+ `    dest = 'help_bool',
+ `    action = 'store_true',
+ `    default = False,
+ `    help = 'Show the help of the specified module.'
+ `)
+ `parser.add_argument(
+ `    '-v',
+ `    dest = 'version_bool',
+ `    action = 'store_true',
+ `    default = False,
+ `    help = 'Show the version of the specified module.'
+ `)
+ `parser.add_argument(
+ `    '-o',
+ `    dest = 'open_bool',
+ `    action = 'store_true',
+ `    default = False,
+ `    help = 'Open the specified module.'
+ `)
+ `args = parser.parse_args()
+ `
+ `def show_version(module):
+ `    if hasattr(module, '__version__'):
+ `        print('{}=={}'.format(module.__name__, module.__version__))
+ `    else:
+ `        print("{}'s version is not specified".format(module.__name__))    
+ `
+ `if args.module is None:
+ `    parser.print_help()
+ `    sys.exit()
+ `
+ `try:
+ `    module = __import__(args.module)
+ `except:
+ `    print('{} is not found.'.format(args.module))
+ `    sys.exit()
+ `
+ `if args.version_bool:
+ `    show_version(module)
+ `elif args.help_bool:
+ `    help(module)
+ `elif args.open_bool:
+ `    opener = FileOpener()
+ `    opener.OpenTxt(module.__file__)
+ `else:
+ `    print(module.__file__)
+
+[pyas]
+description=Alternatively associate with cPython or WinPython.
+code_output=pyas.ps1
+code=
+ `[Cmdletbinding()]
+ `param
+ `(  
+ `    [alias("c")][switch] $cPython = $false,
+ `    [alias("w")][switch] $WinPython = $false
+ `)
+ `
+ `$curPython = cmd /c ftype Python.File 
+ `if ($cPython) {
+ `    if ( -not ($curPython -eq "Python.File=C:\Users\yihoze\AppData\Local\Programs\Python\Python38\python.exe %%1 %%*") )
+ `    {
+ `        start-process powershell -Verb runAS "cmd /c ftype Python.File=`"C:\Users\yihoze\AppData\Local\Programs\Python\Python38\python.exe`" `"%%1`" %%*"
+ `    }
+ `} elseif ($WinPython) {    
+ `    if ( -not ($curPython -eq "Python.File=C:\WinPython-64bit-3.5.4.1Qt5\python-3.5.4.amd64\python.exe %%1 %%*") ) 
+ `    {
+ `        start-process powershell -Verb runAS "cmd /c ftype Python.File=`"C:\WinPython-64bit-3.5.4.1Qt5\python-3.5.4.amd64\python.exe`" `"%%1`" %%*"
+ `    }
+ `} else {    
+ `    write-host $curPython
+ `}
+
+[pyto]
+description=Alternatively add cPython or WinPython to the PATH.
+code_output=pyto.ps1
+code=
+ `[Cmdletbinding()]
+ `param
+ `(  
+ `    [alias("w")][switch] $WinPython = $false
+ `)
+ `
+ `if ($WinPython) 
+ `{
+ `    C:\WinPython-64bit-3.5.4.1Qt5\scripts\WinPython_PS_Prompt.ps1
+ `} 
+ `else 
+ `{
+ `    $env:path = "C:\Users\yihoze\AppData\Local\Programs\Python\Python38;C:\Users\yihoze\AppData\Local\Programs\Python\Python38\Scripts;C:\home\bin\pandoc;$env:path"
+ `}
+ `chcp 65001
+ `$env:path.split(";")
+ `python -V
+
+[exrate]
+description=Get currency exchange rates.
+code_output=exrate.py
+code=
+ `import urllib.request
+ `from bs4 import BeautifulSoup
+ `import argparse
+ `import re
+ `import unicodedata
+ `
+ `class ExchangeRate(object):
+ `
+ `    def __init__(self, amount=1.0, currency='USD', list=False):
+ `        self.amount = amount
+ `        self.currency = currency
+ `        self.list_bool = list
+ `        
+ `        URL = 'https://finance.naver.com/marketindex/exchangeDetail.nhn?marketindexCd=FX_USDKRW'
+ `        page = urllib.request.urlopen(URL)
+ `        self.soup = BeautifulSoup(page, 'html.parser')  
+ `
+ `        # getting currencies from <select>
+ `        lines = ''        
+ `        for i in self.soup.find_all('option'):              
+ `            lines = lines + str(i) + '\n'        
+ `        p = re.compile('>(.+?)<')
+ `        found = p.findall(lines)
+ `        i = 0
+ `        while i < len(found):
+ `            found[i] = found[i].strip()
+ `            i += 1
+ `        found = set(found)
+ `        self.currencies = {}
+ `        for i in found:
+ `            words = i.split()
+ `            self.currencies[words[-1]] = i
+ `
+ `    def parse_args(self):
+ `        parser = argparse.ArgumentParser(
+ `            description = 'View exchage rates.'
+ `        )
+ `        parser.add_argument(
+ `            'amount',
+ `            nargs = '?',
+ `            type = float,
+ `            default = 1.0,
+ `            help = 'Specify an amount.'
+ `        )
+ `        parser.add_argument(
+ `            dest = 'currency',
+ `            nargs = '?',
+ `            default = 'USD',
+ `            help = 'specify a currency. (default: USD) '
+ `        )
+ `        parser.add_argument(
+ `            '-l',
+ `            dest = 'list',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Show the ist of currencies.'
+ `        )        
+ `        args = parser.parse_args()
+ `        self.amount = args.amount
+ `        self.currency = args.currency
+ `        self.list_bool = args.list
+ `
+ `    def align_string(self, string: str, width: int):
+ `        nfc_string = unicodedata.normalize('NFC', string)        
+ `        wide_chars = [unicodedata.east_asian_width(c) for c in nfc_string]
+ `        num_wide_chars = sum(map(wide_chars.count, ['W', 'F']))        
+ `        width = max(width - num_wide_chars, num_wide_chars)
+ `        return '{:{w}}'.format(nfc_string, w=width)     
+ `
+ `    def show_currencies(self, columns=2):
+ `        currencies = sorted(self.currencies.keys()) 
+ `        cur_countries = []
+ `        for i in currencies:
+ `            country = self.currencies[i]
+ `            # Removing 'CNY' from '중국 위안 CNY'
+ `            country = country.rsplit(' ', 1)[0]            
+ `            country = self.align_string(country, 25) 
+ `            cur_countries.append('{0}: {1}'.format(i, country))
+ `        cnt = 0
+ `        line = ''
+ `        for i in cur_countries:
+ `            line += i
+ `            cnt += 1
+ `            if cnt == columns:
+ `                print(line)
+ `                line = ''
+ `                cnt = 0
+ `        if line != '':
+ `            print(line)
+ `
+ `    def calcurate(self):
+ `        self.currency = self.currency.upper()
+ `        try:
+ `            exchange_rate = self.soup.find('option', text=self.currencies[self.currency]).attrs['value']
+ `        except:
+ `            print('Make sure the currency abbreviation is correct.')
+ `            return
+ `        basis = self.soup.find('option', text=self.currencies[self.currency]).attrs['label']
+ `        
+ `        # foreign : KRW for the basis
+ `        exchange_rate = float(exchange_rate)
+ `        basis = float(basis)
+ `        won = basis * exchange_rate
+ `        won = '{:,.2f}'.format(won)
+ `        basis = '{:,.2f}'.format(basis)
+ `        print('{} {} = {} KRW'.format(basis, self.currency, won))
+ `        
+ `        # foreign : KRW for the given
+ `        won_amount = self.amount * exchange_rate
+ `        foreign_amount = self.amount
+ `        won_amount = '{:,.2f}'.format(won_amount)
+ `        foreign_amount = '{:,.2f}'.format(foreign_amount)
+ `        print('{} {} = {} KRW'.format(foreign_amount, self.currency, won_amount))
+ `        
+ `        # KRW : foreign for the given
+ `        won_amount = self.amount
+ `        foreign_amount = self.amount / exchange_rate
+ `        won_amount = '{:,.2f}'.format(won_amount)
+ `        foreign_amount = '{:,.2f}'.format(foreign_amount)
+ `        print('{} KRW = {} {}'.format(won_amount, foreign_amount, self.currency))
+ `
+ `if __name__ == '__main__':
+ `    exrate = ExchangeRate()
+ `    exrate.parse_args()
+ `    if exrate.list_bool:
+ `        exrate.show_currencies()
+ `    else:
+ `        exrate.calcurate()
+
+[elecrate]
+description=Calculate electricity bills.
+code_output=elecrate.py
+code=
+ `import argparse
+ `
+ `class ElectricityRate(object):
+ `
+ `    def __init__(self, power=0, summer=False):
+ `
+ `        self.power = power
+ `        self.summer_bool = summer
+ `
+ `        # 부가세
+ `        self.tax_rate = 0.1
+ `        # 전력 기금
+ `        self.endowment_rate = 0.037
+ `        
+ `
+ `    def determine_rate(self):
+ `
+ `        self.accumulated_sections = {} 
+ `
+ `        if self.summer_bool:
+ `            self.range_interval = 150
+ `            # 구간
+ `            self.rate_ranges = [300, 450, 451]
+ `            # 기본 요금
+ `            self.base_sections = { 300:910, 450:1600, 451:7300 }
+ `            # 전력량 요금
+ `            self.rate_sections = { 300:93.3, 450:187.9, 451:280.6 }
+ `        else:
+ `            self.range_interval = 200
+ `            self.rate_ranges = [200, 400, 401]
+ `            self.base_sections = { 200:910, 400:1600, 401:7300 }
+ `            self.rate_sections = { 200:93.3, 400:187.9, 401:280.6 }
+ `
+ `        preceding = 0
+ `        difference = 0
+ `        accumulation = 0
+ `        for i in range( len(self.rate_ranges)-1 ):
+ `            limit = self.rate_ranges[i]            
+ `            difference = limit - preceding
+ `            preceding = limit
+ `            accumulation += difference * self.rate_sections[limit]             
+ `            self.accumulated_sections[limit] = accumulation
+ `                
+ `    def parse_args(self):
+ `
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Electricity bill calculator'
+ `        )
+ `
+ `        parser.add_argument(
+ `            'power',
+ `            nargs = '+',
+ `            type = int,
+ `            help = 'Specify an amount of electrical power.'
+ `        )
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'summer',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Apply the summer rate.'
+ `        )
+ `
+ `        args = parser.parse_args()
+ `        self.power = args.power
+ `        self.summer_bool = args.summer
+ `        self.determine_rate()
+ `
+ `    def calculate(self):
+ `        
+ `        section = 0
+ `        remainder = 0
+ `        bottom = self.rate_ranges[0]
+ `        top = self.rate_ranges[-1]
+ `
+ `        for power in self.power:            
+ `            if power <= bottom:
+ `                result = power * self.rate_sections[bottom]
+ `                result += self.base_sections[bottom]
+ `            else:
+ `                section = power//self.range_interval * self.range_interval
+ `                if section >= top:
+ `                    section = self.rate_ranges[-2]
+ `                remainder = power - section
+ `                result = self.accumulated_sections[section]
+ `                
+ `                section += self.range_interval
+ `                if section >= top:
+ `                    section = self.rate_ranges[-2]
+ `                result += remainder * self.rate_sections[section] 
+ `                result += self.base_sections[section]
+ `
+ `            result = int(result) + round(result * self.tax_rate) + int(result * self.endowment_rate / 10)*10
+ `            result = int(result/10) * 10
+ `            print('{} kWh: ₩{:,}'.format(power, result))
+ `
+ `if __name__ == '__main__':
+ `    eRate = ElectricityRate()
+ `    eRate.parse_args()
+ `    eRate.calculate()
+
+[taxrate]
+description=Calculate income tax.
+code_output=taxrate.py
+code=
+ `import argparse
+ `import numpy as np
+ `from collections import OrderedDict
+ `import matplotlib.pyplot as plt
+ `from matplotlib import rc
+ `rc('font', family="Noto Sans CJK KR")
+ `
+ `class TaxRate(object):
+ `    
+ `    def __init__(self, salary=0, show=False, plot=False):
+ `
+ `        self.salary = salary
+ `        self.show_bool = show
+ `        self.plot_bool = plot
+ `
+ `        # 1200만 원 초과 ~ 4600만 원 이하: 15%%
+ `        # self.rate_sections = OrderedDict({1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 50001:42})
+ `        # to be compatible with WinPython
+ `        self.rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 50001:42}
+ `        self.rate_sections = OrderedDict(sorted(self.rate_sections.items()))
+ `        self.accumulated_sections = {} 
+ `        self.initialize()
+ `
+ `    def initialize(self):
+ `
+ `        accumulated = 0
+ `        preceding = 0
+ `        for limit in self.rate_sections:
+ `            if preceding == 0:
+ `                self.accumulated_sections[limit] = 0
+ `            else:        
+ `                self.accumulated_sections[limit] = int(accumulated)
+ `            rate = self.rate_sections[limit]
+ `            accumulated = accumulated + ((limit - preceding) * rate/100)
+ `            preceding = limit
+ `
+ `    def parse_args(self):
+ `
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Calculate income tax.'
+ `        )
+ `        parser.add_argument(
+ `            'salary',
+ `            nargs = '?',
+ `            type = int,
+ `            default = 0,
+ `            help = 'Specify an amount of salary in unit of 10,000.'
+ `        )
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'show',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Dispay rate sections by income.'
+ `        )
+ `        parser.add_argument(
+ `            '-p',
+ `            dest = 'plot',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Draw a bar plot for rate sections.'
+ `        )
+ `        args = parser.parse_args()
+ `        self.salary = args.salary
+ `        self.show_bool = args.show
+ `        self.plot_bool = args.plot
+ `
+ `    def rate_section_show(self):
+ `
+ `        if self.show_bool is True:
+ `            self.rate_section_itemize()
+ `        if self.plot_bool is True:
+ `            self.rate_section_draw()
+ `
+ `    def rate_section_itemize(self):
+ `
+ `        for limit in self.rate_sections:
+ `            if limit == 50001:
+ `                salary = '{:,}'.format(preceding)
+ `                print(" Over {:6}: {} %%%%".format(salary, self.rate_sections[limit]))
+ `            else:
+ `                salary = '{:,}'.format(limit)
+ `                print("Up to {:>6}: {:>2} %%%%".format(salary, self.rate_sections[limit]))
+ `                preceding = limit    
+ `
+ `    def rate_section_draw(self):
+ `
+ `        sections, rates = [], []
+ `        for limit in self.rate_sections:
+ `            if limit == 50001:
+ `                salary = '>'+'{:,}'.format(preceding)
+ `                sections.append(salary)
+ `            else:
+ `                salary = '≤'+'{:,}'.format(limit)
+ `                sections.append(salary)
+ `                preceding = limit
+ `            rates.append(self.rate_sections[limit])
+ `        x = np.arange(len(self.rate_sections))
+ `        plt.bar(x,rates)
+ `        plt.xticks(x, sections)    
+ `        plt.xlabel('연봉(만 원)')
+ `        plt.ylabel('세율(%%)')
+ `        plt.title('소득세')
+ `        plt.show()
+ `
+ `    def calculate_tax(self, salary):
+ `
+ `        corresponding = 0
+ `        for limit in self.rate_sections:
+ `            if salary > limit:
+ `                if limit == 50001:
+ `                    preceding = corresponding
+ `                corresponding = limit
+ `            else:
+ `                preceding = corresponding
+ `                corresponding = limit
+ `                break
+ `        accumulated = self.accumulated_sections[corresponding]
+ `        rate = self.rate_sections[corresponding]
+ `        tax = accumulated + ((salary - preceding) * rate/100)
+ `        return tax
+ `
+ `    def display_pay(self, salary):
+ `
+ `        tax = self.calculate_tax(salary)
+ `        actual_rate = tax * 100 / salary
+ `        monthly_pay = salary/12
+ `        monthly_tax = monthly_pay * actual_rate / 100
+ `        post_tax_pay = monthly_pay - monthly_tax    
+ `        
+ `        output = '''Salary: {}
+ `Tax: {}
+ `Actual tax rate: {:.2f}%%
+ `Monthly pay: {:.1f}
+ `Monthly tax: {:.1f}
+ `Post-tax pay: {:.1f}
+ `            '''.format(salary, tax, actual_rate, monthly_pay, monthly_tax, post_tax_pay)
+ `        print(output)
+ `        self.rate_section_show()
+ `
+ `if __name__=="__main__":    
+ `    taxrate = TaxRate()
+ `    taxrate.parse_args()
+ `    if taxrate.salary == 0:
+ `        if taxrate.show_bool or taxrate.plot_bool:
+ `            taxrate.rate_section_show()
+ `    else:
+ `        taxrate.display_pay(taxrate.salary)
+
+[shortcut]
+description=Create a shortcut into a favorite directory.
+code_output=shortcut.py
+code=
+ `# Install pywin32 to use win32com 
+ `import os
+ `import sys
+ `import glob
+ `import argparse
+ `import winshell
+ `from win32com.client import Dispatch 
+ `
+ `
+ `class ShortcutToFavorite(object):
+ `
+ `    def __init__(self, files=None, destination=r'C:\Users\yihoze\Favorites\링크', show=False):
+ `        self.files = files
+ `        self.destination = destination
+ `        self.show_bool = show
+ `
+ `
+ `    def parse_args(self):
+ `
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Create a shortcut into a favorite or specific directory.'
+ `        )
+ `        parser.add_argument(
+ `            'files',
+ `            nargs = '*',
+ `            help = 'Specify a file or more to create their shortcuts.'
+ `        )
+ `        parser.add_argument(
+ `            '-d',
+ `            dest = 'destination',
+ `            default = r'C:\Users\yihoze\Favorites\링크',
+ `            help = 'Specify a directory where to create shortcuts for specified files.'
+ `        )  
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'show',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Show the destination directory.'
+ `        )    
+ `
+ `        args = parser.parse_args()
+ `
+ `        self.files = args.files        
+ `        self.destination = args.destination
+ `        self.show_bool = args.show
+ `
+ `
+ `    def create_shortcut(self):
+ `
+ `        shell = Dispatch('WScript.Shell')
+ `        for fnpattern in self.files:
+ `            for afile in glob.glob(fnpattern):
+ `                target_path = os.path.abspath(afile)
+ `                filename = os.path.basename(afile) + '.lnk'
+ `                shortcut_path = os.path.join(self.destination, filename)
+ `                shortcut = shell.CreateShortCut(shortcut_path)
+ `                shortcut.Targetpath = target_path
+ `                shortcut.save()
+ `
+ `
+ `if __name__ == '__main__':
+ `    shortcut = ShortcutToFavorite()
+ `    shortcut.parse_args()
+ `    if shortcut.show_bool:
+ `        print(shortcut.destination)
+ `    else:
+ `        shortcut.create_shortcut()
+
+[filename]
+description=Change file names partly.
+code_output=filename.py
+code=
+ `import os
+ `import sys
+ `import argparse
+ `import glob
+ `import re
+ `import shutil
+ `from datetime import datetime
+ `import exifread
+ `
+ `class FileNamer(object):
+ `
+ `    def __init__(self):
+ `
+ `        now = datetime.now()
+ `        self.suffix = now.strftime('_%%Y-%%m-%%d')
+ `
+ `
+ `    def parse_args(self):
+ `
+ `        parser = argparse.ArgumentParser(
+ `            description = 'Append a date or suffix to file names'
+ `        )
+ `        parser.add_argument(
+ `            'files',
+ `            nargs = '+',
+ `            help = 'Specify one or more files'
+ `        )
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'suffix',
+ `            help = 'Specify a date or suffix. The dafult is the current date.'
+ `        )
+ `        parser.add_argument(
+ `            '-r',
+ `            dest = 'remove',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Remove a suffix from file names.'
+ `        )
+ `        parser.add_argument(
+ `            '-n',
+ `            dest = 'nospace',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Remove spaces from file names.'
+ `        )
+ `        parser.add_argument(
+ `            '-U',
+ `            dest = 'uppercase',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Rename files to uppercase.'
+ `        )
+ `        parser.add_argument(
+ `            '-L',
+ `            dest = 'lowercase',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Rename files to lowercase.'
+ `        )
+ `        parser.add_argument(
+ `            '-l',
+ `            dest = 'ext_lowercase',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Change file extension to lowercase.'
+ `        )
+ `        parser.add_argument(
+ `            '-c',
+ `            dest = 'copy_destination',
+ `            default = False,
+ `            help = 'Copy fiels from multiple folders to one folder.'
+ `        )
+ `        parser.add_argument(
+ `            '-d',
+ `            dest = 'original_date',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = "Extracting from the metadata, change image file names to their creation dates."
+ `        )
+ `        self.args = parser.parse_args()
+ `        if self.args.suffix is not None:
+ `            self.suffix = self.args.suffix
+ `
+ `
+ `    def rename_uppercase(self):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                filename = os.path.splitext(afile)
+ `                newname = filename[0].upper() +  filename[1].upper()
+ `                os.rename(afile, newname)
+ `
+ `
+ `    def rename_lowercase(self, extension=False):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                filename = os.path.splitext(afile)
+ `                if not extension:
+ `                    newname = filename[0].lower() +  filename[1].lower()
+ `                else:
+ `                    newname = filename[0] +  filename[1].lower()
+ `                os.rename(afile, newname)
+ `
+ `
+ `    def append_suffix(self):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                filename = os.path.splitext(afile)
+ `                newname = filename[0] + self.suffix + filename[1]
+ `                os.rename(afile, newname)
+ `
+ `
+ `    def remove_suffix(self):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                newname = re.sub(self.suffix, '', afile)
+ `                os.rename(afile, newname)
+ `
+ `
+ `    def remove_spaces(self):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                if afile.count(' ') > 0:
+ `                    newname = re.sub(' ', '', afile)
+ `                    if os.path.exists(newname):
+ `                        os.remove(newname)
+ `                    os.rename(afile, newname)
+ `
+ `
+ `    def get_subdirs(self, fnpattern):
+ `
+ `        curdir = os.path.dirname(fnpattern)
+ `        if curdir == '':
+ `            curdir = '.'
+ `        return([x[0] for x in os.walk(curdir)])
+ `
+ `
+ `    def rename_to_original_date(self):
+ `
+ `        for fnpattern in self.args.files:
+ `            for afile in glob.glob(fnpattern):
+ `                try:
+ `                    with open(afile, 'rb') as f:
+ `                        tags = exifread.process_file(f, stop_tag='EXIF DateTimeOriginal')
+ `                        date = str(tags['EXIF DateTimeOriginal'])[:10]
+ `                        date = date.replace(':', '-')
+ `                # if no EXIF data is found, the last modified date is used.
+ `                except:
+ `                    date = datetime.fromtimestamp(os.path.getmtime(afile))
+ `                    date = date.strftime('%%Y-%%m-%%d')
+ `
+ `                newname = self.date_increment(date, os.path.splitext(afile)[1])
+ `                os.rename(afile, newname)
+ `
+ `
+ `    def date_increment(self, filename, ext):
+ `
+ `        cnt = 0
+ `        basename = filename + ext
+ `        while os.path.exists(basename):
+ `            cnt += 1
+ `            basename = filename + "_" + str(cnt) + ext
+ `        return basename
+ `
+ `
+ `    def copy_into(self):
+ `
+ `        if not os.path.exists(self.args.copy_destination):
+ `            answer = input('The {} folder is not found. If you want to create it, Enter Y. ' .format(self.args.copy_destination))
+ `            if (answer.lower() == 'y'):
+ `                os.mkdir(self.args.copy_destination)
+ `            else:
+ `                return False
+ `        for fnpattern in self.args.files:
+ `            basename = os.path.basename(fnpattern)
+ `            subdirs = self.get_subdirs(fnpattern)
+ `            for subdir in subdirs:
+ `                subfile = os.path.join(subdir, basename)
+ `                for afile in glob.glob(subfile):
+ `                    shutil.copy(afile, self.args.copy_destination)
+ `
+ `
+ `    def determine_task(self):
+ `
+ `        if self.args.nospace:
+ `            self.remove_spaces()
+ `        elif self.args.uppercase:
+ `            self.rename_uppercase()
+ `        elif self.args.lowercase:
+ `            self.rename_lowercase()
+ `        elif self.args.ext_lowercase:
+ `            self.rename_lowercase(extension=True)
+ `        elif self.args.remove:
+ `            self.remove_suffix()
+ `        elif self.args.copy_destination:
+ `            self.copy_into()
+ `        elif self.args.original_date:
+ `            self.rename_to_original_date()
+ `        else:
+ `            self.append_suffix()
+ `
+ `
+ `if __name__ == '__main__':
+ `    fn = FileNamer()
+ `    fn.parse_args()
+ `    fn.determine_task()
+
+[lotto]
+description=Pick lotto numbers or permute letters.
+code_output=lotto.py
+code=
+ `# How to download nltk packages:
+ `# >>> import nltk
+ `# >>> nltk.download()
+ `# Then the NLTKDownloader window appears.
+ `# Click the All Packages tab, scroll down to the wordnet item, and then click the Download button
+ `# Scroll down to the words item, and click the Download button
+ `
+ `import os
+ `import sys
+ `import argparse
+ `from random import randint
+ `from itertools import permutations
+ `from itertools import combinations
+ `from nltk.corpus import wordnet
+ `# from nltk.corpus import words 
+ `
+ `dirCalled = os.path.dirname(__file__)
+ `sys.path.append(os.path.abspath(dirCalled))
+ `from mytex import LatexTemplate
+ `
+ `class Lotto(object):
+ `
+ `    def __init__(self, 
+ `    letters=None, combination=None, wordnet=False, number=False, frequency=5, pdf=False, weeks=8):
+ `        self.letters = letters
+ `        self.combination = combination
+ `        self.number_bool = number
+ `        self.wordnet_bool = wordnet
+ `        self.frequency = frequency
+ `        self.pdf_bool = pdf
+ `        self.weeks = weeks
+ `
+ `    def parse_args(self):
+ `
+ `        example = '''examples:
+ `    lotto.py -f 10 -p -w 20
+ `        Lotto numbers are picked at random.
+ `        With "-f 10", 10 set of lotto numbers are presented.
+ `        With "-p", lotto numbers are printed in PDF. This requires TeX Live.            
+ `        With "-w 20", lotto numbers are presented for coming 20 weeks.
+ `        This is available only with "-p".
+ `    lotto.py -c 3-4 -W -n 12ab가나
+ `        These characters are permuted.
+ `        With "-c 3-4", characters are selected within the specified range 
+ `            and each set is permuted.
+ `        With "-c 2", characters are selected from the specified number 
+ `            up to the length of the given characters.
+ `        With "-W", only meaningful words among the results are displayed.
+ `    lotto.py -n [...]
+ `        Each result is numbered.
+ `    '''
+ `
+ `        parser = argparse.ArgumentParser(
+ `            epilog = example,  
+ `            formatter_class = argparse.RawDescriptionHelpFormatter,
+ `            description = 'Pick lotto numbers or permute letters.'
+ `        )
+ `        parser.add_argument(
+ `            'letters',
+ `            type = str,
+ `            nargs = '?',
+ `            help = 'Type characters without space for permutation or nothing for lotto.'
+ `        )
+ `        parser.add_argument(
+ `            '-c',
+ `            dest = 'combination',   
+ `            default = None,
+ `            help = 'Specify a range of combination.'
+ `        )        
+ `        parser.add_argument(
+ `            '-n',
+ `            dest = 'number',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Show results with numbers.'
+ `        )
+ `        parser.add_argument(
+ `            '-W',
+ `            dest = 'wordnet',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Show only meaningful words. Note that it takes a rather long time.'
+ `        )
+ `        parser.add_argument(
+ `            '-f',
+ `            dest = 'frequency',
+ `            type = int,
+ `            default = 5,
+ `            help = 'Specify how many times to pick numbers for lotto. (default: 5)'
+ `        )
+ `        parser.add_argument(
+ `            '-p',
+ `            dest = 'pdf',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Print lotto numbers in PDF using XeLaTeX.'
+ `        )
+ `        parser.add_argument(
+ `            '-w',
+ `            dest = 'weeks',
+ `            default = '8',
+ `            help = 'Specify how many weeks to print for lotto. (default: 8)'
+ `        )
+ `        args = parser.parse_args()
+ `        self.letters = args.letters
+ `        self.combination = args.combination
+ `        self.number_bool = args.number
+ `        self.wordnet_bool = args.wordnet
+ `        self.frequency = args.frequency
+ `        self.pdf_bool = args.pdf
+ `        self.weeks = args.weeks        
+ `
+ `
+ `    def determine_task(self):
+ `
+ `        if self.letters is None:
+ `            self.run_lotto()
+ `        else:
+ `            self.letters = self.letters.upper()
+ `            if self.combination is not None:     
+ `                cnt = self.combination 
+ `                cnt = self.combination.split('-')
+ `                try:
+ `                    if len(cnt) == 1:
+ `                        start = int(cnt[0])                
+ `                        end = len(self.letters)
+ `                    elif len(cnt) == 2:
+ `                        start = int(cnt[0])
+ `                        end = int(cnt[1])
+ `                except:
+ `                    print('Wrong combination range')
+ `                    return False           
+ `                if start > end:
+ `                    start = end
+ `                if start < 2:
+ `                    start = 2
+ `                if end > len(self.letters):
+ `                    end = len(self.letters)
+ `                self.display_results(self.run_combinations(self.letters, start, end))                
+ `            else:
+ `                self.display_results(self.run_permutations(self.letters))
+ `
+ `
+ `    def run_lotto(self):
+ `
+ `        m, n = 6, 45
+ `        balls = []
+ `        cnt = 0
+ `        while cnt < self.frequency:
+ `            balls.clear()
+ `            for i in range(n-m+1, n+1):
+ `                drawn = randint(1, i) 
+ `                if drawn in balls:
+ `                    balls.append(i)
+ `                else:
+ `                    balls.append(drawn)
+ `            balls.sort()            
+ `            for index, value in enumerate(balls):
+ `                balls[index] = '{:>2}'.format(str(value))
+ `            cnt += 1
+ `            result = ', '.join(balls)
+ `            if self.number_bool:
+ `                print('{:2d}: {}'.format(cnt, result))
+ `            else:
+ `                print(result)
+ `
+ `
+ `    def run_combinations(self, letters, start, end):
+ `
+ `        letters = list(letters)               
+ `        perms = []
+ `        while start <= end:
+ `            combs = combinations(letters, start)
+ `            for i in list(combs):
+ `                perms.extend(self.run_permutations(''.join(i)))
+ `            start += 1
+ `        return perms
+ `
+ `
+ `    def run_permutations(self, letters):
+ `
+ `        letters = list(letters)
+ `        return list(permutations(letters))        
+ `
+ `    def display_results(self, results):
+ `
+ `        for index, value in enumerate(results):
+ `            results[index] = ''.join(value)
+ `        results = set(results)
+ `
+ `        if self.wordnet_bool:
+ `            picked = []
+ `            for i in results:
+ `                if wordnet.synsets(i):
+ `                    picked.append(i)
+ `            results = picked        
+ `
+ `        results = sorted(results)
+ `        if self.number_bool:
+ `            digits = len(results)
+ `            digits = len(str(digits))
+ `            if self.combination is not None:
+ `                results = sorted(results, key=len)
+ `                for index, value in enumerate(results):
+ `                    print('{}.{:{d}}: {}'.format(len(value), index+1, value, d=digits))
+ `            else:
+ `                for index, value in enumerate(results):
+ `                    print('{:{d}}: {}'.format(index+1, value, d=digits))
+ `        else:
+ `            if self.combination is not None:
+ `                results = sorted(results, key=len)
+ `                letters = len(results[0])
+ `                comb = []
+ `                for i in results:
+ `                    if letters == len(i):
+ `                        comb.extend([i])
+ `                    else:    
+ `                        comb = sorted(comb)                    
+ `                        print('{} letters: {}'.format(letters, ', '.join(comb)))
+ `                        letters = len(i)
+ `                        comb = [i] 
+ `                print('{} letters: {}'.format(letters, ', '.join(comb)))
+ `            else:                
+ `                print(', '.join(results))
+ `
+ `
+ `    def generate_pdf(self):
+ `
+ `        if self.letters is None:
+ `            mytex = LatexTemplate(template='lotto', substitutes=[self.weeks, str(self.frequency)])
+ `        else:
+ `            mytex = LatexTemplate(template='permute', substitutes=[self.letters])
+ `        if mytex.ini_bool:
+ `            mytex.make()    
+ `
+ `if __name__ == '__main__':
+ `    lotto = Lotto()
+ `    lotto.parse_args()
+ `    if lotto.pdf_bool:
+ `        lotto.generate_pdf()
+ `    else:
+ `        lotto.determine_task()
+
+[userpath]
+description=View the PATH environment variable.
+code_output=userpath.ps1
+code=
+ `# userpath.ps1 -a "C:\Program Files\Python37\"
+ `
+ `[Cmdletbinding()]
+ `param
+ `(
+ `  [alias("a")][switch] $append_bool = $false,
+ `  [alias("r")][switch] $remove_bool = $false,
+ `  [alias("s")][switch] $set_bool = $false,
+ `  [alias("c")][switch] $admin_bool = $false,
+ `  [alias("p")][switch] $system_properties_bool = $false,
+ `  [alias("h")][switch] $help = $false,
+ `  [String] $directory
+ `)
+ `
+ `function help()
+ `{
+ `  write-output "
+ `  View the local PATH environment variable.
+ `  Usage:
+ `    userpath.ps1 [option] [directory]
+ `  Options:
+ `    -a: Append to the PATH
+ `    -r: Remove from the PATH
+ `    -s: Set to the PATH
+ `    -p: Open the System Properties window
+ `    -c: Check if running as administrator
+ `    -h: help
+ `  "
+ `}
+ `
+ `function CheckLocalAdmin()
+ `{
+ `  $result  = ([security.principal.windowsprincipal][security.principal.windowsidentity]::GetCurrent()).isinrole([Security.Principal.WindowsBuiltInRole] "Administrator")
+ `  If ($result) {
+ `    write-output "Running as administrator"
+ `  } else {
+ `    write-output "NOT Running as administrator"
+ `  }
+ `}
+ `
+ `function GetLocalPath()
+ `{
+ `  write-output ""
+ `  $env:path.split(";")
+ `  write-output ""
+ `}
+ `
+ `function AppendLocalPath()
+ `{
+ `  if (!(TEST-PATH $directory)) {
+ `    write-output "'$directory' does not Exist, cannot be added to the PATH."
+ `    return
+ `  }
+ `  $PathasArray = ($Env:PATH).split(';')
+ `  if ($PathasArray -contains $directory -or $PathAsArray -contains $directory+'\') {
+ `    write-output "'$Directory' is already in the PATH."
+ `    return
+ `  }
+ `  If (!($directory[-1] -match '\\')) {
+ `    $directory  =  $directory + '\'
+ `  }
+ `  $env:path  =  $directory + ";" + $env:path
+ `  GetLocalPath
+ `}
+ `
+ `function RemoveLocalPath()
+ `{
+ `  If ( $env:path.split(';') -contains $directory ) {
+ `    $env:path = $env:path.replace($directory,$NULL)
+ `    $env:path = $env:path.replace(';;',';')
+ `  }
+ `  GetLocalPath
+ `}
+ `
+ `function SetLocalPath()
+ `{
+ `  $env:path  =  $directory
+ `  GetLocalPath
+ `}
+ `
+ `if ($help) { help; break }
+ `if ($admin_bool) { CheckLocalAdmin; break }
+ `if ($system_properties_bool) { control.exe sysdm.cpl,System,3; break }
+ `if (! $directory) { GetLocalPath; break }
+ `if ($append_bool) { AppendLocalPath; break }
+ `if ($remove_bool) { RemoveLocalPath; break }
+ `if ($set_bool) { SetLocalPath; break }
+
+[tabexp]
+description=TabExpansion2 modified for PowerShell
+code_output=tabexp.ps1
+code=
+ `Function TabExpansion2 {
+ `    [CmdletBinding(DefaultParameterSetName = 'ScriptInputSet')]
+ `    Param(
+ `        [Parameter(ParameterSetName = 'ScriptInputSet', Mandatory = $true, Position = 0)]
+ `        [string] $inputScript,
+ `
+ `        [Parameter(ParameterSetName = 'ScriptInputSet', Mandatory = $true, Position = 1)]
+ `        [int] $cursorColumn,
+ `
+ `        [Parameter(ParameterSetName = 'AstInputSet', Mandatory = $true, Position = 0)]
+ `        [System.Management.Automation.Language.Ast] $ast,
+ `
+ `        [Parameter(ParameterSetName = 'AstInputSet', Mandatory = $true, Position = 1)]
+ `        [System.Management.Automation.Language.Token[]] $tokens,
+ `
+ `        [Parameter(ParameterSetName = 'AstInputSet', Mandatory = $true, Position = 2)]
+ `        [System.Management.Automation.Language.IScriptPosition] $positionOfCursor,
+ `
+ `        [Parameter(ParameterSetName = 'ScriptInputSet', Position = 2)]
+ `        [Parameter(ParameterSetName = 'AstInputSet', Position = 3)]
+ `        [Hashtable] $options = $null
+ `    )
+ `
+ `    End
+ `    {
+ `        $source = $null
+ `        if ($psCmdlet.ParameterSetName -eq 'ScriptInputSet')
+ `        {
+ `            $source = [System.Management.Automation.CommandCompletion]::CompleteInput(
+ `                <#inputScript#>  $inputScript,
+ `                <#cursorColumn#> $cursorColumn,
+ `                <#options#>      $options)
+ `        }
+ `        else
+ `        {
+ `            $source = [System.Management.Automation.CommandCompletion]::CompleteInput(
+ `                <#ast#>              $ast,
+ `                <#tokens#>           $tokens,
+ `                <#positionOfCursor#> $positionOfCursor,
+ `                <#options#>          $options)
+ `        }
+ `        $field = [System.Management.Automation.CompletionResult].GetField('completionText', 'Instance, NonPublic')
+ `        $source.CompletionMatches | ForEach-Object {
+ `            $item = $_.CompletionText
+ `            $ext = [io.path]::GetExtension($item)
+ `            $cnt = ($item.ToCharArray() | Where-Object {$_ -eq '\'} | Measure-Object).Count
+ `            # write-host $item, $cnt
+ `            # only at the current directory
+ `            if ($item.StartsWith('.\')) {
+ `                if ($cnt -eq 1) {            
+ `                    If ($ext -ne '.cmd' -and $ext -ne '.bat' -and $ext -ne '.ps1' -and $ext -ne '.py' -and $ext -ne '.exe') {
+ `                        $field.SetValue($_, [io.path]::GetFileName($_.CompletionText))                    
+ `                    }
+ `                }
+ `            }                        
+ `        }
+ `        Return $source
+ `    }    
+ `}
+
+[tlconf]
+description=TeX Live Configurator
+environment_output=docenv.ini
+environment=
+ `# for ltx.py
+ `[LaTeX]
+ `compiler = lualatex.exe
+ `; compiler = xelatex.exe
+ `
+ `# for iu.py 
+ `[ImageMagick]
+ `path = C:\Program Files\ImageMagick-7.0.9-Q16\magick.exe
+ `[Inkscape]
+ `path = C:\Program Files\Inkscape\inkscape.com
+ `
+ `# for tlconf.py
+ `[TeX Live]
+ `texmflocal = C:\texlive\texmf-local\tex\latex\local
+ `repository = http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
+ `TEXEDIT = \"C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe\" -r -g \"%%s\":%%d
+ `TEXMFHOME = C:\home\texmf
+ `
+ `[TEXMF.CNF]
+ `path =  C:\texlive\2020\texmf.cnf
+ `target = $SystemRoot/fonts//
+ `substitute = $SystemRoot/fonts;$localappdata/Microsoft/Windows/Fonts//
+ `
+ `[LOCAL.CONF]
+ `path = C:\texlive\2020\texmf-var\fonts\conf\local.conf
+ `content = <dir>C:/Users/yihoze/AppData/Local/Microsoft/Windows/Fonts</dir>
+ `
+ `[SumatraPDF]
+ `path = C:\Program Files\SumatraPDF\SumatraPDF.exe
+ `inverse-search = "C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe" -r -g "%%f":%%l
+ `
+ `[Sphinx Style]
+ `latex = hzguide.cls, hzdissuade.sty, hzsphinx.sty, hzjupyter.sty
+ `
+ `# for open.py
+ `[Text Editor]
+ `path = C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe
+ `associations = .aux, .bib, .bst, .cls, .cnf, .conf, .cmd, .css, .csv, .gv, .ini, .ind, .idx, .ist, .ipynb, .list, .lof, .log, .lot, .md, .ps1, .py, .rst, .sty, .tex, .tmp, .toc, .tsv, .txt
+ `
+ `[Adobe Reader]
+ `path = C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe
+ `
+ `# for nb2pdf.py
+ `[Jupyter Template]
+ `latex = nb2pdf.tpl
+ `
+ `# To add other repositories and use KTUG's private repository:
+ `#> tlmgr option repository  http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
+ `#> tlmgr option repository http://mirror.kakao.com/CTAN/systems/texlive/tlnet/
+ `#> tlmgr option repository https://cran.asia/tex/systems/texlive/tlnet/
+ `#> tlmgr repository add http://ftp.ktug.org/KTUG/texlive/tlnet ktug
+ `#> tlmgr pinning add ktug *
+ `#> tlmgr repository add  https://cran.asia/KTUG/texlive/ cranasia
+ `#> tlmgr pinning add cranasia "*"
+ `#> tlmgr repository list  
+code_output=tlconf.py
+code=
+ `import os
+ `import sys
+ `import configparser
+ `import argparse
+ `import glob
+ `import subprocess
+ `
+ `class TeXLiveConf(object):
+ `    def __init__(self, confirmation=True, answer='y'):
+ `        self.ini = self.initialize()
+ `        self.confirmation_bool = confirmation
+ `        self.answer = answer
+ `        if self.ini:
+ `            self.ini= self.check_TeXLive()
+ `
+ `    def initialize(self):
+ `        self.inipath = os.path.dirname(__file__) 
+ `        ini = os.path.join(self.inipath, 'docenv.ini')
+ `        if os.path.exists(ini):
+ `            self.config = configparser.ConfigParser()
+ `            self.config.read(ini)
+ `            return True
+ `        else:
+ `            print('docenv.ini is not found.')
+ `            return False
+ `
+ `    def check_TeXLive(self):
+ `        try:
+ `            subprocess.check_call('mktexlsr.exe --version')
+ `            return True
+ `        except OSError:
+ `            print("Make sure TeX Live is included in PATH.")
+ `            return False
+ `
+ `    def create_parser(self):
+ `        parser = argparse.ArgumentParser(
+ `            description ='Configure your documentation environment for LaTeX.'
+ `        )
+ `        parser.add_argument(
+ `            '-s',
+ `            dest = 'store_to_local',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Copy the provided latex class and style files into the local TEXMF directory.'
+ `        )
+ `        parser.add_argument(
+ `            '-H',
+ `            dest = 'texmfhome',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Set TEXMFHOME as an environment variable.'
+ `        )
+ `        parser.add_argument(
+ `            '-C',
+ `            dest = 'texmf_cnf',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = "Add user's local font directory to texmf.cnf."
+ `        )
+ `        parser.add_argument(
+ `            '-L',
+ `            dest = 'local_conf',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = "Create local.conf for which to include user's local font directory."
+ `        )
+ `        parser.add_argument(
+ `            '-e',
+ `            dest = 'texedit',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Set TEXEDIT as an environment variable.'
+ `        )
+ `        parser.add_argument(
+ `            '-p',
+ `            dest = 'sumatrapdf',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Set SumatraPDF to enable inverse search. (jumping back to the corresponding point in the source tex file)'
+ `        )
+ `        parser.add_argument(
+ `            '-u',
+ `            dest = 'update_texlive',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Update TeX Live.'
+ `        )
+ `        parser.add_argument(
+ `            '-c',
+ `            dest = 'cache_font',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Cache fonts for XeLaTeX.'
+ `        )
+ `        parser.add_argument(
+ `            '-l',
+ `            dest = 'luaotfload',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Update the font database for LuaLaTeX.'
+ `        )
+ `        parser.add_argument(
+ `            '-B',
+ `            dest = 'batch',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Get every option done at once.'
+ `        )
+ `        parser.add_argument(
+ `            '-P',
+ `            dest = 'confirmation',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Proceed without asking for confirmation.'
+ `        )
+ `        return parser
+ `
+ `    def confirm(self, msg):
+ `        if self.confirmation_bool:
+ `            answer = input(msg)
+ `            return answer
+ `        else:
+ `            return self.answer
+ `
+ `    def store_to_local(self):
+ `        print('\n[Copying latex style files]')   
+ `        try:
+ `            latex_style = self.config.get('Sphinx Style', 'latex')
+ `            texmf_local = self.config.get('TeX Live', 'texmflocal')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly.')
+ `            return
+ `        query = 'These files are going to be copied into <{}>\n{}\nEnter [Y] to proceed, [n] to abandon, or another directory: '.format(texmf_local, latex_style.replace(', ', '\n'))
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        if not (answer.lower() == 'y' or answer == ''):
+ `            texmf_local = answer
+ `        files = latex_style.split(', ')
+ `        for afile in files:        
+ `            src = os.path.join(self.inipath, afile)
+ `            if os.path.exists(src):
+ `                cmd = 'copy {} {}'.format(src, texmf_local) 
+ `                os.system(cmd)
+ `        cmd = 'dir {}'.format(texmf_local)
+ `        os.system(cmd)
+ `        os.system('mktexlsr.exe')
+ `
+ `    def set_texmfhome(self):
+ `        print('\n[Setting TEXMFHOME]')    
+ `        try:
+ `            texmfhome = self.config.get('TeX Live', 'TEXMFHOME')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly.')
+ `            return
+ `        query = 'Are you sure to set the TEXMFHOME environment variable to  <{}>?\nEnter [Y] to proceed, [n] to abandon, or another path: '.format(texmfhome)
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        if not (answer.lower() == 'y' or answer == ''):
+ `            texmfhome = answer
+ `        cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXMFHOME -value '{}'\"".format(texmfhome)
+ `        os.system(cmd)
+ `        cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXMFHOME'\""
+ `        os.system(cmd)
+ `
+ `    def set_texedit(self):
+ `        print('\n[Setting TEXEDIT]')    
+ `        try:    
+ `            texedit = self.config.get('TeX Live', 'TEXEDIT')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly.')
+ `            return
+ `        query = 'Are you sure to set the TEXEDIT environment variable to  <{}>?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: '.format(texedit)
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        if not (answer.lower() == 'y' or answer == ''):
+ `            texedit = answer
+ `        cmd = "powershell \"set-itemproperty -path HKCU:\\Environment -name TEXEDIT -value '{}'\"".format(texedit)
+ `        os.system(cmd)
+ `        cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXEDIT'\""
+ `        os.system(cmd)
+ `
+ `    def set_sumatrapdf(self):
+ `        print('\n[Setting SumatraPDF')
+ `        try:
+ `            sumatra = self.config.get('SumatraPDF', 'path')
+ `            editor = self.config.get('SumatraPDF', 'inverse-search')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly.')
+ `            return
+ `        query = 'Are you sure to use <{}> to enable the inverse search feature of SumatraPDF?\nEnter [Y] to proceed, [n] to abandon, or another text editor with its option: '.format(editor)
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        if not (answer.lower() == 'y' or answer == ''):
+ `            editor = answer    
+ `        cmd = []
+ `        cmd.append(sumatra)
+ `        cmd.append('-inverse-search')
+ `        cmd.append(editor)    
+ `        subprocess.Popen(cmd)
+ `
+ `    def modify_texmf_cnf(self):
+ `        print('\n[texmf.cnf]')
+ `        try:
+ `            texmf_cnf = self.config.get('TEXMF.CNF', 'path')
+ `            target = self.config.get('TEXMF.CNF', 'target')
+ `            substitute = self.config.get('TEXMF.CNF', 'substitute')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly')
+ `            return
+ `        query = "'{}' will be replaced with '{}' in <{}>\nEnter [Y] to proceed, [n] to abandon.".format(target, substitute, texmf_cnf)
+ `        answer = self.confirm(query)
+ `        if (answer.lower() == 'n'):
+ `            return
+ `        else:
+ `            with open(texmf_cnf, mode='r') as f:
+ `                content = f.read()
+ `                content = content.replace(target, substitute)
+ `            with open(texmf_cnf, mode='w') as f:
+ `                f.write(content)
+ `
+ `    def create_local_conf(self):
+ `        print('\n[local.conf]')
+ `        try:
+ `            local_conf = self.config.get('LOCAL.CONF', 'path')
+ `            content = self.config.get('LOCAL.CONF', 'content')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly')
+ `            return
+ `        query = "<{}> will be created to include {}\nEnter [Y] to proceed, [n] to abandon.".format(local_conf, content)
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        else:
+ `            with open(local_conf, mode='w') as f:
+ `                f.write(content)
+ `
+ `    def update_texlive(self):
+ `        print('\n[Updating TeX Live]')    
+ `        try:
+ `            repository = self.config.get('TeX Live', 'repository')
+ `        except:
+ `            print('Make sure to have docenv.ini set properly.')
+ `            return
+ `        query = 'Are you sure to use the <{}> repository to update the TeX Live?\nEnter [Y] to proceed, [n] to abandon, or another repository: '.format(repository)
+ `        answer = self.confirm(query)
+ `        if answer.lower() == 'n':
+ `            return
+ `        else:
+ `            if not (answer.lower() == 'y' or answer == ''):
+ `                repository = answer
+ `            os.system('tlmgr.bat option repository {}'.format(repository))
+ `            os.system('tlmgr.bat update --self --all')
+ `
+ `    def cache_font(self):
+ `        print('\n[Caching fonts]')
+ `        query = 'Are you sure to cache fonts for XeLaTeX?\nEnter [Y] to proceed or [n] to abandon: '
+ `        answer = self.confirm(query)
+ `        if (answer.lower() == 'y' or answer == ''):
+ `            cmd = 'fc-cache.exe -v -r'
+ `            os.system(cmd)     
+ `
+ `    def luaotfload(self):    
+ `        query = 'Are you sure to update the font database for LuLaTeX?\nEnter [Y] to proceed or [n] to abandon: '
+ `        answer = self.confirm(query)
+ `        if (answer.lower() == 'y' or answer == ''):
+ `            cmd = 'luaotfload-tool --update --force --verbose=3'
+ `            os.system(cmd)     
+ `
+ `    def ToContinue(self, func):
+ `        if self.confirmation_bool:
+ `            query = '\nDo you want to continue this batch configuration? [Y/n] '
+ `            answer = self.confirm(query)
+ `        else:
+ `            answer = self.answer
+ `        if answer.lower() == 'n':
+ `            return False
+ `        else:
+ `            func()
+ `            return True        
+ `
+ `    def configure(self):
+ `        if self.ini:
+ `            if self.args.batch:
+ `                if not self.ToContinue(self.store_to_local):
+ `                    return None
+ `                if not self.ToContinue(self.set_texmfhome):
+ `                    return None
+ `                if not self.ToContinue(self.modify_texmf_cnf):
+ `                    return None
+ `                if not self.ToContinue(self.create_local_conf):
+ `                    return None
+ `                if not self.ToContinue(self.set_texedit):
+ `                    return None
+ `                if not self.ToContinue(self.set_sumatrapdf):
+ `                    return None
+ `                if not self.ToContinue(self.update_texlive):
+ `                    return None
+ `                if not self.ToContinue(self.cache_font):
+ `                    return None
+ `                self.ToContinue(self.luaotfload)                
+ `            else:    
+ `                if self.args.store_to_local:
+ `                    self.store_to_local()
+ `                if self.args.texmfhome:
+ `                    self.set_texmfhome()
+ `                if self.args.texmf_cnf:
+ `                    self.modify_texmf_cnf()
+ `                if self.args.local_conf:
+ `                    self.create_local_conf()
+ `                if self.args.texedit:
+ `                    self.set_texedit()
+ `                if self.args.sumatrapdf:
+ `                    self.set_sumatrapdf()
+ `                if self.args.update_texlive:
+ `                    self.update_texlive()
+ `                if self.args.cache_font:
+ `                    self.cache_font()
+ `                if self.args.luaotfload:
+ `                    self.luaotfload()
+ `
+ `if __name__ == '__main__':
+ `    tlconf = TeXLiveConf()
+ `    parser = tlconf.create_parser()
+ `    tlconf.args = parser.parse_args()
+ `    if tlconf.args.confirmation:
+ `        tlconf.confirmation_bool = True
+ `    tlconf.configure()

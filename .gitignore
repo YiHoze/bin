@@ -2,9 +2,7 @@
 __pycache__/
 build/
 coverage/
-dist/
-inquisitive/
-node_modules/
+private/
 obsolete/
 pandoc/
 pdf2htmlEX/

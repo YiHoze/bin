@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import argparse
 import configparser
 import subprocess
 
@@ -19,20 +20,40 @@ class ScriptScribe(object):
             self.database.read(db, encoding='utf-8')
         else:
             print('{} is not found.'.format(dbFile))
-            sys.exit()
+            sys.exit()        
         
-        self.run = True
+        self.parse_args()
 
-        self.script_arguments = ''
-        if len(sys.argv) == 1:
-            self.script = None
-        else:            
-            self.script = sys.argv[1]
-            if len(sys.argv) > 2:            
-                del sys.argv[0]
-                del sys.argv[0]
-                self.script_arguments = ' '.join(sys.argv)
-       
+    def parse_args(self):
+
+        parser = argparse.ArgumentParser(
+            description = 'Extract a script from "scripts.db" to run it.'
+        )
+        parser.add_argument(
+            'script',
+            nargs = '?'
+        )
+        parser.add_argument(
+            '-B',
+            dest = 'burst',
+            action = 'store_true',
+            default = False,
+            help = 'Take out all scripts.'
+        )
+        parser.add_argument(
+            '-H',
+            dest = 'script_help',
+            action = 'store_true',
+            default = False,
+            help = 'Display the help of the specified python script.'
+        )
+
+        self.args, self.unknown_arguments = parser.parse_known_args()
+        self.script = self.args.script
+        self.burst_bool = self.args.burst
+        self.script_help_bool = self.args.script_help
+        self.run = True  
+        self.script_arguments = self.unknown_arguments.copy()     
 
     def confirm_to_overwrite(self, afile):
 
@@ -88,10 +109,15 @@ class ScriptScribe(object):
                     return
 
         if self.run:
-            cmd = '{} {}'.format(filename, self.script_arguments)
-            if os.path.splitext(filename)[1] == '.ps1':
-                cmd = 'powershell.exe ./' + cmd        
-            # print(cmd)
+            ext = os.path.splitext(filename)[1]
+            if ext == '.ps1':
+                self.script_arguments.insert(0,'powershell.exe ./{}'.format(filename))
+            else:
+                self.script_arguments.insert(0, filename)
+            if ext == '.py' and self.script_help_bool:
+                self.script_arguments.insert(1, '-h')
+            cmd = ' '.join(self.script_arguments)
+            print(cmd)
             os.system(cmd)
 
 
@@ -107,8 +133,6 @@ class ScriptScribe(object):
 
     def enumerate_scripts(self):
 
-        print('Specify "ALL" to  take out all scripts.')
-
         scripts = sorted(self.database.sections(), key=str.casefold)
 
         for i in scripts:
@@ -120,15 +144,9 @@ class ScriptScribe(object):
 
 if __name__ == '__main__':
     SS = ScriptScribe()
-    if SS.script is None:
-        SS.enumerate_scripts()
-    elif SS.script == 'ALL':
+    if SS.burst_bool:
         SS.burst_scripts()
-    else:
+    elif SS.script:
         SS.pick_script()
-
-
-        
-
-
-
+    else:     
+        SS.enumerate_scripts()

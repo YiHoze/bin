@@ -1295,7 +1295,7 @@ code=
 
 [nb2pdf]
 description=Convert Jupyter notebook files (.ipynb) to PDF using nbconvert and LaTeX.
-template_output=nb2pdf.tpl
+template_output=nb2pdf.tplx
 template=
  `((=
  `  "latex": {
@@ -1466,6 +1466,7 @@ code=
  `from ltx import LatexCompiler
  `
  `class ipynb_to_pdf(object):
+ `
  `    def __init__(self, ipynb=None):
  `        self.ini_bool = self.initialize()
  `        self.ipynb = ipynb
@@ -1491,8 +1492,10 @@ code=
  `                print('Make sure to have docenv.ini set properly.')
  `                return False
  `        else:
- `            print('Docenv.ini is not found.')
- `            return False
+ `             self.template = 'nb2pdf.tplx'
+ `             return self.check_template()
+ `#            print('docenv.ini is not found.')
+ `#            return False
  `
  `    def parse_args(self):
  `        parser = argparse.ArgumentParser(
@@ -2792,7 +2795,7 @@ environment=
  `
  `# for nb2pdf.py
  `[Jupyter Template]
- `latex = nb2pdf.tpl
+ `latex = nb2pdf.tplx
  `
  `# To add other repositories and use KTUG's private repository:
  `#> tlmgr option repository  http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
@@ -3136,3 +3139,85 @@ code=
  `    if tlconf.args.confirmation:
  `        tlconf.confirmation_bool = True
  `    tlconf.configure()
+
+[daily]
+description=Open multiple apps simultaneously, particularly to do your tasks every morning.
+setting_output=daily.ini
+setting=
+ `[Chrome]
+ `app = C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+ `target = http://dic.daum.net/index.do?dic=eng 
+ `        http://dic.daum.net/index.do?dic=kor
+ `        https://mail.google.com 
+ `        http://hoze.tistory.com 
+ `        ; http://www.ktug.org
+ `        ; https://app.slack.com/client/TH95XLH70/CH5AA8CP2
+ `        
+ `[FreeCommander]
+ `app = C:\Program Files\FreeCommander XE\FreeCommander.exe
+ `
+ `[VS Code]
+ `app = C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe
+ `
+ `; [SumatraPDF]
+ `; app = C:\Program Files\SumatraPDF\SumatraPDF.exe
+ `; target = 
+ `
+ `; [Word Office16]
+ `; app = C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE
+ `; target = 
+ `
+ `; [Excel]
+ `; app = C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE
+ `
+ `; [InDesign]
+ `; app = C:\Program Files\Adobe\Adobe InDesign CC 2018\InDesign.exe
+ `
+ `; [MemoQ]
+ `; app = C:\Program Files (x86)\Kilgray\memoQ-2015\MemoQ32.exe
+code_output=daily.py
+code=
+  `import os
+  `import sys
+  `import argparse
+  `import configparser
+  `import subprocess 
+  `
+  `class DailyBusiness(object):
+  `    def __init__(self, list='daily.ini'):
+  `        self.list = list
+  `        dirCalled = os.path.dirname(__file__)
+  `        self.list = os.path.join(dirCalled, self.list)
+  `
+  `    def parse_args(self):
+  `        parser = argparse.ArgumentParser(
+  `            description = 'Open apps and their targets specified in daily.ini.'
+  `        )
+  `        parser.add_argument(
+  `            'list',
+  `            nargs = '?',
+  `            default = self.list,
+  `            help = 'Specify another daily to-do list.'
+  `        )
+  `        args = parser.parse_args()
+  `        self.list = args.list
+  `
+  `    def enumerate_tasks(self):
+  `        if os.path.exists(self.list):
+  `            config = configparser.ConfigParser()
+  `            config.read([self.list], encoding='utf-8')
+  `            for section in config.sections():
+  `                app = config.get(section, 'app')
+  `                try: 
+  `                    target = config.get(section, 'target')
+  `                except:
+  `                    target = ''
+  `                cmd = '"{0}" {1}'.format(app, target.replace('\n', ' '))                
+  `                subprocess.Popen(cmd)
+  `        else:
+  `            print('{} is not found.'.format(self.list))
+  `
+  `if __name__ == '__main__':
+  `    daily = DailyBusiness()
+  `    daily.parse_args()
+  `    daily.enumerate_tasks()

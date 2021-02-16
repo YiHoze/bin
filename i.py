@@ -12,8 +12,7 @@ class IdleTexnician(object):
 
     def __init__(self):
 
-        self.exclude = ['colophone', '_kor', '_eng']        
-        self.texer = LatexCompiler()
+        self.exclude = []        
 
 
     def parse_args(self):
@@ -23,7 +22,7 @@ class IdleTexnician(object):
         The first found tex file is compiled.
     i.py foo
         The first file out of *foo*.tex is compiled.
-    i.py -X
+    i.py -z
         Select one from the list of found tex files.
     i.py -Z
         Select one from the list of found tex files and it will be compiled as specified by tex.conf, if available.
@@ -40,14 +39,14 @@ class IdleTexnician(object):
             nargs = '?'
         )
         parser.add_argument(
-            '-x',
+            '-z',
             dest = 'list_bool',
             action = 'store_true',
             default = False,
             help = 'Enumerate every tex file for choice.'
         )
         parser.add_argument(
-            '-z',
+            '-Z',
             dest = 'config_bool',
             action = 'store_true',
             default = False,
@@ -88,10 +87,11 @@ class IdleTexnician(object):
 
         targs = self.compile_option.copy()
         targs.insert(0, self.tex)
-        # print(targs)
+        print(targs)
 
-        self.texer.parse_args(targs)
-        self.texer.compile()
+        texer = LatexCompiler()
+        texer.parse_args(targs)
+        texer.compile()
 
         if self.args.config_bool:
             if os.path.exists('t@x.pdf'):

@@ -172,7 +172,7 @@ tex:	\documentclass[10pt, openany, english, template]{hzguide}
 		\SectionNewpageOn
 		\DecolorHyperlinks*[blue]
 		\ChapterContentsEnable(5)
-
+		
 		\CoverSetup{    
 			FrontLogoImage = {alertsymbol},
 			BackLogoImage = {alertsymbol},

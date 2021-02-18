@@ -16,8 +16,7 @@ class LatexCompiler(object):
         batch=False, shell=False, twice=False, fully=False, keep_aux=False, clear=False,
         view=False, compile=True, bibtex=False, luatex=False, xetex=False,
         index=False, language='korean', komkindex=False, index_style='kotex.ist',
-        bookmark_index=False, bookmark_python=False, 
-        final=False, draft=False, python=False, asy=False):
+        bookmark_index=False):
         
         self.tex = tex
         self.batch_bool = batch
@@ -36,11 +35,6 @@ class LatexCompiler(object):
         self.komkindex_bool = komkindex
         self.index_style = index_style
         self.bm_index_bool = bookmark_index
-        self.bm_python_bool = bookmark_python
-        self.final_bool = final
-        self.draft_bool = draft
-        self.python_bool = python
-        self.asy_bool = asy
 
         if self.luatex_bool == False and self.xetex_bool == False:
             ini = os.path.join(dirCalled, 'docenv.ini')
@@ -96,7 +90,6 @@ class LatexCompiler(object):
             self.ind = filename + '.ind'
             self.pdf = filename + '.pdf'
             self.py = filename + '.pytxcode'
-            self.asy = filename + '-*.asy'
             if not os.path.exists(self.tex):                
                 print('%s is not found.' %(self.tex))
                 self.tex = None
@@ -118,19 +111,17 @@ class LatexCompiler(object):
         foo.idx is sorted by komkindex instead of texindy with foo.ist after a compilation.
     ltx.py -i -m foo
         foo.ind is altered so that index entries are added as bookmarks. 
-        Use "-p" to bookmark ones from python docstrings.
+        Use "-M" to bookmark ones from python docstrings.
     ltx.py -f -a foo
         If foo.idx exists, foo.tex is compiled four times and foo.idx is sorted in between.
         Otherwise, it is compiled three times. 
         Without "-a", every auxiliary file is deleted after compilation is completed. 
     ltx.py -B foo
         Bibtex runs after a compilation.
-    ltx.py -P foo
+    ltx.py -p foo
         Pythontex runs after a compilation.
     ltx.py -c
-        Auxiliary files are cleared.
-    ltx.py -F/-D foo
-        These options are available only with the hzguide latex class.
+        Auxiliary files are cleared.    
     '''
 
         parser = argparse.ArgumentParser(
@@ -241,7 +232,7 @@ class LatexCompiler(object):
             help = 'Bookmark index entries. This option is available only with -f or -i options. This feature does not support komkindex.'
         )
         parser.add_argument(
-            '-p',
+            '-M',
             dest = 'bookmark_python',
             action = 'store_true',
             default = False,
@@ -262,32 +253,11 @@ class LatexCompiler(object):
             help = 'Run bibtex.'
         )
         parser.add_argument(
-            '-F',
-            dest = 'final',
-            action = 'store_true',
-            default = False,
-            help = 'Find \\FinalizerOff to replace it with \\FinalizerOn in the tex file.'    
-        )
-        parser.add_argument(
-            '-D',
-            dest = 'draft',
-            action = 'store_true',
-            default = False,
-            help = 'Find \\FinalizerON to replace it with \\FinalizerOff in the tex file.'    
-        )
-        parser.add_argument(
-            '-P',
+            '-p',
             dest = 'python',
             action = 'store_true',
             default = False,
             help = 'Run pythontex.exe.'    
-        )
-        parser.add_argument(
-            '-A',
-            dest = 'asy',
-            action = 'store_true',
-            default = False,
-            help = 'Run asy.'
         )
 
         args = parser.parse_args(argv)
@@ -311,10 +281,7 @@ class LatexCompiler(object):
         self.index_style = args.index_style
         self.bm_index_bool = args.bookmark_index
         self.bm_python_bool = args.bookmark_python
-        self.final_bool = args.final
-        self.draft_bool = args.draft
         self.python_bool = args.python
-        self.asy_bool = args.asy
 
 
     def compile_once(self, cmd_tex):
@@ -326,21 +293,19 @@ class LatexCompiler(object):
             self.sort_index()
         if self.python_bool:
             self.pythontex()    
-        if self.asy_bool:
-            self.asymptote()
 
 
     def compile_twice(self, cmd_tex):
 
         os.system(cmd_tex)
+
         if self.bibtex_bool:
             self.run_bibtex()
         if self.index_bool:
             self.sort_index()
         if self.python_bool:
             self.pythontex() 
-        if self.asy_bool:
-            self.asymptote()
+
         os.system(cmd_tex) 
 
 
@@ -351,8 +316,6 @@ class LatexCompiler(object):
             self.run_bibtex()
         if self.python_bool:
             self.pythontex()
-        if self.asy_bool:
-            self.asymptote()
         os.system(cmd_tex)
         self.sort_index()       
         if os.path.exists(self.ind):
@@ -421,42 +384,14 @@ class LatexCompiler(object):
             shutil.rmtree(dir)
 
 
-    def finalizer_on(self):
-
-        with open(self.tex, mode = 'r', encoding = 'utf-8') as f:
-            content = f.read()
-        content = re.sub("\\\\FinalizerOff", "\\\\FinalizerOn", content)
-        with open(self.tex, mode = 'w', encoding = 'utf-8') as f:
-            f.write(content)
-
-
-    def finalizer_off(self):
-
-        with open(self.tex, mode = 'r', encoding = 'utf-8') as f:
-            content = f.read()
-        content = re.sub("\\\\FinalizerOn", "\\\\FinalizerOff", content)
-        with open(self.tex, mode = 'w', encoding = 'utf-8') as f:
-            f.write(content)
-
-
     def pythontex(self):
 
         os.system('pythontex.exe --runall=true %s' %(self.py))
 
 
-    def asymptote(self):
-
-        # print('asy.exe %s' %(self.asy))
-        os.system('asy.exe %s' %(self.asy))
-
     def compile(self):
 
         self.get_ready()
-        if self.tex:
-            if self.final_bool:
-                self.finalizer_on()
-            if self.draft_bool:
-                self.finalizer_off()
 
         if not self.compile_bool:
             if self.tex:

@@ -160,6 +160,20 @@ class WordDigger(object):
             help = 'Specify a TSV or CSV file in which regular expressions are specified as substitution patterns.'
         )
         parser.add_argument(
+            '-J',
+            dest = 'to_autojosa',
+            action = 'store_true',
+            default = False,
+            help = 'Replace 조사 with 자동조사 macros in TeX files.'
+        )
+        parser.add_argument(
+            '-j',
+            dest = 'from_autojosa',
+            action = 'store_true',
+            default = False,
+            help = 'Replace 자동 조사 macros with 조사 in TeX files.'
+        )
+        parser.add_argument(
             '-e',
             dest = 'extract_string',
             action = 'store_true',
@@ -230,6 +244,8 @@ class WordDigger(object):
         self.substitute = args.substitute
         self.backup_bool = args.backup
         self.pattern = args.pattern
+        self.to_autojosa_bool = args.to_autojosa
+        self.from_autojosa_bool = args.from_autojosa
         self.extract_string_bool = args.extract_string
         self.extract_word_bool = args.extract_word
         self.extract_tex_bool = args.extract_tex
@@ -446,7 +462,16 @@ class WordDigger(object):
         if self.unicode_bool:
             UTF = UnicodeDigger(chars=self.targets[0])
             UTF.print()
-        elif self.pattern is not None or self.aim is not None:
+        elif self.to_autojosa_bool:
+            self.aim = r'''(ref\{.+?\})([은는이가을를와과으로])'''
+            self.substitute = r'''\1\\\2'''
+            self.run_recursive(self.replace)
+        elif self.from_autojosa_bool:
+            self.aim = r'''\\([은는이가을를와과으로])'''
+            self.substitute = r'''\1'''
+            self.run_recursive(self.replace)
+
+        elif self.pattern or self.aim:
             if self.pattern is None:
                 if self.substitute is None:
                     self.run_recursive(self.find)

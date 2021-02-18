@@ -26,34 +26,37 @@ class ScriptScribe(object):
 
     def parse_args(self):
 
-        parser = argparse.ArgumentParser(
-            description = 'Extract a script from "scripts.db" to run it.'
+        self.parser = argparse.ArgumentParser(
+            description = 'Extract a script from "scripts.db" to run it.',
+            add_help=False
         )
-        parser.add_argument(
+        self.parser.add_argument(
             'script',
             nargs = '?'
         )
-        parser.add_argument(
+        self.parser.add_argument(
+            '-L',
+            dest = 'list_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Show the list of scripts.'
+        )
+        self.parser.add_argument(
             '-B',
-            dest = 'burst',
+            dest = 'burst_bool',
             action = 'store_true',
             default = False,
             help = 'Take out all scripts.'
         )
-        parser.add_argument(
-            '-H',
-            dest = 'script_help',
-            action = 'store_true',
-            default = False,
-            help = 'Display the help of the specified python script.'
+        self.parser.add_argument(
+            '--help',
+            action = 'help',            
+            help = 'Show this help message and exit.'
         )
 
-        self.args, self.unknown_arguments = parser.parse_known_args()
-        self.script = self.args.script
-        self.burst_bool = self.args.burst
-        self.script_help_bool = self.args.script_help
+        self.args, self.script_arguments = self.parser.parse_known_args()
         self.run = True  
-        self.script_arguments = self.unknown_arguments.copy()     
+
 
     def confirm_to_overwrite(self, afile):
 
@@ -79,7 +82,7 @@ class ScriptScribe(object):
 
         if self.confirm_to_overwrite(filename):
             try:
-                content = self.database.get(self.script, source)                
+                content = self.database.get(self.args.script, source)                
             except:
                 print('Ensure the script database file is set properly.')
                 return False 
@@ -96,14 +99,14 @@ class ScriptScribe(object):
     def pick_script(self):
 
         if self.run:
-            if not self.database.has_section(self.script):
-                print('"{}" does not exist.'.format(self.script))
+            if not self.database.has_section(self.args.script):
+                print('"{}" does not exist.'.format(self.args.script))
                 return
 
-        options=self.database.options(self.script)
-        for i, option in enumerate(options):
+        options=self.database.options(self.args.script)
+        for option in options:
             if 'output' in option:
-                filename = self.database.get(self.script, option)
+                filename = self.database.get(self.args.script, option)
                 source = option.split('_')[0]
                 if not self.write_from_database(source, filename):
                     return
@@ -114,8 +117,6 @@ class ScriptScribe(object):
                 self.script_arguments.insert(0,'powershell.exe ./{}'.format(filename))
             else:
                 self.script_arguments.insert(0, filename)
-            if ext == '.py' and self.script_help_bool:
-                self.script_arguments.insert(1, '-h')
             cmd = ' '.join(self.script_arguments)
             print(cmd)
             os.system(cmd)
@@ -139,14 +140,16 @@ class ScriptScribe(object):
             description = self.database.get(i, 'description', fallback=None)
             if description is None:
                 description = ''
-            print('{:20} {}'.format(i,description))
+            print('{:12} {}'.format(i,description))
  
 
 if __name__ == '__main__':
     SS = ScriptScribe()
-    if SS.burst_bool:
-        SS.burst_scripts()
-    elif SS.script:
-        SS.pick_script()
-    else:     
+    if SS.args.list_bool:
         SS.enumerate_scripts()
+    elif SS.args.burst_bool:
+        SS.burst_scripts()
+    elif SS.args.script:
+        SS.pick_script()
+    else:
+        SS.parser.print_help()

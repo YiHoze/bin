@@ -1,5 +1,5 @@
 [gencode]
-description=Generate barcodes or QR codes in PNG. 
+description=[Python] Generate barcodes or QR codes in PNG. 
 code_output=gencode.py
 code=
  `# pip python-barcode
@@ -152,8 +152,8 @@ code=
  `        else:
  `            gencode.encode_barcode()
 
-[tlconfcmd]
-description=Configure for your TeX Live.
+[tlconfc]
+description=[cmd] Configure for your TeX Live.
 code_output=tlconf.cmd
 code=
  @echo off
@@ -251,7 +251,7 @@ code=
  :eof
 
 [pdfpages]
-description=Count pages in multiple PDF files.
+description=[PowerShell] Count pages in multiple PDF files.
 code_output=pdfpages.ps1
 code=
  # get-childitem -name *.pdf | foreach-object {write-host $_ ; pdfinfo $_ | select-string 'Pages'}
@@ -270,7 +270,7 @@ code=
  write-host "Total:" $total
 
 [crypto]
-description=Encrypt or decrypt files.
+description=[Python] Encrypt or decrypt files.
 code_output=crypto.py
 code=
  `import os
@@ -376,7 +376,7 @@ code=
 
 
 [bookspine]
-description=Get the spine width for a book.
+description=[Python] Get the spine width for a book.
 code_output=bookspine.py
 code=
  `import argparse
@@ -493,7 +493,7 @@ code=
  `        spine.calculate()
 
 [loop]
-description=A given command will be repeated with each one matching wildcard characters.
+description=[Python] A given command will be repeated with each one matching wildcard characters.
 code_output=loop.py
 code=
  `import os
@@ -559,7 +559,7 @@ code=
  `        os.system(real_cmd)        
 
 [datecal]
-description=Find out the date certain days before or after a given date.
+description=[Python] Find out the date certain days before or after a given date.
 code_output=datecal.py
 code=
  `import argparse
@@ -787,7 +787,7 @@ code=
  `    datecal.determine_task()
 
 [dsize]
-description=Get the total size of all the files, including those in subdirectories.
+description=[Python] Get the total size of all the files, including those in subdirectories.
 code_output=dsize.py
 code=
  `import os
@@ -826,13 +826,13 @@ code=
  `get_size()
 
 [increase]
-description=increase.py 26 5000 (5000*1 + 5000*2 + ... + 5000*26)
+description=[Python] Multiply an increase by step and add to the sum.
 code_output=increase.py
 code=
  `import argparse
  `
  `parser = argparse.ArgumentParser(
- `    description = 'Multiply an increase by step and add to the sum'
+ `    description = 'Multiply an increase by step and add to the sum.'
  `)
  `parser.add_argument(
  `    'numbers',
@@ -859,7 +859,7 @@ code=
  `    print('{: 3} {: 10,} {: 10,}'.format(n, multiplied_increase, sum))
 
 [webimage]
-description=Download images from the Web.
+description=[Python] Download images from the Web.
 code_output=wi.py
 code=
  `import os
@@ -922,7 +922,7 @@ code=
  `    WI.download_image()
 
 [factorial]
-description=Find a number's factorial.
+description=[Python] Find a number's factorial.
 code_output=factorial.py
 code=
  `import argparse
@@ -1014,7 +1014,7 @@ code=
  `            print('{:,}'.format(r))
 
 [myip]
-description=Find your local and public IP addresses.
+description=[Python] Find your local and public IP addresses.
 code_output=myip.py
 code=
  `import argparse
@@ -1030,7 +1030,7 @@ code=
  `print('Your public IP address is: ', ip)
 
 [hike]
-description=Calculate a hiking trail's true 3D distance.
+description=[Python] Calculate a hiking trail's true 3D distance.
 code_output=hike.py
 code=
  `import argparse
@@ -1065,7 +1065,7 @@ code=
  `        print(result)
 
 [dogage]
-description=Calculate a dog's age as human.
+description=[Python] Calculate a dog's age as human.
 code_output=dogage.py
 code=
  `import argparse
@@ -1147,7 +1147,7 @@ code=
  `    dogage.compare()
 
 [msdoc]
-description=Convert a document into another format.
+description=[VBScript] Convert a document into another format.
 code_output=msdoc.vbs
 code=
  `'#>msdoc.vbs directory source_format target_format
@@ -1294,7 +1294,7 @@ code=
  `Call main
 
 [nb2pdf]
-description=Convert Jupyter notebook files (.ipynb) to PDF using nbconvert and LaTeX.
+description=[Python] Convert Jupyter notebook files (.ipynb) to PDF using nbconvert and LaTeX.
 template_output=nb2pdf.tplx
 template=
  `((=
@@ -1546,7 +1546,7 @@ code=
  `    nb2pdf.convert()
 
 [locatepy]
-description=Pinpoint a python module.
+description=[Python] Pinpoint a python module.
 code_output=locatepy.py
 code=
  `import os
@@ -1617,7 +1617,7 @@ code=
  `    print(module.__file__)
 
 [pyas]
-description=Alternatively associate with cPython or WinPython.
+description=[PowerShell] Alternatively associate with cPython or WinPython.
 code_output=pyas.ps1
 code=
  `[Cmdletbinding()]
@@ -1643,7 +1643,7 @@ code=
  `}
 
 [pyto]
-description=Alternatively add cPython or WinPython to the PATH.
+description=[PowerShell] Alternatively add cPython or WinPython to the PATH.
 code_output=pyto.ps1
 code=
  `[Cmdletbinding()]
@@ -1665,7 +1665,7 @@ code=
  `python -V
 
 [exrate]
-description=Get currency exchange rates.
+description=[Python] Get currency exchange rates.
 code_output=exrate.py
 code=
  `import urllib.request
@@ -1798,7 +1798,7 @@ code=
  `        exrate.calcurate()
 
 [elecrate]
-description=Calculate electricity bills.
+description=[Python] Calculate electricity bills.
 code_output=elecrate.py
 code=
  `import argparse
@@ -1903,7 +1903,7 @@ code=
  `    eRate.calculate()
 
 [taxrate]
-description=Calculate income tax.
+description=[Python] Calculate income tax.
 code_output=taxrate.py
 code=
  `import argparse
@@ -2056,7 +2056,7 @@ code=
  `        taxrate.display_pay(taxrate.salary)
 
 [shortcut]
-description=Create a shortcut into a favorite directory.
+description=[Python] Create a shortcut into a favorite directory.
 code_output=shortcut.py
 code=
  `# Install pywin32 to use win32com 
@@ -2129,7 +2129,7 @@ code=
  `        shortcut.create_shortcut()
 
 [filename]
-description=Change file names partly.
+description=[Python] Change file names partly.
 code_output=filename.py
 code=
  `import os
@@ -2345,7 +2345,7 @@ code=
  `    fn.determine_task()
 
 [lotto]
-description=Pick lotto numbers or permute letters.
+description=[Python] Pick lotto numbers or permute letters.
 code_output=lotto.py
 code=
  `# How to download nltk packages:
@@ -2592,7 +2592,7 @@ code=
  `        lotto.determine_task()
 
 [userpath]
-description=View the PATH environment variable.
+description=[PowerShell] View the PATH environment variable.
 code_output=userpath.ps1
 code=
  `# userpath.ps1 -a "C:\Program Files\Python37\"
@@ -2684,7 +2684,7 @@ code=
  `if ($set_bool) { SetLocalPath; break }
 
 [tabexp]
-description=TabExpansion2 modified for PowerShell
+description=[PowerShell] TabExpansion2 modified for PowerShell
 code_output=tabexp.ps1
 code=
  `Function TabExpansion2 {
@@ -2748,7 +2748,7 @@ code=
  `}
 
 [tlconf]
-description=TeX Live Configurator
+description=[Python] TeX Live Configurator
 environment_output=docenv.ini
 environment=
  `# for ltx.py
@@ -2796,6 +2796,10 @@ environment=
  `# for nb2pdf.py
  `[Jupyter Template]
  `latex = nb2pdf.tplx
+ `
+ `# for web
+ `[Web Browser]
+ `path = C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
  `
  `# To add other repositories and use KTUG's private repository:
  `#> tlmgr option repository  http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
@@ -2910,14 +2914,14 @@ code=
  `            help = 'Update the font database for LuaLaTeX.'
  `        )
  `        parser.add_argument(
- `            '-B',
+ `            '-b',
  `            dest = 'batch',
  `            action = 'store_true',
  `            default = False,
  `            help = 'Get every option done at once.'
  `        )
  `        parser.add_argument(
- `            '-P',
+ `            '-q',
  `            dest = 'confirmation',
  `            action = 'store_true',
  `            default = False,
@@ -3141,7 +3145,7 @@ code=
  `    tlconf.configure()
 
 [daily]
-description=Open multiple apps simultaneously, particularly to do your tasks every morning.
+description=[Python] Open multiple apps simultaneously, particularly to do your tasks every morning.
 setting_output=daily.ini
 setting=
  `[Chrome]

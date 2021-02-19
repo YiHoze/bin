@@ -10,89 +10,23 @@ dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
+
 class LatexCompiler(object):
 
-    def __init__(self, tex=None,
-        batch=False, shell=False, twice=False, fully=False, keep_aux=False, clear=False,
-        view=False, compile=True, bibtex=False, luatex=False, xetex=False,
-        index=False, language='korean', komkindex=False, index_style='kotex.ist',
-        bookmark_index=False):
+    def __init__(self, tex=None, argv=None):
         
         self.tex = tex
-        self.batch_bool = batch
-        self.shell_bool = shell
-        self.twice_bool = twice
-        self.fully_bool = fully
-        self.keep_aux_bool = keep_aux
-        self.clear_bool = clear
-        self.view_bool = view
-        self.compile_bool = compile
-        self.bibtex_bool = bibtex
-        self.luatex_bool = luatex
-        self.xetex_bool = xetex
-        self.index_bool = index
-        self.lang = language
-        self.komkindex_bool = komkindex
-        self.index_style = index_style
-        self.bm_index_bool = bookmark_index
 
-        if self.luatex_bool == False and self.xetex_bool == False:
-            ini = os.path.join(dirCalled, 'docenv.ini')
-            if os.path.exists(ini):
-                config = configparser.ConfigParser()
-                config.read(ini)
-                try:
-                    self.compiler = config.get('LaTeX', 'compiler')
-                except:
-                    self.compiler = "lualatex.exe"
-            else:
-                self.compiler = "lualatex.exe"
-
-    def get_ready(self):
-
-        if self.luatex_bool:
-            self.compiler = 'lualatex.exe'
-        if self.xetex_bool:
-            self.compiler = 'xelatex.exe'
-
-        # Compile mode
-        if self.batch_bool or self.fully_bool:
-            self.compile_mode = '-interaction=batchmode '
+        ini = os.path.join(dirCalled, 'docenv.ini')
+        if os.path.exists(ini):
+            config = configparser.ConfigParser()
+            config.read(ini)            
+            self.compiler = config.get('LaTeX', 'compiler', fallback='lualatex.exe')            
         else:
-            self.compile_mode = '-synctex=1 '
-        if self.shell_bool:
-            self.compile_mode +=  '-shell-escape'
+            self.compiler = "lualatex.exe"
 
-        # language by which to sort index
-        index_modules = {
-            'eng': 'lang/english/utf8-lang ',
-            'fre': 'lang/french/utf8-lang ',
-            'ger': 'lang/german/din5007-utf8-lang ',
-            'ita': 'lang/italian/utf8-lang ',
-            'kor': 'lang/korean/utf8-lang ',
-            'rus': 'lang/russian/utf8-lang ',
-            'spa': 'lang/spanish/modern-utf8-lang '
-        }
-        if os.path.splitext(self.index_style)[1] == '.xdy':
-            self.xindy = self.index_style
-        else:
-            try:
-                self.xindy = index_modules[self.lang[:3].lower()]
-            except:
-                self.xindy = index_modules['kor']
-
-        if self.tex is not None:   
-            basename = os.path.basename(self.tex)
-            filename = os.path.splitext(basename)[0]
-            self.tex = filename + '.tex'
-            self.aux = filename + '.aux'
-            self.idx = filename + '.idx'
-            self.ind = filename + '.ind'
-            self.pdf = filename + '.pdf'
-            self.py = filename + '.pytxcode'
-            if not os.path.exists(self.tex):                
-                print('%s is not found.' %(self.tex))
-                self.tex = None
+        self.parse_args(argv)
+        self.compile()
 
 
     def parse_args(self, argv=None):
@@ -137,63 +71,63 @@ class LatexCompiler(object):
         )
         parser.add_argument(
             '-b',
-            dest = 'batch',
+            dest = 'batch_bool',
             action = 'store_true',
             default = False,
             help = 'Do not halt even with syntax errors. (batch-mode)'
         )
         parser.add_argument(
             '-s',
-            dest = 'shell',
+            dest = 'shell_bool',
             action = 'store_true',
             default = False,
             help = 'Allow an external program to run during a XeLaTeX run. (shell-escape)'
         )
         parser.add_argument(
             '-w',
-            dest = 'twice',
+            dest = 'twice_bool',
             action = 'store_true',
             default = False,
             help = 'Compile twice.'
         )
         parser.add_argument(
             '-f',
-            dest = 'fully',
+            dest = 'fully_bool',
             action = 'store_true',
             default = False,
             help = 'Compile fully.'
         )
         parser.add_argument(
             '-v',
-            dest = 'view',
+            dest = 'view_bool',
             action = 'store_true',
             default = False,
             help = 'Open the resulting PDF file to view.'
         )
         parser.add_argument(
             '-n',
-            dest = 'compile',
+            dest = 'compile_bool',
             action = 'store_false',
             default = True,
             help = 'Pass over compilation but do other processes such as index sorting.'
         )
         parser.add_argument(
             '-i',
-            dest = 'index',
+            dest = 'index_bool',
             action = 'store_true',
             default = False,
             help = 'Sort index using TeXindy.'
         )
         parser.add_argument(
             '-l',
-            dest = 'luatex',
+            dest = 'luatex_bool',
             action = 'store_true',
             default = False,
             help = 'Use LuaLaTeX.'
         )
         parser.add_argument(
             '-x',
-            dest = 'xetex',
+            dest = 'xetex_bool',
             action = 'store_true',
             default = False,
             help = 'Use XeLaTeX.'
@@ -206,7 +140,7 @@ class LatexCompiler(object):
         )
         parser.add_argument(
             '-k',
-            dest = 'komkindex',
+            dest = 'komkindex_bool',
             action = 'store_true',
             default = False,
             help = 'Use komkindex instead of TeXindy.'
@@ -219,79 +153,108 @@ class LatexCompiler(object):
         )
         parser.add_argument(
             '-a',
-            dest = 'keep_aux',
+            dest = 'keep_aux_bool',
             action = 'store_true',
             default = False,
             help = 'Keep auxiliary files after a full compilation. Without this option, they are altogether deleted.'            
         )
         parser.add_argument(
             '-m',
-            dest = 'bookmark_index',
+            dest = 'bookmark_index_bool',
             action = 'store_true',
             default = False,
             help = 'Bookmark index entries. This option is available only with -f or -i options. This feature does not support komkindex.'
         )
         parser.add_argument(
             '-M',
-            dest = 'bookmark_python',
+            dest = 'bookmark_python_bool',
             action = 'store_true',
             default = False,
             help = 'Bookmark index entries which are python functions extracted from docstrings. This option is available only with -f or -i options.'
         )
         parser.add_argument(
             '-c',
-            dest = 'clear',
+            dest = 'clear_bool',
             action = 'store_true',
             default = False,
             help = 'Remove auxiliary files after compilation.'
         )
         parser.add_argument(
             '-B',
-            dest = 'bibtex',
+            dest = 'bibtex_bool',
             action = 'store_true',
             default = False,
             help = 'Run bibtex.'
         )
         parser.add_argument(
             '-p',
-            dest = 'python',
+            dest = 'python_bool',
             action = 'store_true',
             default = False,
             help = 'Run pythontex.exe.'    
         )
 
-        args = parser.parse_args(argv)
+        self.args = parser.parse_args(argv)
 
-        if args.tex is not None:
-            self.tex = args.tex
-        self.batch_bool = args.batch
-        self.shell_bool = args.shell
-        self.twice_bool = args.twice
-        self.fully_bool = args.fully
-        self.keep_aux_bool = args.keep_aux
-        self.clear_bool = args.clear
-        self.view_bool = args.view
-        self.compile_bool = args.compile
-        self.bibtex_bool = args.bibtex
-        self.luatex_bool = args.luatex
-        self.xetex_bool = args.xetex
-        self.index_bool = args.index
-        self.lang = args.language
-        self.komkindex_bool = args.komkindex
-        self.index_style = args.index_style
-        self.bm_index_bool = args.bookmark_index
-        self.bm_python_bool = args.bookmark_python
-        self.python_bool = args.python
+        if self.args.tex is not None:
+            self.tex = self.args.tex
+
+
+    def get_ready(self):
+
+        if self.args.luatex_bool:
+            self.compiler = 'lualatex.exe'
+        if self.args.xetex_bool:
+            self.compiler = 'xelatex.exe'
+
+        # Compile mode
+        if self.args.batch_bool or self.args.fully_bool:
+            self.compile_mode = '-interaction=batchmode '
+        else:
+            self.compile_mode = '-synctex=1 '
+        if self.args.shell_bool:
+            self.compile_mode +=  '-shell-escape'
+
+        # language by which to sort index
+        index_modules = {
+            'eng': 'lang/english/utf8-lang ',
+            'fre': 'lang/french/utf8-lang ',
+            'ger': 'lang/german/din5007-utf8-lang ',
+            'ita': 'lang/italian/utf8-lang ',
+            'kor': 'lang/korean/utf8-lang ',
+            'rus': 'lang/russian/utf8-lang ',
+            'spa': 'lang/spanish/modern-utf8-lang '
+        }
+        if os.path.splitext(self.args.index_style)[1] == '.xdy':
+            self.xindy = self.args.index_style
+        else:
+            try:
+                self.xindy = index_modules[self.args.lang[:3].lower()]
+            except:
+                self.xindy = index_modules['kor']
+
+        if self.tex is not None:   
+            basename = os.path.basename(self.tex)
+            filename = os.path.splitext(basename)[0]
+            self.tex = filename + '.tex'
+            self.aux = filename + '.aux'
+            self.idx = filename + '.idx'
+            self.ind = filename + '.ind'
+            self.pdf = filename + '.pdf'
+            self.py = filename + '.pytxcode'
+            if not os.path.exists(self.tex):                
+                print('%s is not found.' %(self.tex))
+                self.tex = None
 
 
     def compile_once(self, cmd_tex):
 
         os.system(cmd_tex)
-        if self.bibtex_bool:
+        if self.args.bibtex_bool:
             self.run_bibtex()
-        if self.index_bool:
+        if self.args.index_bool:
             self.sort_index()
-        if self.python_bool:
+        if self.args.python_bool:
             self.pythontex()    
 
 
@@ -299,11 +262,11 @@ class LatexCompiler(object):
 
         os.system(cmd_tex)
 
-        if self.bibtex_bool:
+        if self.args.bibtex_bool:
             self.run_bibtex()
-        if self.index_bool:
+        if self.args.index_bool:
             self.sort_index()
-        if self.python_bool:
+        if self.args.python_bool:
             self.pythontex() 
 
         os.system(cmd_tex) 
@@ -312,16 +275,16 @@ class LatexCompiler(object):
     def compile_fully(self, cmd_tex):
 
         os.system(cmd_tex)
-        if self.bibtex_bool:
+        if self.args.bibtex_bool:
             self.run_bibtex()
-        if self.python_bool:
+        if self.args.python_bool:
             self.pythontex()
         os.system(cmd_tex)
         self.sort_index()       
         if os.path.exists(self.ind):
             os.system(cmd_tex)
         os.system(cmd_tex)
-        if not self.keep_aux_bool:
+        if not self.args.keep_aux_bool:
             self.clear_aux()
 
 
@@ -335,12 +298,12 @@ class LatexCompiler(object):
         if not os.path.exists(self.idx):
             print('%s is not found' % (self.idx))
             return
-        if self.komkindex_bool:
-            cmd = 'komkindex.exe -s %s %s' %(self.index_style, self.idx)
+        if self.args.komkindex_bool:
+            cmd = 'komkindex.exe -s %s %s' %(self.args.index_style, self.idx)
         else:
             cmd = 'texindy.exe --module hzguide.xdy --module %s %s' %(self.xindy, self.idx)             
         os.system(cmd)    
-        if self.bm_index_bool or self.bm_python_bool:
+        if self.args.bookmark_index_bool or self.args.bookmark_python_bool:
             self.bookmark_index()
 
 
@@ -350,7 +313,7 @@ class LatexCompiler(object):
         if os.path.exists(tmp):
             os.remove(tmp)
         with open(tmp, mode = 'w', encoding = 'utf-8') as new_file, open(self.ind, mode = 'r', encoding = 'utf-8') as old_file:
-            if self.bm_python_bool:
+            if self.args.bookmark_python_bool:
                 for line in old_file.readlines():
                     new_file.write(self.bookmark_item(line, r'\\item (.+?)\(\)'))
             else:
@@ -393,32 +356,30 @@ class LatexCompiler(object):
 
         self.get_ready()
 
-        if not self.compile_bool:
+        if not self.args.compile_bool:
             if self.tex:
-                if self.index_bool or self.komkindex_bool:
+                if self.args.index_bool or self.args.komkindex_bool:
                     self.sort_index()
-                if self.bibtex_bool:
+                if self.args.bibtex_bool:
                     self.run_bibtex()            
         else:
             if self.tex:
                 cmd_tex = '%s %s "%s"' %(self.compiler, self.compile_mode, self.tex)
-                if self.fully_bool:
+                if self.args.fully_bool:
                     self.compile_fully(cmd_tex)
-                elif self.twice_bool:
+                elif self.args.twice_bool:
                     self.compile_twice(cmd_tex)
                 else:
                     self.compile_once(cmd_tex)            
 
-        if self.clear_bool:
+        if self.args.clear_bool:
             self.clear_aux()  
 
-        if self.view_bool:
+        if self.args.view_bool:
             if os.path.exists(self.pdf):                 
                 opener = FileOpener()
                 opener.OpenPDF(self.pdf)
 
 
 if __name__ == "__main__":
-    texer = LatexCompiler()
-    texer.parse_args()
-    texer.compile()
+    LatexCompiler()

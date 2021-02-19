@@ -3,7 +3,6 @@ import sys
 import glob
 import argparse
 import configparser
-from itertools import chain
 import re
 
 dirCalled = os.path.dirname(__file__)
@@ -17,24 +16,25 @@ class IdleTexnician(object):
 
         self.ini = 'i.ini'
         self.parse_args()
+        self.determine_tex()
 
     def parse_args(self):
 
-    #     example = '''examples:
-    # i.py
-    #     The first found tex file is compiled.
-    # i.py foo
-    #     The first file out of *foo*.tex is compiled.
-    # i.py -z
-    #     Select one from the list of found tex files.
-    # i.py -P
-    #     Select one from the list of found tex files and it will be compiled as specified by tex.conf, if available.
-    #     The purpose of this option is to compile a single subfile.
-    # '''
+        about = '''i.ini should be like:
+    [tex]
+    target = foo.tex
+    draft = wordig.py -a "..." -s "..." %(target)s
+    final = wordig.py -a "..." -s "..." %(target)s
+    after = ltx.py -c
+    main = \\input{preamble}
+	  \\begin{document}
+	  \\maketitle
+	  \\input{\\1}
+	  \\end{document}'''
 
         parser = argparse.ArgumentParser(
-            # epilog = example,  
-            # formatter_class = argparse.RawDescriptionHelpFormatter,
+            epilog = about,  
+            formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Find and compile a tex file using ltx.py. Options unknown to this script are passed to ltx.py.'
         )
         parser.add_argument(
@@ -42,11 +42,11 @@ class IdleTexnician(object):
             nargs = '?'
         )        
         parser.add_argument(
-            '-z',
+            '-U',
             dest = 'list_bool',
             action = 'store_true',
             default = False,
-            help = 'Enumerate every tex file for choice.'
+            help = 'Enumerate every tex file to select and update i.ini.'
         )
         parser.add_argument(
             '-D',
@@ -63,30 +63,17 @@ class IdleTexnician(object):
             help = 'Run the final pre-processing option.'
         )
         parser.add_argument(
-            '-P',
-            dest = 'partial_bool',
+            '-W',
+            dest = 'wrap_bool',
             action = 'store_true',
             default = False,
-            help = 'Wrap up the specified file in the main option.'
+            help = "Wrap up the specified file with the main option's."
         )
 
         self.args, self.compile_option = parser.parse_known_args()
 
-    def update_ini(self):
 
-        conf = configparser.ConfigParser()
-
-        if os.path.exists(self.ini):
-            conf.read(self.ini)
-            conf.set('tex', 'target', self.tex)
-        else:
-            conf['tex'] = {'target': self.tex}
-
-        with open(self.ini, 'w') as f:
-            conf.write(f)
-
-
-    def run_preprocess(self):
+    def run_preprocess(self, target):
 
         if not os.path.exists(self.ini):
             print('i.ini is not found.')  
@@ -101,6 +88,8 @@ class IdleTexnician(object):
             cmd = conf.get('tex', 'final', fallback=False)
 
         if cmd:
+            if '.tex' not in cmd:
+                cmd = '{} {}'.format(cmd, target)
             os.system(cmd)
         
 
@@ -128,27 +117,33 @@ class IdleTexnician(object):
                 f.write(main)
 
             basename = os.path.basename(self.tex)
-            filename = os.path.splitext(basename)[0]
-            self.pdf = filename + '.pdf'
+            fnpattern = os.path.splitext(basename)[0]
+            self.pdf = fnpattern + '.pdf'
             self.tex = 't@x.tex'
 
 
     def compile_tex(self):
+
+        if self.tex is list:
+            for i in self.tex:
+                self.do_compile(i)
+        else:
+            self.do_compile(self.tex)
+
         
+    def do_compile(self, tex):
+
         if self.args.draft_bool or self.args.final_bool:
-            self.run_preprocess()
+            self.run_preprocess(tex)
         
-        if self.args.partial_bool:
+        if self.args.wrap_bool:
             self.write_tex()
 
-        self.compile_option.insert(0, self.tex)
-        print(self.compile_option)
+        print('{} {}'.format(tex, self.compile_option))
 
-        texer = LatexCompiler()
-        texer.parse_args(self.compile_option)
-        texer.compile()
+        LatexCompiler(tex, self.compile_option)
 
-        if self.args.partial_bool:
+        if self.args.wrap_bool:
             if os.path.exists('t@x.pdf'):
                 if os.path.exists(self.pdf):
                     os.remove(self.pdf)
@@ -157,47 +152,135 @@ class IdleTexnician(object):
         self.run_postprocess()
 
 
-    def determine_from_list(self):
+    def update_ini(self, fnpattern):
 
-        files = []
+        conf = configparser.ConfigParser()
 
-        for i in glob.glob('*.tex'):
-            files.append(i)
-        
-        if len(files) == 0:
-            print('No tex files are found.')
-            return False
+        if os.path.exists(self.ini):
+            conf.read(self.ini)
+            conf.set('tex', 'target', fnpattern)
+        else:
+            conf['tex'] = {'target': fnpattern}
 
-
-        for i, v in enumerate(files):
-            print('{}:{}'.format(i+1, v))
-        choice = input('\nChoose a file by entering its number: ')
-        try: 
-            choice = int(choice) 
-            return(files[choice-1])
-        except:
-            print('Wrong selection.')
-            return False
-
+        with open(self.ini, 'w') as f:
+            conf.write(f)
 
 
     def get_target(self):
 
-        if os.path.exists(self.ini):
-            conf = configparser.ConfigParser()
-            conf.read(self.ini)            
-            self.tex = conf.get('tex', 'target', fallback=False)
-            return self.tex
+        count, files = self.count_tex_files()
+
+        if count == 0:
+            sys.exit()
+        elif count == 1:
+            return files[0]
+        else:
+            if os.path.exists(self.ini):
+                conf = configparser.ConfigParser()
+                conf.read(self.ini)            
+                files = conf.get('tex', 'target', fallback=False)
+                if files:
+                    files = files.split('\n')
+                    if len(files) == 1:
+                        return files[0]
+                    else:
+                        return self.enumerate_list(files)                    
+                else:
+                    return False
+            else:
+                return False
+
+
+    def count_tex_files(self):
+
+        files = []
+
+        if self.args.tex is None:
+            fnpattern = '*.tex'
+        else:
+            fnpattern = os.path.splitext(self.args.tex)[0]
+            if not '*' in fnpattern:
+                fnpattern = '*{}*'.format(fnpattern)
+            fnpattern += '.tex'            
+
+        for i in glob.glob(fnpattern):
+            files.append(i)
+
+        if len(files) == 0:
+            print('No tex files are found.')
+
+        return len(files), files
+
+
+    def enumerate_list(self, files):
+
+        if self.args.tex is not None:
+            tmp = files.copy()
+            files.clear()
+            for i in tmp:
+                if self.args.tex in i:
+                    files.append(i)
+            if len(files) == 1:
+                return files[0]
+
+        for i, v in enumerate(files):
+            print('{}:{}'.format(i+1, v))
+        selection = input('\nSelect a file by entering its number, or enter "0" for all: ')
+
+        if selection == '':
+            sys.exit()
+        if selection == '0':
+            return files
+
+        tmp = selection.split()
+        selection = []
+        for i in tmp:
+            if '-' in i:
+                x = i.split('-')
+                try: 
+                    x = range(int(x[0]), int(x[1])+1)
+                    for n in x:
+                        selection.append(n)
+                except:
+                    print('Wrong selection.')
+                    return False
+            else:
+                try:
+                    selection.append(int(i))
+                except:
+                    print('Wrong selection.')
+                    return False
+        
+        if len(selection) > 0:
+            for i, v in enumerate(selection):
+                selection[i] = files[v-1]
+            return selection 
         else:
             return False
+
+
+    def determine_from_list(self):
         
+        count, files = self.count_tex_files()
+        
+        if count == 0:
+            return False
+        elif count == 1:
+            return files[0]
+
+        selection = self.enumerate_list(files)
+        if selection:
+            self.update_ini('\n'.join(selection))
+            return selection
+        else:
+            return False
+      
 
     def determine_tex(self):
 
         if self.args.list_bool:
             self.tex = self.determine_from_list()
-            if self.tex:
-                self.update_ini()
+            if self.tex:                
                 self.compile_tex()
         else:
             self.tex = self.get_target()
@@ -205,11 +288,9 @@ class IdleTexnician(object):
                 self.compile_tex()
             else:
                 self.tex = self.determine_from_list()
-                if self.tex:
-                    self.update_ini()
+                if self.tex:                    
                     self.compile_tex()
 
 
 if __name__ == "__main__":
-    idler = IdleTexnician()    
-    idler.determine_tex()
+    IdleTexnician()       

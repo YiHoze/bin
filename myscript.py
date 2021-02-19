@@ -35,13 +35,6 @@ class ScriptScribe(object):
             nargs = '?'
         )
         self.parser.add_argument(
-            '-L',
-            dest = 'list_bool',
-            action = 'store_true',
-            default = False,
-            help = 'Show the list of scripts.'
-        )
-        self.parser.add_argument(
             '-B',
             dest = 'burst_bool',
             action = 'store_true',
@@ -49,9 +42,11 @@ class ScriptScribe(object):
             help = 'Take out all scripts.'
         )
         self.parser.add_argument(
-            '--help',
-            action = 'help',            
-            help = 'Show this help message and exit.'
+            '-C',
+            dest = 'clear_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Delete the script file after a run.'
         )
 
         self.args, self.script_arguments = self.parser.parse_known_args()
@@ -121,6 +116,9 @@ class ScriptScribe(object):
             print(cmd)
             os.system(cmd)
 
+            if self.args.clear_bool:
+                os.remove(filename)
+
 
     def burst_scripts(self):
 
@@ -136,6 +134,7 @@ class ScriptScribe(object):
 
         scripts = sorted(self.database.sections(), key=str.casefold)
 
+        print()
         for i in scripts:
             description = self.database.get(i, 'description', fallback=None)
             if description is None:
@@ -145,11 +144,10 @@ class ScriptScribe(object):
 
 if __name__ == '__main__':
     SS = ScriptScribe()
-    if SS.args.list_bool:
-        SS.enumerate_scripts()
-    elif SS.args.burst_bool:
+    if SS.args.burst_bool:
         SS.burst_scripts()
     elif SS.args.script:
         SS.pick_script()
     else:
         SS.parser.print_help()
+        SS.enumerate_scripts()

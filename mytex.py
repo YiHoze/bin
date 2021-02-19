@@ -258,23 +258,19 @@ class LatexTemplate(object):
 
     def compile(self):
 
-        compiler = self.templates.get(self.template, 'compiler', fallback=None)
-        if compiler is None:
+        compiler_option = self.templates.get(self.template, 'compiler', fallback=None)
+        if compiler_option is None:
             if self.force_bool:
-                texer = LatexCompiler(self.tex)
-                texer.parse_args(['-v'])
-                texer.compile()  
+                LatexCompiler(self.tex, ['-v'])                
             else:                
                 if self.cmd is not None:
                     answer = input('Do you want to run %s? [Y/n] ' %(self.cmd))
                     if answer.lower() != 'n':
                         os.system(self.cmd)
         else:       
-            compiler = compiler.split(', ')
-            compiler.append('-v')            
-            texer = LatexCompiler(self.tex)
-            texer.parse_args(compiler)        
-            texer.compile()
+            compiler_option = compiler_option.split(', ')
+            compiler_option.append('-v')            
+            LatexCompiler(self.tex, compiler_option)
 
         if self.remove_bool:
             for i in self.generated_files:

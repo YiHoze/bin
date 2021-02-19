@@ -2752,7 +2752,8 @@ tex: 	\documentclass{article}
 [Steve]
 description: Steve Jobs's commencement speech addressed at Standford University in 2005.
 output:	SteveSpeech
-cmd: 	wi.py https://www.nydailynews.com/resizer/Y-gbFbQokC9Cw2PdW3Z-HNE2CpU=/800x532/top/arc-anglerfish-arc2-prod-tronc.s3.amazonaws.com/public/OVN7AWY3V4IGG6CKIYUEF657WY.jpg -o SteveJobs
+cmd: 	myscript.py webimage
+		wi.py https://www.nydailynews.com/resizer/Y-gbFbQokC9Cw2PdW3Z-HNE2CpU=/800x532/top/arc-anglerfish-arc2-prod-tronc.s3.amazonaws.com/public/OVN7AWY3V4IGG6CKIYUEF657WY.jpg -o SteveJobs
 		ltx.py SteveSpeech -b -c -v
 tex:	\documentclass{article}
 		\usepackage[a4paper, margin={3cm, 3cm}]{geometry}

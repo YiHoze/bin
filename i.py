@@ -69,6 +69,13 @@ class IdleTexnician(object):
             default = False,
             help = "Wrap up the specified file with the main option's."
         )
+        parser.add_argument(
+            '-N',
+            dest = 'run_bool',
+            action = 'store_false',
+            default = True,
+            help = "Don't compile only to update i.ini."
+        )
 
         self.args, self.compile_option = parser.parse_known_args()
 
@@ -124,7 +131,10 @@ class IdleTexnician(object):
 
     def compile_tex(self):
 
-        if self.tex is list:
+        if not self.args.run_bool:
+            return
+
+        if type(self.tex) is list:
             for i in self.tex:
                 self.do_compile(i)
         else:

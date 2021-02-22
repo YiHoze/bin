@@ -27,8 +27,8 @@ class ScriptScribe(object):
     def parse_args(self):
 
         self.parser = argparse.ArgumentParser(
-            description = 'Extract a script from "scripts.db" to run it.',
-            add_help=False
+            add_help=False,
+            description = 'Extract a script from "scripts.db" to run it.'
         )
         self.parser.add_argument(
             'script',

@@ -2751,65 +2751,60 @@ code=
 description=[Python] TeX Live Configurator
 environment_output=docenv.ini
 environment=
- `# for ltx.py
- `[LaTeX]
- `compiler = lualatex.exe
- `; compiler = xelatex.exe
- `
- `# for iu.py 
- `[ImageMagick]
- `path = C:\Program Files\ImageMagick-7.0.9-Q16\magick.exe
- `[Inkscape]
- `path = C:\Program Files\Inkscape\inkscape.com
- `
- `# for tlconf.py
- `[TeX Live]
- `texmflocal = C:\texlive\texmf-local\tex\latex\local
- `repository = http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
- `TEXEDIT = \"C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe\" -r -g \"%%s\":%%d
- `TEXMFHOME = C:\home\texmf
- `
- `[TEXMF.CNF]
- `path =  C:\texlive\2020\texmf.cnf
- `target = $SystemRoot/fonts//
- `substitute = $SystemRoot/fonts;$localappdata/Microsoft/Windows/Fonts//
- `
- `[LOCAL.CONF]
- `path = C:\texlive\2020\texmf-var\fonts\conf\local.conf
- `content = <dir>C:/Users/yihoze/AppData/Local/Microsoft/Windows/Fonts</dir>
- `
- `[SumatraPDF]
- `path = C:\Program Files\SumatraPDF\SumatraPDF.exe
- `inverse-search = "C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe" -r -g "%%f":%%l
- `
- `[Sphinx Style]
- `latex = hzguide.cls, hzdissuade.sty, hzsphinx.sty, hzjupyter.sty
- `
- `# for open.py
- `[Text Editor]
- `path = C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe
- `associations = .aux, .bib, .bst, .cls, .cnf, .conf, .cmd, .css, .csv, .gv, .ini, .ind, .idx, .ist, .ipynb, .list, .lof, .log, .lot, .md, .ps1, .py, .rst, .sty, .tex, .tmp, .toc, .tsv, .txt
- `
- `[Adobe Reader]
- `path = C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe
- `
- `# for nb2pdf.py
- `[Jupyter Template]
- `latex = nb2pdf.tplx
- `
- `# for web
- `[Web Browser]
- `path = C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
- `
- `# To add other repositories and use KTUG's private repository:
- `#> tlmgr option repository  http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
- `#> tlmgr option repository http://mirror.kakao.com/CTAN/systems/texlive/tlnet/
- `#> tlmgr option repository https://cran.asia/tex/systems/texlive/tlnet/
- `#> tlmgr repository add http://ftp.ktug.org/KTUG/texlive/tlnet ktug
- `#> tlmgr pinning add ktug *
- `#> tlmgr repository add  https://cran.asia/KTUG/texlive/ cranasia
- `#> tlmgr pinning add cranasia "*"
- `#> tlmgr repository list  
+ # for ltx.py
+ [LaTeX]
+ compiler = lualatex.exe
+ ; compiler = xelatex.exe
+ 
+ # for iu.py 
+ [ImageMagick]
+ path = C:\Program Files\ImageMagick-7.0.9-Q16\magick.exe
+ [Inkscape]
+ path = C:\Program Files\Inkscape\inkscape.com
+ 
+ # for tlconf.py
+ [TeX Live]
+ texmflocal = C:\texlive\texmf-local\tex\latex\local
+ repository_main = https://cran.asia/tex/systems/texlive/tlnet/
+ ; repository_main = http://mirror.kakao.com/CTAN/systems/texlive/tlnet/
+ ; repository_main = http://mirror.navercorp.com/CTAN/systems/texlive/tlnet
+ repository_private = https://cran.asia/KTUG/texlive/
+ ; repository_private = http://ftp.ktug.org/KTUG/texlive/tlnet
+ 
+ TEXEDIT = \"C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe\" -r -g \"%%s\":%%d
+ TEXMFHOME = C:\home\texmf
+ 
+ [TEXMF.CNF]
+ path =  C:\texlive\2020\texmf.cnf
+ target = $SystemRoot/fonts//
+ substitute = $SystemRoot/fonts;$localappdata/Microsoft/Windows/Fonts//
+ 
+ [LOCAL.CONF]
+ path = C:\texlive\2020\texmf-var\fonts\conf\local.conf
+ content = <dir>C:/Users/yihoze/AppData/Local/Microsoft/Windows/Fonts</dir>
+ 
+ [SumatraPDF]
+ path = C:\Program Files\SumatraPDF\SumatraPDF.exe
+ inverse-search = "C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe" -r -g "%%f":%%l
+ 
+ # for open.py
+ [Text Editor]
+ path = C:\Users\yihoze\AppData\Local\Programs\Microsoft VS Code\code.exe
+ associations = .aux, .bib, .bst, .cls, .cnf, .conf, .cmd, .css, .csv, .gv, .ini, .ind, .idx, .ist, .ipynb, .list, .lof, .log, .lot, .md, .ps1, .py, .rst, .sty, .tex, .tmp, .toc, .tsv, .txt
+ 
+ [Adobe Reader]
+ path = C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe
+ 
+ [Web Browser]
+ path = C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+ 
+ # Sphinx and Jupyter
+ [Sphinx Style]
+ latex = hzguide.cls, hzdissuade.sty, hzsphinx.sty, hzjupyter.sty
+ 
+ [Jupyter Template]
+ latex = nb2pdf.tplx
+     
 code_output=tlconf.py
 code=
  `import os
@@ -2819,34 +2814,40 @@ code=
  `import glob
  `import subprocess
  `
- `class TeXLiveConf(object):
- `    def __init__(self, confirmation=True, answer='y'):
- `        self.ini = self.initialize()
- `        self.confirmation_bool = confirmation
- `        self.answer = answer
- `        if self.ini:
- `            self.ini= self.check_TeXLive()
+ `
+ `class TeXLiveConfigure(object):
+ `
+ `    def __init__(self):
+ `
+ `        self.initialize()
+ `        self.check_TeXLive()        
+ `        self.parse_args()
+ `        self.configure()
+ `
  `
  `    def initialize(self):
- `        self.inipath = os.path.dirname(__file__) 
+ `
+ `        self.inipath = os.path.dirname(__file__)
  `        ini = os.path.join(self.inipath, 'docenv.ini')
  `        if os.path.exists(ini):
  `            self.config = configparser.ConfigParser()
  `            self.config.read(ini)
- `            return True
  `        else:
  `            print('docenv.ini is not found.')
- `            return False
+ `            sys.exit()
+ `
  `
  `    def check_TeXLive(self):
+ `
  `        try:
  `            subprocess.check_call('mktexlsr.exe --version')
- `            return True
  `        except OSError:
  `            print("Make sure TeX Live is included in PATH.")
- `            return False
+ `            sys.exit()
  `
- `    def create_parser(self):
+ `
+ `    def parse_args(self):
+ `
  `        parser = argparse.ArgumentParser(
  `            description ='Configure your documentation environment for LaTeX.'
  `        )
@@ -2893,6 +2894,13 @@ code=
  `            help = 'Set SumatraPDF to enable inverse search. (jumping back to the corresponding point in the source tex file)'
  `        )
  `        parser.add_argument(
+ `            '-r',
+ `            dest = 'set_repository',
+ `            action = 'store_true',
+ `            default = False,
+ `            help = 'Set the main TeX Live repository.'
+ `        )
+ `        parser.add_argument(
  `            '-u',
  `            dest = 'update_texlive',
  `            action = 'store_true',
@@ -2922,22 +2930,27 @@ code=
  `        )
  `        parser.add_argument(
  `            '-q',
- `            dest = 'confirmation',
- `            action = 'store_true',
- `            default = False,
+ `            dest = 'confirmation_bool',
+ `            action = 'store_false',
+ `            default = True,
  `            help = 'Proceed without asking for confirmation.'
  `        )
- `        return parser
+ `
+ `        self.args = parser.parse_args()
+ `
  `
  `    def confirm(self, msg):
- `        if self.confirmation_bool:
+ `
+ `        if self.args.confirmation_bool:
  `            answer = input(msg)
  `            return answer
  `        else:
- `            return self.answer
+ `            return 'y'
+ `
  `
  `    def store_to_local(self):
- `        print('\n[Copying latex style files]')   
+ `
+ `        print('\n[Copying latex style files]')
  `        try:
  `            latex_style = self.config.get('Sphinx Style', 'latex')
  `            texmf_local = self.config.get('TeX Live', 'texmflocal')
@@ -2951,17 +2964,19 @@ code=
  `        if not (answer.lower() == 'y' or answer == ''):
  `            texmf_local = answer
  `        files = latex_style.split(', ')
- `        for afile in files:        
+ `        for afile in files:
  `            src = os.path.join(self.inipath, afile)
  `            if os.path.exists(src):
- `                cmd = 'copy {} {}'.format(src, texmf_local) 
+ `                cmd = 'copy {} {}'.format(src, texmf_local)
  `                os.system(cmd)
  `        cmd = 'dir {}'.format(texmf_local)
  `        os.system(cmd)
  `        os.system('mktexlsr.exe')
  `
+ `
  `    def set_texmfhome(self):
- `        print('\n[Setting TEXMFHOME]')    
+ `
+ `        print('\n[Setting TEXMFHOME]')
  `        try:
  `            texmfhome = self.config.get('TeX Live', 'TEXMFHOME')
  `        except:
@@ -2978,9 +2993,11 @@ code=
  `        cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXMFHOME'\""
  `        os.system(cmd)
  `
+ `
  `    def set_texedit(self):
- `        print('\n[Setting TEXEDIT]')    
- `        try:    
+ `
+ `        print('\n[Setting TEXEDIT]')
+ `        try:
  `            texedit = self.config.get('TeX Live', 'TEXEDIT')
  `        except:
  `            print('Make sure to have docenv.ini set properly.')
@@ -2996,7 +3013,9 @@ code=
  `        cmd = "powershell \"(get-itemproperty -path HKCU:\\Environment).'TEXEDIT'\""
  `        os.system(cmd)
  `
+ `
  `    def set_sumatrapdf(self):
+ `
  `        print('\n[Setting SumatraPDF')
  `        try:
  `            sumatra = self.config.get('SumatraPDF', 'path')
@@ -3009,14 +3028,16 @@ code=
  `        if answer.lower() == 'n':
  `            return
  `        if not (answer.lower() == 'y' or answer == ''):
- `            editor = answer    
+ `            editor = answer
  `        cmd = []
  `        cmd.append(sumatra)
  `        cmd.append('-inverse-search')
- `        cmd.append(editor)    
+ `        cmd.append(editor)
  `        subprocess.Popen(cmd)
  `
+ `
  `    def modify_texmf_cnf(self):
+ `
  `        print('\n[texmf.cnf]')
  `        try:
  `            texmf_cnf = self.config.get('TEXMF.CNF', 'path')
@@ -3036,7 +3057,9 @@ code=
  `            with open(texmf_cnf, mode='w') as f:
  `                f.write(content)
  `
+ `
  `    def create_local_conf(self):
+ `
  `        print('\n[local.conf]')
  `        try:
  `            local_conf = self.config.get('LOCAL.CONF', 'path')
@@ -3052,97 +3075,127 @@ code=
  `            with open(local_conf, mode='w') as f:
  `                f.write(content)
  `
+ `
  `    def update_texlive(self):
- `        print('\n[Updating TeX Live]')    
- `        try:
- `            repository = self.config.get('TeX Live', 'repository')
- `        except:
- `            print('Make sure to have docenv.ini set properly.')
- `            return
- `        query = 'Are you sure to use the <{}> repository to update the TeX Live?\nEnter [Y] to proceed, [n] to abandon, or another repository: '.format(repository)
+ `
+ `        print('\n[Updating the TeX Live]')
+ `        query = 'Are you sure to update the TeX Live?\nEnter [Y] to proceed or [n] to abandon: '
  `        answer = self.confirm(query)
  `        if answer.lower() == 'n':
  `            return
  `        else:
- `            if not (answer.lower() == 'y' or answer == ''):
- `                repository = answer
- `            os.system('tlmgr.bat option repository {}'.format(repository))
  `            os.system('tlmgr.bat update --self --all')
  `
+ `
+ `    def set_repository(self):
+ `
+ `        repository = self.get_repository('main')
+ `        if repository:
+ `            os.system('tlmgr.bat option repository {}'.format(repository))
+ `        repository = self.get_repository('private')
+ `        if repository:
+ `            os.system('tlmgr.bat repository add {} private'.format(repository))
+ `            os.system('tlmgr.bat pinning add private')
+ `        os.system('tlmgr.bat repository list')
+ `
+ `
+ `    def get_repository(self, kind):
+ `
+ `        print('\n[Setting the {} repository]'.format(kind))
+ `        option = 'repository_{}'.format(kind)
+ `        url = self.config.get('TeX Live', option, fallback=False)
+ `        if url:
+ `            query = 'Are you sure to set <{}> as the {} repository?\nEnter [Y] to proceed, [n] to abandon, or another repository: '.format(url, kind)
+ `            answer = self.confirm(query)
+ `            if (answer.lower() == 'y' or answer == ''):
+ `                return url
+ `            elif answer.lower() == 'n':
+ `                return False
+ `            else:
+ `                return answer
+ `        else:
+ `            return False
+ `        
+ `
  `    def cache_font(self):
+ `
  `        print('\n[Caching fonts]')
  `        query = 'Are you sure to cache fonts for XeLaTeX?\nEnter [Y] to proceed or [n] to abandon: '
  `        answer = self.confirm(query)
  `        if (answer.lower() == 'y' or answer == ''):
  `            cmd = 'fc-cache.exe -v -r'
- `            os.system(cmd)     
+ `            os.system(cmd)
  `
- `    def luaotfload(self):    
+ `
+ `    def luaotfload(self):
+ `
  `        query = 'Are you sure to update the font database for LuLaTeX?\nEnter [Y] to proceed or [n] to abandon: '
  `        answer = self.confirm(query)
  `        if (answer.lower() == 'y' or answer == ''):
  `            cmd = 'luaotfload-tool --update --force --verbose=3'
- `            os.system(cmd)     
+ `            os.system(cmd)
+ `
  `
  `    def ToContinue(self, func):
- `        if self.confirmation_bool:
+ `
+ `        if self.args.confirmation_bool:
  `            query = '\nDo you want to continue this batch configuration? [Y/n] '
  `            answer = self.confirm(query)
  `        else:
- `            answer = self.answer
+ `            answer = 'y'
  `        if answer.lower() == 'n':
  `            return False
  `        else:
  `            func()
- `            return True        
+ `            return True
+ `
  `
  `    def configure(self):
- `        if self.ini:
- `            if self.args.batch:
- `                if not self.ToContinue(self.store_to_local):
- `                    return None
- `                if not self.ToContinue(self.set_texmfhome):
- `                    return None
- `                if not self.ToContinue(self.modify_texmf_cnf):
- `                    return None
- `                if not self.ToContinue(self.create_local_conf):
- `                    return None
- `                if not self.ToContinue(self.set_texedit):
- `                    return None
- `                if not self.ToContinue(self.set_sumatrapdf):
- `                    return None
- `                if not self.ToContinue(self.update_texlive):
- `                    return None
- `                if not self.ToContinue(self.cache_font):
- `                    return None
- `                self.ToContinue(self.luaotfload)                
- `            else:    
- `                if self.args.store_to_local:
- `                    self.store_to_local()
- `                if self.args.texmfhome:
- `                    self.set_texmfhome()
- `                if self.args.texmf_cnf:
- `                    self.modify_texmf_cnf()
- `                if self.args.local_conf:
- `                    self.create_local_conf()
- `                if self.args.texedit:
- `                    self.set_texedit()
- `                if self.args.sumatrapdf:
- `                    self.set_sumatrapdf()
- `                if self.args.update_texlive:
- `                    self.update_texlive()
- `                if self.args.cache_font:
- `                    self.cache_font()
- `                if self.args.luaotfload:
- `                    self.luaotfload()
+ `
+ `        if self.args.batch:
+ `            if not self.ToContinue(self.store_to_local):
+ `                return None
+ `            if not self.ToContinue(self.set_texmfhome):
+ `                return None
+ `            if not self.ToContinue(self.modify_texmf_cnf):
+ `                return None
+ `            if not self.ToContinue(self.create_local_conf):
+ `                return None
+ `            if not self.ToContinue(self.set_texedit):
+ `                return None
+ `            if not self.ToContinue(self.set_sumatrapdf):
+ `                return None
+ `            if not self.ToContinue(self.set_repository):
+ `                return None
+ `            if not self.ToContinue(self.update_texlive):
+ `                return None
+ `            if not self.ToContinue(self.cache_font):
+ `                return None
+ `            self.ToContinue(self.luaotfload)
+ `        else:
+ `            if self.args.store_to_local:
+ `                self.store_to_local()
+ `            if self.args.texmfhome:
+ `                self.set_texmfhome()
+ `            if self.args.texmf_cnf:
+ `                self.modify_texmf_cnf()
+ `            if self.args.local_conf:
+ `                self.create_local_conf()
+ `            if self.args.texedit:
+ `                self.set_texedit()
+ `            if self.args.sumatrapdf:
+ `                self.set_sumatrapdf()
+ `            if self.args.set_repository:
+ `                self.set_repository()
+ `            if self.args.update_texlive:
+ `                self.update_texlive()
+ `            if self.args.cache_font:
+ `                self.cache_font()
+ `            if self.args.luaotfload:
+ `                self.luaotfload()
  `
  `if __name__ == '__main__':
- `    tlconf = TeXLiveConf()
- `    parser = tlconf.create_parser()
- `    tlconf.args = parser.parse_args()
- `    if tlconf.args.confirmation:
- `        tlconf.confirmation_bool = True
- `    tlconf.configure()
+ `    TeXLiveConfigure()    
 
 [daily]
 description=[Python] Open multiple apps simultaneously, particularly to do your tasks every morning.

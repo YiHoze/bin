@@ -16,7 +16,6 @@ sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
 
-
 class WordDigger(object):
 
     def __init__(self):
@@ -90,6 +89,10 @@ class WordDigger(object):
 
         self.ui_txt = r'''\\ui\{.+?}	
 \\item\[.+?\]'''
+
+        self.opener = FileOpener()
+        self.parse_args()
+        self.determine_task()        
 
 
     def parse_args(self):
@@ -334,7 +337,7 @@ class WordDigger(object):
             if os.path.exists(output):
                 os.remove(output)
             os.rename(tmp, output)
-            opener.OpenTxt(output)                
+            self.opener.open_txt(output)                
         elif self.backup_bool:
             filename, ext = os.path.splitext(afile)
             backup = filename + '_bak' + ext
@@ -383,7 +386,7 @@ class WordDigger(object):
         
         with open(output, mode='w', encoding='utf-8') as f:
             f.write(content)
-        opener.OpenTxt(output)
+        self.opener.open_txt(output)
 
 
     def extract_tex_macros(self, afile):
@@ -445,7 +448,7 @@ class WordDigger(object):
             content = f.read()
         with open(output, mode='w', encoding='utf-8') as f:
             f.write(content)
-        opener.OpenTxt(output) 
+        self.opener.open_txt(output) 
 
 
     def write_collection(self):
@@ -455,7 +458,7 @@ class WordDigger(object):
         strings = '\n'.join(sorted(self.found, key=str.lower))
         with open(self.output, mode='w', encoding='utf-8') as f:
             f.write(strings)
-        opener.OpenTxt(self.output)  
+        self.opener.open_txt(self.output)  
 
     def determine_task(self): 
 
@@ -623,8 +626,4 @@ class UnicodeDigger(object):
 
 
 if __name__ == '__main__':    
-    opener = FileOpener()
-    wDigger = WordDigger()
-    wDigger.parse_args()
-    wDigger.determine_task()
-
+    WordDigger()

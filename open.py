@@ -7,14 +7,14 @@ import subprocess
 
 class FileOpener(object):
 
-    def __init__(self, files=None, Adobe=False, texlive=False):
+    def __init__(self):
 
-        self.ini = self.initialize()
-        self.files = files
-        self.Adobe_bool = Adobe
-        self.texlive_bool = texlive
-        self.edopt = ''
-
+        self.force_bool = False
+        self.Adobe_bool = False
+        self.texlive_bool = False
+        self.web_bool = False
+        self.editor_option = ''
+        self.initialize()
 
     def initialize(self):        
 
@@ -26,43 +26,15 @@ class FileOpener(object):
             try:
                 self.editor = config.get('Text Editor', 'path')
                 self.associations = config.get('Text Editor', 'associations')
-                self.PDFviewer = config.get('SumatraPDF', 'path')
-                self.Adobe_boolReader = config.get('Adobe Reader', 'path')
+                self.pdf_viewer = config.get('SumatraPDF', 'path')
+                self.AdobeReader = config.get('Adobe Reader', 'path')
                 self.WebBrowser = config.get('Web Browser', 'path')
-                return True
             except:
                 print('Make sure to have docenv.ini set properly.')
-                return False
+                sys.exit()
         else:
             print('Docenv.ini is not found in %s.' %(inipath))
-            return False
-
-
-    def check_editor(self):
-
-        if os.path.exists(self.editor):
-            return True
-        else:
-            print('Check the path to the text editor.')
-            return False
-
-
-    def check_PDFviewer(self):
-
-        if os.path.exists(self.PDFviewer):
-            return True
-        else:
-            print('Check the path to the PDF viewer.')
-            return False
-    
-
-    def check_AdobeReader(self):
-
-        if os.path.exists(self.Adobe_boolReader):
-            return True
-        else:
-            print('Check the path to the Adobe Reader.')
-            return False
+            sys.exit()
 
 
     def parse_args(self):
@@ -78,54 +50,79 @@ class FileOpener(object):
         parser.add_argument(
             '-e',
             dest = 'editor',
-            default = self.editor,
+            default = None,
             help = 'Specify a different text editor to use it.'
         )
         parser.add_argument(
             '-o',
-            dest = 'edopt',
+            dest = 'editor_option',
             default = '',
             help = 'Specify options for the text editor.'
         )
         parser.add_argument(
             '-a',
-            dest = 'Adobe',
+            dest = 'Adobe_bool',
             action = 'store_true',
+            default = False,
             help = 'Use Adobe Reader to view PDF.'
         )
         parser.add_argument(
             '-s',
-            dest = 'texlive',
+            dest = 'texlive_bool',
             action = 'store_true',
             default = False,
             help = 'Search TeX Live for the specified file to find and open.'
         )
         parser.add_argument(
             '-f',
-            dest = 'force',
+            dest = 'force_bool',
             action = 'store_true',
             default = False,
             help = 'Force to open as text.'
         )
         parser.add_argument(
             '-w',
-            dest = 'web',
+            dest = 'web_bool',
             action = 'store_true',
             default = False,
             help = 'Access the given website.'
         )
 
-        args = parser.parse_args()
-        self.files = args.files
-        self.editor = args.editor
-        self.edopt = args.edopt
-        self.Adobe_bool = args.Adobe
-        self.texlive_bool = args.texlive
-        self.force_bool = args.force
-        self.web_bool = args.web
+        self.args = parser.parse_args()    
+
+        self.force_bool = self.args.force_bool    
+        self.Adobe_bool = self.args.Adobe_bool    
+        self.texlive_bool = self.args.texlive_bool    
+        self.web_bool = self.args.web_bool    
+        self.editor_option = self.args.editor_option
+
+    # def check_editor(self):
+
+    #     if os.path.exists(self.editor):
+    #         return True
+    #     else:
+    #         print('Check the path to the text editor.')
+    #         return False
 
 
-    def DetermineFileType(self, afile):
+    # def check_pdf_viewer(self):
+
+    #     if os.path.exists(self.pdf_viewer):
+    #         return True
+    #     else:
+    #         print('Check the path to the PDF viewer.')
+    #         return False
+    
+
+    # def check_AdobeReader(self):
+
+    #     if os.path.exists(self.AdobeReader):
+    #         return True
+    #     else:
+    #         print('Check the path to the Adobe Reader.')
+    #         return False
+
+    def determine_file_type(self, afile):
 
         ext = os.path.splitext(afile)[1]        
         if ext.lower() in self.associations:
@@ -136,53 +133,49 @@ class FileOpener(object):
             return 'another'
 
 
-    def OpenHere(self, files):
+    def open_here(self, files):
 
         for fnpattern in files:
             for afile in glob.glob(fnpattern):
-                filetype = self.DetermineFileType(afile)
+                filetype = self.determine_file_type(afile)
                 if filetype == 'txt' or self.force_bool:
-                    self.OpenTxt(afile)
+                    self.open_txt(afile)
                 elif filetype ==  'pdf':
-                    self.OpenPDF(afile)
+                    self.open_pdf(afile)
                 else:
                     cmd = 'start \"\" \"%s\"' % (afile)
                     os.system(cmd)
 
 
-    def OpenTxt(self, afile):
+    def open_txt(self, afile):        
+                
+        cmd = '\"%s\" %s %s' % (self.editor, self.editor_option, afile)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
-        if self.check_editor():
-            cmd = '\"%s\" %s %s' % (self.editor, self.edopt, afile)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
-
-    def OpenPDF(self, afile):
+    def open_pdf(self, afile):
 
         if self.Adobe_bool:
-            if self.check_AdobeReader():
-                cmd = '\"%s\" \"%s\"' % (self.Adobe_boolReader, afile)
-                subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
-        else:   
-            if self.check_PDFviewer():
-                cmd = '\"%s\" \"%s\"' % (self.PDFviewer, afile)
-                subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
+            cmd = '\"%s\" \"%s\"' % (self.AdobeReader, afile)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
+        else:               
+            cmd = '\"%s\" \"%s\"' % (self.pdf_viewer, afile)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
 
 
-    def SearchTeXLive(self, files):
+    def search_tex_live(self, files):
 
-        if self.check_editor():
-            for afile in files:
-                try:
-                    result = subprocess.check_output(['kpsewhich', afile], stderr=subprocess.STDOUT)
-                    found = str(result, 'utf-8')  
-                    found = found.rstrip()                
-                    self.OpenTxt(found)
-                except subprocess.CalledProcessError:
-                    print('%s is not found in TeX Live.' %(afile))
+        for afile in files:
+            try:
+                result = subprocess.check_output(['kpsewhich', afile], stderr=subprocess.STDOUT)
+                found = str(result, 'utf-8')  
+                found = found.rstrip()                
+                self.open_txt(found)
+            except subprocess.CalledProcessError:
+                print('%s is not found in TeX Live.' %(afile))
 
 
-    def OpenWeb(self, urls):
+    def open_web(self, urls):
 
         for url in urls:
             cmd = '\"%s\" \"%s\"' % (self.WebBrowser, url)
@@ -190,19 +183,16 @@ class FileOpener(object):
 
 
     def open(self, files=None):
-
-        if self.ini:           
-            if files == None:
-                files = self.files
-            if self.texlive_bool:
-                self.SearchTeXLive(files)
-            elif self.web_bool:
-                self.OpenWeb(files)
-            else:
-                self.OpenHere(files)
+            
+        if self.texlive_bool:
+            self.search_tex_live(files)
+        elif self.web_bool:
+            self.open_web(files)
+        else:
+            self.open_here(files)
 
 
 if __name__ == '__main__':
-    opener = FileOpener()    
-    opener.parse_args()    
-    opener.open()
+    opener = FileOpener()      
+    opener.parse_args()
+    opener.open(opener.args.files)

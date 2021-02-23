@@ -11,20 +11,13 @@ sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 from ltx import LatexCompiler
 
+
 class LatexTemplate(object):
 
-    def __init__(self, template='hzguide', substitutes=None, output=None, defy=False):
+    def __init__(self, template=None, substitutes=None, output=None):    
 
-        self.template = template
-        self.substitutes = substitutes
-        self.output = output
-        self.defy_bool = defy
-        self.list_bool = False
-        self.List_bool = False
         self.cmd = None
         self.generated_files = []
-        self.remove_bool = False
-        self.force_bool = False
 
         tpl = os.path.join(dirCalled, 'latex.tpl')
         if os.path.exists(tpl):
@@ -33,6 +26,15 @@ class LatexTemplate(object):
         else:
             print('latex.tpl is not found.')
             sys.exit()
+
+        self.parse_args()
+        if template is not None:
+            self.args.template = template
+        if substitutes is not None:
+            self.args.substitutes = substitutes
+        if output is not None:
+            self.args.output = output
+        self.determine_task()
 
 
     def parse_args(self):
@@ -78,59 +80,48 @@ class LatexTemplate(object):
         )
         parser.add_argument(
             '-n',
-            dest = 'defy',
+            dest = 'defy_bool',
             action = 'store_true',
             default = False,
             help = 'Do not compile even if some compilation options are prescribed.'
         )
         parser.add_argument(
             '-f',
-            dest = 'force',
+            dest = 'force_bool',
             action = 'store_true',
             default = False,
             help = 'Compile without opening the tex file even if no compilation option is prescribed .'
         )
         parser.add_argument(
             '-r',
-            dest = 'remove',
+            dest = 'remove_bool',
             action = 'store_true',
             default = False,
             help = 'Remove the tex and its subsidiary files after compilation.'
         )
         parser.add_argument(
             '-l',
-            dest = 'list',
+            dest = 'list_bool',
             action = 'store_true',
             default = False,
             help = 'Enumerate templates'
         )
         parser.add_argument(
             '-L',
-            dest = 'List',
+            dest = 'List_bool',
             action = 'store_true',
             default = False,
             help = 'Enumerate tempaltes with description.'
         )
         parser.add_argument(
             '-d',
-            dest = 'detail',
+            dest = 'detail_bool',
             action = 'store_true',
             default = False,
             help = 'Show the details about the specified template.'            
         )
 
-        args = parser.parse_args()
-
-        self.template = args.template
-        self.substitutes = args.substitutes
-        self.output = args.output
-        self.list_bool = args.list
-        self.List_bool = args.List
-        self.detail_bool = args.detail
-        self.defy_bool = args.defy
-        self.force_bool = args.force
-        self.remove_bool = args.remove
-
+        self.args = parser.parse_args()
 
     def confirm_to_remove(self, afile):
 
@@ -147,10 +138,10 @@ class LatexTemplate(object):
 
     def determine_filename(self):
 
-        if self.output is None:
-            self.filename = self.templates.get(self.template, 'output', fallback='mydoc')
+        if self.args.output is None:
+            self.filename = self.templates.get(self.args.template, 'output', fallback='mydoc')
         else:
-            filename = self.output
+            filename = self.args.output
             self.filename = os.path.splitext(filename)[0]        
         self.tex = self.filename + '.tex'        
 
@@ -178,7 +169,7 @@ class LatexTemplate(object):
         with open(image_list_file, mode='w', encoding='utf-8') as f:
             f.write(images)
 
-        if self.remove_bool:
+        if self.args.remove_bool:
             self.generated_files.append(image_list_file)
 
         return True
@@ -188,13 +179,13 @@ class LatexTemplate(object):
 
         content = content.replace('`', '')
         try:
-            placeholders = int(self.templates.get(self.template, 'placeholders'))
-            defaults = self.templates.get(self.template, 'defaults')
+            placeholders = int(self.templates.get(self.args.template, 'placeholders'))
+            defaults = self.templates.get(self.args.template, 'defaults')
             defaults = defaults.split(', ')
         except:
             return content
-        if self.substitutes is not None:
-            for index, value in enumerate(self.substitutes):
+        if self.args.substitutes is not None:
+            for index, value in enumerate(self.args.substitutes):
                 if index < placeholders:
                     defaults[index] = value
                 else:
@@ -208,7 +199,7 @@ class LatexTemplate(object):
 
     def write_relatives(self, extension):
 
-        content = self.templates.get(self.template, extension, fallback=None)
+        content = self.templates.get(self.args.template, extension, fallback=None)
         ext = self.filename + '.' + extension
         if content is not None:
             if extension == 'cmd':
@@ -222,7 +213,7 @@ class LatexTemplate(object):
             if self.confirm_to_remove(ext):
                 with open(ext, mode='w', encoding='utf-8') as f:
                     f.write(content) 
-                if self.remove_bool:
+                if self.args.remove_bool:
                     self.generated_files.append(ext)
             
 
@@ -239,7 +230,7 @@ class LatexTemplate(object):
         
         if self.confirm_to_remove(self.tex):        
             try:
-                content = self.templates.get(self.template, 'tex')
+                content = self.templates.get(self.args.template, 'tex')
                 content = self.fill_placeholders(content)
                 with open(self.tex, mode='w', encoding='utf-8') as f:
                     f.write(content)
@@ -247,20 +238,20 @@ class LatexTemplate(object):
                 print('Make sure to have latex.tpl set properly.')
                 return False
 
-        if self.remove_bool:
+        if self.args.remove_bool:
             self.generated_files.append(self.tex)
 
-        opener = FileOpener()
-        if not self.force_bool:
-            opener.OpenTxt(self.tex)
+        if not self.args.force_bool:
+            opener = FileOpener()
+            opener.open_txt(self.tex)
         return True
 
 
     def compile(self):
 
-        compiler_option = self.templates.get(self.template, 'compiler', fallback=None)
+        compiler_option = self.templates.get(self.args.template, 'compiler', fallback=None)
         if compiler_option is None:
-            if self.force_bool:
+            if self.args.force_bool:
                 LatexCompiler(self.tex, ['-v'])                
             else:                
                 if self.cmd is not None:
@@ -272,22 +263,22 @@ class LatexTemplate(object):
             compiler_option.append('-v')            
             LatexCompiler(self.tex, compiler_option)
 
-        if self.remove_bool:
+        if self.args.remove_bool:
             for i in self.generated_files:
                 os.remove(i)
 
 
     def make(self):
 
-        if not self.templates.has_section(self.template):
-            print('"{}" is not defined.'.format(self.template))
+        if not self.templates.has_section(self.args.template):
+            print('"{}" is not defined.'.format(self.args.template))
             return False
         self.determine_filename()
-        if self.template == 'album':            
+        if self.args.template == 'album':            
             if self.make_image_list() is False:
                 return 
         if self.write_from_template(): 
-            if not self.defy_bool:           
+            if not self.args.defy_bool:           
                 self.compile()                
 
 
@@ -325,24 +316,26 @@ class LatexTemplate(object):
 
     def show_details(self):
 
-        if not self.templates.has_section(self.template):
-            print('"{}" is not defined.'.format(self.template))
+        if not self.templates.has_section(self.args.template):
+            print('"{}" is not defined.'.format(self.args.template))
             return 
-        usage = self.templates.get(self.template, 'description', fallback=None)
+        usage = self.templates.get(self.args.template, 'description', fallback=None)
         if usage == None:
-            print('"{}" has no decription'.format(self.template))
+            print('"{}" has no decription'.format(self.args.template))
         else: 
             print('\n{}\n'.format(usage))
 
 
+    def determine_task(self):
+
+        if self.args.List_bool:
+            self.enumerate_with_description()
+        elif self.args.list_bool:
+            self.enumerate_without_description()
+        elif self.args.detail_bool:
+            self.show_details()
+        else:
+            self.make()
+
 if __name__ == '__main__':
-    mytex = LatexTemplate()
-    mytex.parse_args()
-    if mytex.List_bool:
-        mytex.enumerate_with_description()
-    elif mytex.list_bool:
-        mytex.enumerate_without_description()
-    elif mytex.detail_bool:
-        mytex.show_details()
-    else:
-        mytex.make()
+    LatexTemplate()

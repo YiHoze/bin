@@ -378,7 +378,7 @@ class LatexCompiler(object):
         if self.args.view_bool:
             if os.path.exists(self.pdf):                 
                 opener = FileOpener()
-                opener.OpenPDF(self.pdf)
+                opener.open_pdf(self.pdf)
 
 
 if __name__ == "__main__":

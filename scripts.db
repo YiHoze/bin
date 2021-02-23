@@ -509,10 +509,10 @@ code=
  `    This is the same as
  `        pdfcrop foo_1.pdf goo_1.pdf
  `        pdfcrop foo_2.pdf goo_2.pdf        
- `loop.py -c "magick -rotate 90 foo_*.png foo_*.png"
+ `loop.py -c "magick foo_*.png -rotate 270 foo_*.png"
  `    This is the same as
- `        magick -rotate 90 foo_1.png foo_1.png
- `        magick -rotate 90 foo_2.png foo_2.png
+ `        magick foo_1.png -rotate 270 foo_1.png
+ `        magick foo_2.png -rotate 270 foo_2.png
  `'''
  `
  `parser = argparse.ArgumentParser(

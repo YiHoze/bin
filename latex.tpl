@@ -517,6 +517,7 @@ description: Use this template to convert numbers to ancient Chinese numerals.
 	usage: mytex.py tys -s NUMBERS 
 	defaults: "12.86, 302.9534, -8276.1,5.1064, 389.56"
 output:	tys
+compiler: -x, -c
 placeholders: 1
 defaults: 12.86,302.9534,-8276.1,5.1064,389.56
 sty:	`\RequirePackage{fontspec}

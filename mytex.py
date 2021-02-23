@@ -14,7 +14,7 @@ from ltx import LatexCompiler
 
 class LatexTemplate(object):
 
-    def __init__(self, template=None, substitutes=None, output=None):    
+    def __init__(self, argv=None):    
 
         self.cmd = None
         self.generated_files = []
@@ -27,17 +27,11 @@ class LatexTemplate(object):
             print('latex.tpl is not found.')
             sys.exit()
 
-        self.parse_args()
-        if template is not None:
-            self.args.template = template
-        if substitutes is not None:
-            self.args.substitutes = substitutes
-        if output is not None:
-            self.args.output = output
+        self.parse_args(argv)
         self.determine_task()
 
 
-    def parse_args(self):
+    def parse_args(self, argv=None):
 
         example = '''examples:
     mytex.py
@@ -121,7 +115,7 @@ class LatexTemplate(object):
             help = 'Show the details about the specified template.'            
         )
 
-        self.args = parser.parse_args()
+        self.args = parser.parse_args(argv)
 
     def confirm_to_remove(self, afile):
 

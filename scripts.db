@@ -1526,11 +1526,9 @@ code=
  `            os.system(cmd)        
  `            # Compile tex
  `            if os.path.exists(tex):                
- `                texer = LatexCompiler(tex)                
  `                if len(self.compile_option) == 0:
  `                     self.compile_option.append('-w')                
- `                texer.parse_args(self.compile_option)
- `                texer.compile()         
+ `                LatexCompiler(tex, self.compile_option)
  `        else:            
  `            print('{} is not a Jupyter notebook.'.format(afile))
  `
@@ -1612,7 +1610,7 @@ code=
  `    help(module)
  `elif args.open_bool:
  `    opener = FileOpener()
- `    opener.OpenTxt(module.__file__)
+ `    opener.open_txt(module.__file__)
  `else:
  `    print(module.__file__)
 
@@ -2577,11 +2575,9 @@ code=
  `    def generate_pdf(self):
  `
  `        if self.letters is None:
- `            mytex = LatexTemplate(template='lotto', substitutes=[self.weeks, str(self.frequency)])
+ `            LatexTemplate(['lotto', '-s', self.weeks, str(self.frequency)])
  `        else:
- `            mytex = LatexTemplate(template='permute', substitutes=[self.letters])
- `        if mytex.ini_bool:
- `            mytex.make()    
+ `            LatexTemplate(['permute', '-s', self.letters])
  `
  `if __name__ == '__main__':
  `    lotto = Lotto()

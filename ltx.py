@@ -10,6 +10,9 @@ dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from open import FileOpener
 
+# Both below are available:
+# LatexCompiler('foo.tex', [options, ...])
+# LatexCompiler(['foo.tex', options, ...])
 
 class LatexCompiler(object):
 

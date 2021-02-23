@@ -62,7 +62,7 @@ class FontInfo(object):
 
         filename = os.path.splitext(self.args.font)[0]
         filename = ''.join(filename.split())
-        LatexTemplate(template='multilingual', substitutes=[self.args.font], output=filename)
+        LatexTemplate(['multilingual', '-s', self.args.font, '-o', filename])
 
 
     def enumerate_fonts(self):

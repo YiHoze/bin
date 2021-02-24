@@ -13,7 +13,6 @@ class FileOpener(object):
         self.Adobe_bool = False
         self.texlive_bool = False
         self.web_bool = False
-        self.editor_option = ''
         self.initialize()
 
     def initialize(self):        
@@ -48,19 +47,19 @@ class FileOpener(object):
             help = 'Specify files to open.'
         )        
         parser.add_argument(
-            '-e',
-            dest = 'editor',
+            '-a',
+            dest = 'application',
             default = None,
-            help = 'Specify a different text editor to use it.'
+            help = 'Specify an application program to use.'
         )
         parser.add_argument(
             '-o',
-            dest = 'editor_option',
+            dest = 'app_option',
             default = '',
-            help = 'Specify options for the text editor.'
+            help = 'Specify options for the application.'
         )
         parser.add_argument(
-            '-a',
+            '-A',
             dest = 'Adobe_bool',
             action = 'store_true',
             default = False,
@@ -94,7 +93,6 @@ class FileOpener(object):
         self.Adobe_bool = self.args.Adobe_bool    
         self.texlive_bool = self.args.texlive_bool    
         self.web_bool = self.args.web_bool    
-        self.editor_option = self.args.editor_option
 
     # def check_editor(self):
 
@@ -137,19 +135,28 @@ class FileOpener(object):
 
         for fnpattern in files:
             for afile in glob.glob(fnpattern):
-                filetype = self.determine_file_type(afile)
-                if filetype == 'txt' or self.force_bool:
-                    self.open_txt(afile)
-                elif filetype ==  'pdf':
-                    self.open_pdf(afile)
+                if self.args.application is None:
+                    filetype = self.determine_file_type(afile)
+                    if filetype == 'txt' or self.force_bool:
+                        self.open_txt(afile)
+                    elif filetype ==  'pdf':
+                        self.open_pdf(afile)
+                    else:
+                        cmd = 'start \"\" \"%s\"' % (afile)
+                        os.system(cmd)
                 else:
-                    cmd = 'start \"\" \"%s\"' % (afile)
-                    os.system(cmd)
+                    self.open_app(afile)
+
+
+    def open_app(self, afile):
+
+        cmd = '\"%s\" %s %s' % (self.args.application, self.args.app_option, afile)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
     def open_txt(self, afile):        
                 
-        cmd = '\"%s\" %s %s' % (self.editor, self.editor_option, afile)
+        cmd = '\"%s\" %s %s' % (self.editor, self.args.app_option, afile)
         subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 

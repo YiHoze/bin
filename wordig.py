@@ -151,7 +151,7 @@ class WordDigger(object):
         )
         parser.add_argument(
             '-b',
-            dest = 'backup',
+            dest = 'backup_bool',
             action = 'store_true',
             default = False,
             help = 'Make backup copies.'
@@ -164,42 +164,42 @@ class WordDigger(object):
         )
         parser.add_argument(
             '-J',
-            dest = 'to_autojosa',
+            dest = 'to_autojosa_bool',
             action = 'store_true',
             default = False,
             help = 'Replace 조사 with 자동조사 macros in TeX files.'
         )
         parser.add_argument(
             '-j',
-            dest = 'from_autojosa',
+            dest = 'from_autojosa_bool',
             action = 'store_true',
             default = False,
             help = 'Replace 자동 조사 macros with 조사 in TeX files.'
         )
         parser.add_argument(
             '-e',
-            dest = 'extract_string',
+            dest = 'extract_string_bool',
             action = 'store_true',
             default = False,
             help = 'Extract specific strings referring to the given pattern file.'
         )  
         parser.add_argument(
             '-w',
-            dest = 'extract_word',
+            dest = 'extract_word_bool',
             action = 'store_true',
             default = False,
             help = 'Extract words.'
         )
         parser.add_argument(
             '-t',
-            dest = 'extract_tex',
+            dest = 'extract_tex_bool',
             action = 'store_true',
             default = False,
             help = 'Extract macros from TeX files.'
         )              
         parser.add_argument(
             '-d',
-            dest = 'detex',
+            dest = 'detex_bool',
             action = 'store_true',
             default = False,
             help = 'Remove macros from TeX files.'
@@ -213,78 +213,61 @@ class WordDigger(object):
 
         parser.add_argument(
             '-r',
-            dest = 'recursive',
+            dest = 'recursive_bool',
             action = 'store_true',
             default = False,
             help = 'Search through all subdirectories.'
         )
         parser.add_argument(
             '-p',
-            dest = 'page_count',
+            dest = 'page_count_bool',
             action = 'store_true',
             default = False,
             help = 'Count PDF pages.'
         )
         parser.add_argument(
             '-U',
-            dest = 'unicode',
+            dest = 'unicode_bool',
             action = 'store_true',
             default = False,
             help = 'Get the uncode information.',
         )        
         parser.add_argument(
             '-c',
-            dest = 'convert',
+            dest = 'convert_bool',
             action = 'store_true',
             default = False,
             help = 'Covert EUC-KR to UTF-8.'
         )
 
-        args = parser.parse_args()
+        self.args = parser.parse_args()
 
-        self.targets = args.targets
-        self.aim = args.aim
-        self.substitute = args.substitute
-        self.backup_bool = args.backup
-        self.pattern = args.pattern
-        self.to_autojosa_bool = args.to_autojosa
-        self.from_autojosa_bool = args.from_autojosa
-        self.extract_string_bool = args.extract_string
-        self.extract_word_bool = args.extract_word
-        self.extract_tex_bool = args.extract_tex
-        self.detex_bool = args.detex
-        self.output = args.output
-        self.recursive_bool = args.recursive
-        self.page_count_bool = args.page_count
-        self.unicode_bool = args.unicode   
-        self.convert_bool = args.convert        
-
-        if self.detex_bool and self.pattern is None:
-            self.pattern = os.path.join(dirCalled, 'detex.tsv')
-            if not os.path.exists(self.pattern):
-                # self.pattern = 'detex.tsv'
-                with open(self.pattern, mode='w', encoding='utf-8') as f:
+        if self.args.detex_bool and self.args.pattern is None:
+            self.args.pattern = os.path.join(dirCalled, 'detex.tsv')
+            if not os.path.exists(self.args.pattern):
+                # self.args.pattern = 'detex.tsv'
+                with open(self.args.pattern, mode='w', encoding='utf-8') as f:
                     f.write(self.detex_tsv)
 
-        if self.extract_string_bool and self.pattern is None:
-            self.pattern = os.path.join(dirCalled, 'UI.txt')
-            if not os.path.exists(self.pattern):
-                # self.pattern = 'UI.txt'
-                with open(self.pattern, mode='w', encoding='utf-8') as f:
+        if self.args.extract_string_bool and self.args.pattern is None:
+            self.args.pattern = os.path.join(dirCalled, 'UI.txt')
+            if not os.path.exists(self.args.pattern):
+                # self.args.pattern = 'UI.txt'
+                with open(self.args.pattern, mode='w', encoding='utf-8') as f:
                     f.write(self.ui_txt)
 
 
     def run_recursive(self, func):
 
-        if self.recursive_bool:
+        if self.args.recursive_bool:
             subdirs = [x[0] for x in os.walk('.')]
             for subdir in subdirs:
-                for fnpattern in self.targets:
+                for fnpattern in self.args.targets:
                     fnpattern = os.path.join(subdir, fnpattern)
                     for afile in glob.glob(fnpattern):
                         func(afile)
         else:
-            for fnpattern in self.targets:
+            for fnpattern in self.args.targets:
                 for afile in glob.glob(fnpattern):
                     func(afile)
 
@@ -295,7 +278,7 @@ class WordDigger(object):
         try:
             with open(afile, mode='r', encoding='utf-8') as f:        
                 for num, line in enumerate(f):                
-                    if re.search(self.aim, line):
+                    if re.search(self.args.aim, line):
                         print('%5d:\t%s' %(num, line.replace('\n', ' ')))
         except:
             print('is not encoded in UTF-8.')
@@ -312,11 +295,11 @@ class WordDigger(object):
             print('%s is not encoded in UTF-8.' %(afile))
             return
 
-        if self.pattern is None:
-            content = re.sub(self.aim, self.substitute, content)            
+        if self.args.pattern is None:
+            content = re.sub(self.args.aim, self.args.substitute, content)            
         else:
-            ptrn_ext = os.path.splitext(self.pattern)[1].lower()
-            with open(self.pattern, mode='r', encoding='utf-8') as ptrn:
+            ptrn_ext = os.path.splitext(self.args.pattern)[1].lower()
+            with open(self.args.pattern, mode='r', encoding='utf-8') as ptrn:
                 if ptrn_ext == '.tsv':
                     reader = csv.reader(ptrn, delimiter='\t')
                 else:
@@ -328,17 +311,17 @@ class WordDigger(object):
         with open(tmp, mode='w', encoding='utf-8') as f:
             f.write(content)
         
-        if self.detex_bool:            
+        if self.args.detex_bool:            
             filename = os.path.splitext(afile)[0]
-            if self.output is None:
+            if self.args.output is None:
                 output = filename + '_cleaned.txt'
             else:
-                output = filename + '_' + self.output + '.txt'
+                output = filename + '_' + self.args.output + '.txt'
             if os.path.exists(output):
                 os.remove(output)
             os.rename(tmp, output)
             self.opener.open_txt(output)                
-        elif self.backup_bool:
+        elif self.args.backup_bool:
             filename, ext = os.path.splitext(afile)
             backup = filename + '_bak' + ext
             if os.path.exists(backup):
@@ -353,7 +336,7 @@ class WordDigger(object):
 
     def extract_strings(self, afile):
 
-        with open(self.pattern, mode='r', encoding='utf-8') as ptrn:
+        with open(self.args.pattern, mode='r', encoding='utf-8') as ptrn:
             macros = [line.rstrip() for line in ptrn]
 
         with open(afile, mode='r', encoding='utf-8') as f:
@@ -367,10 +350,10 @@ class WordDigger(object):
     def extract_words(self, afile):
 
         filename, ext = os.path.splitext(afile)
-        if self.output is None:
+        if self.args.output is None:
             output = filename + '_words_extracted' +  ext
         else:
-            output = filename + '_' + self.output + ext
+            output = filename + '_' + self.args.output + ext
 
         with open(afile, mode='r', encoding='utf-8') as f:
             content = f.read()
@@ -456,53 +439,53 @@ class WordDigger(object):
         # remove duplicates and sort
         self.found = list(set(self.found))
         strings = '\n'.join(sorted(self.found, key=str.lower))
-        with open(self.output, mode='w', encoding='utf-8') as f:
+        with open(self.args.output, mode='w', encoding='utf-8') as f:
             f.write(strings)
-        self.opener.open_txt(self.output)  
+        self.opener.open_txt(self.args.output)  
 
     def determine_task(self): 
 
-        if self.unicode_bool:
-            UTF = UnicodeDigger(chars=self.targets[0])
+        if self.args.unicode_bool:
+            UTF = UnicodeDigger(chars=self.args.targets[0])
             UTF.print()
-        elif self.to_autojosa_bool:
-            self.aim = r'''(ref\{.+?\})([은는이가을를와과으로])'''
-            self.substitute = r'''\1\\\2'''
+        elif self.args.to_autojosa_bool:
+            self.args.aim = r'''(ref\{.+?\})([은는이가을를와과으로])'''
+            self.args.substitute = r'''\1\\\2'''
             self.run_recursive(self.replace)
-        elif self.from_autojosa_bool:
-            self.aim = r'''\\([은는이가을를와과으로])'''
-            self.substitute = r'''\1'''
+        elif self.args.from_autojosa_bool:
+            self.args.aim = r'''\\([은는이가을를와과으로])'''
+            self.args.substitute = r'''\1'''
             self.run_recursive(self.replace)
 
-        elif self.pattern or self.aim:
-            if self.pattern is None:
-                if self.substitute is None:
+        elif self.args.pattern or self.args.aim:
+            if self.args.pattern is None:
+                if self.args.substitute is None:
                     self.run_recursive(self.find)
                 else:
                     self.run_recursive(self.replace)
             else:            
-                if os.path.exists(self.pattern):
-                    if self.extract_string_bool:                        
-                        if self.output is None:
-                            self.output = 'strings_collected.txt'
+                if os.path.exists(self.args.pattern):
+                    if self.args.extract_string_bool:                        
+                        if self.args.output is None:
+                            self.args.output = 'strings_collected.txt'
                         self.run_recursive(self.extract_strings)
                         self.write_collection()
                         
                     else:
                         self.run_recursive(self.replace)
                 else:
-                    print('{} is not found.'.format(self.pattern))            
+                    print('{} is not found.'.format(self.args.pattern))            
         else:            
-            if self.extract_word_bool:
+            if self.args.extract_word_bool:
                 self.run_recursive(self.extract_words)                
-            elif self.extract_tex_bool:
-                if self.output is None:
-                    self.output = 'tex_macros_collected.tex'
+            elif self.args.extract_tex_bool:
+                if self.args.output is None:
+                    self.args.output = 'tex_macros_collected.tex'
                 self.run_recursive(self.extract_tex_macros)  
                 self.write_collection()
-            elif self.convert_bool:
+            elif self.args.convert_bool:
                 self.run_recursive(self.convert_euckr_utf8)
-            elif self.page_count_bool:
+            elif self.args.page_count_bool:
                 self.run_recursive(self.count_pdf_pages)
                 print( 'Total pages: {:,}'.format(self.pages) )
             else:

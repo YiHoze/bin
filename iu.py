@@ -5,45 +5,38 @@ import argparse
 import configparser
 import subprocess
 
+
 class ImageUtility(object):
-    def __init__(self, images=None,
-        Magick=None, Inkscape=None, info=False, 
-        target='pdf', resize=False, density=100, maxwidth=0, scale=100, gray=False,
-        recursive=False):
-        self.images = images
-        self.Magick = Magick
-        self.Inkscape = Inkscape
-        self.info_bool = info
-        self.trgfmt = target
-        self.resize_bool = resize
-        self.density = density
-        self.maxwidth = maxwidth
-        self.scale = scale
-        self.gray_bool = gray
-        self.recursive = recursive
+
+    def __init__(self):
+
         self.vectors = ('.eps', '.pdf', '.svg')
         self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.jpeg', '.pbm', '.png', '.ppm', '.tga', '.tiff', '.webp')
         self.cnt = 0
         self.initialize()
+        self.parse_args()
+        self.determine_task()
+
 
     def initialize(self):
+
         inipath = os.path.dirname(__file__)
         ini = os.path.join(inipath, 'docenv.ini')
         if os.path.exists(ini):
             config = configparser.ConfigParser()
             config.read(ini)
-            try:
-                self.Inkscape = config.get('Inkscape', 'path')                
-            except:
+            
+            self.Inkscape = config.get('Inkscape', 'path', fallback=False)                
+            if not self.Inkscape:
                 print('Make sure to have docenv.ini set properly with Inkscape.')
                 self.Inkscape = 'inkscape.com'
-            try:
-                self.Magick = config.get('ImageMagick', 'path')
-            except:
+            
+            self.Magick = config.get('ImageMagick', 'path', fallback=False)
+            if not self.Magick:
                 print('Make sure to have docenv.ini set properly with ImageMagick.')  
                 self.Magick = 'magick.exe'
         else:
-            print('Docenv.ini is not found in %s.' %(inipath))
+            print('Docenv.ini is not found in {}.'.format(inipath))
             self.Inkscape = 'inkscape.com'
             self.Magick = 'magick.exe'
 
@@ -89,20 +82,20 @@ examples:
         )
         parser.add_argument(
             '-i',
-            dest = 'info',
+            dest = 'info_bool',
             action = 'store_true',
             default = False,
             help = "Display bitmap images' information."
         )
         parser.add_argument(
             '-t',
-            dest = 'trgfmt',
+            dest = 'target_format',
             default = 'pdf',
             help = 'Specify a target format. (default: pdf)'
         )
         parser.add_argument(
             '-r',
-            dest = 'resize',
+            dest = 'resize_bool',
             action = 'store_true',
             default = False,
             help = "Change bimap images' size."
@@ -129,29 +122,13 @@ examples:
             help = "With '-r', specify a scale to be applied after checking with the max width. (default: 100 %%)"
         )
         parser.add_argument(
-            '-g',
-            dest = 'gray',
-            action = 'store_true',
-            default = False,
-            help = 'Covert bitmap images to grayscale.'
-        )
-        parser.add_argument(
             '-R',
-            dest = 'recursive',
+            dest = 'recursive_bool',
             action = 'store_true',
             default = False,
             help = 'Process ones in all subdirectories'
         )
-        args = parser.parse_args()
-        self.images = args.images
-        self.info_bool = args.info
-        self.trgfmt = args.trgfmt
-        self.resize_bool = args.resize
-        self.density = args.density
-        self.maxwidth = args.maxwidth
-        self.scale = args.scale
-        self.gray_bool = args.gray 
-        self.recursive = args.recursive
+        self.args = parser.parse_args()
 
     def check_TeXLive(self):
         try:
@@ -188,32 +165,32 @@ examples:
         elif ext in self.vectors:
             return 'vector'
         else:
-            print('%s is not covered.' %(ext))
+            print('{} is not covered.'.format(ext))
             return False
 
     def get_subdirs(self):
         return [x[0] for x in os.walk('.')]
 
     def run_recursive(self, func):
-        if self.recursive:
+        if self.args.recursive_bool:
             subdirs = self.get_subdirs()
             for subdir in subdirs:
-                for fnpattern in self.images:            
+                for fnpattern in self.args.images:            
                     fnpattern = os.path.join(subdir, fnpattern)
                     for img in glob.glob(fnpattern):                        
                         func(img)
         else:
-            for fnpattern in self.images:
+            for fnpattern in self.args.images:
                 for img in glob.glob(fnpattern):
                     func(img)
 
     def get_info(self, img):
         if self.check_format(img) == 'bitmap':
-            cmd = '\"%s\" identify -verbose %s' %(self.Magick, img)
+            cmd = '\"{}\" identify -verbose {}'.format(self.Magick, img)
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)   
             result = result.decode(encoding='utf-8')            
             result = result.split('\r\n')
-            print('\n %s' %(img))
+            print('\n {}'.format(img))
             line = 4
             while line < 8:
                 print(result[line])
@@ -221,10 +198,10 @@ examples:
 
     def resize_bitmap(self, img):
         if self.check_format(img) == 'bitmap':
-            if self.maxwidth > 0:
-                cmd = '"%s" "%s"  -resize %dx%d^> "%s"' % (self.Magick, img, self.maxwidth, self.maxwidth, img)
+            if self.args.maxwidth > 0:
+                cmd = '"{}" "{}"  -resize {}x{}^> "{}"'.format(self.Magick, img, self.args.maxwidth, self.args.maxwidth, img)
                 subprocess.run(cmd)
-            cmd = '"%s" "%s" -auto-orient -units PixelsPerCentimeter -density %d -resize %d%%  "%s"' % (self.Magick, img, self.density, self.scale, img)            
+            cmd = '"{}" "{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}"'.format(self.Magick, img, self.args.density, self.args.scale, img)            
             subprocess.run(cmd)
             self.cnt += 1
 
@@ -232,17 +209,14 @@ examples:
         filename, ext = os.path.splitext(img)
         ext = ext.lower()
         if ext == '.gif':
-            trg = filename + "%03d" + self.trgfmt
+            trg = '{}_%03d{}'.format(filename, self.args.target_format)
         else:
-            trg = filename + self.trgfmt
+            trg = filename + self.args.target_format
         return trg
     
     def bitmap_to_bitmap(self, img):
         trg = self.name_target(img)
-        cmd = '"%s" "%s" -units PixelsPerCentimeter -density %d' %(self.Magick, img, self.density)
-        if self.gray_bool:
-            cmd = cmd + ' -colorspace gray'
-        cmd = cmd + ' "%s"' %(trg)   
+        cmd = '"{}" "{}" -units PixelsPerCentimeter -density {} "{}"'.format(self.Magick, img, self.args.density, trg)
         subprocess.run(cmd)
         self.cnt += 1 
 
@@ -261,49 +235,49 @@ examples:
 
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
-        cmd = '"%s" -colorspace rgb -density %s "%s" "%s"' %(self.Magick, self.density, img, trg) 
+        cmd = '"{}" "{}" -colorspace rgb -density {}  "{}"'.format(self.Magick, img, self.args.density, trg) 
         subprocess.run(cmd)
         page_count = self.count_pdf_pages(img)
         if page_count > 1:
             filename, ext = os.path.splitext(trg)
             trg = filename + '*' + ext
         for i in glob.glob(trg):
-            cmd = '"%s" "%s" -units PixelsPerCentimeter -density 100 "%s"' % (self.Magick, i, i)
+            cmd = '"{}" "{}" -units PixelsPerCentimeter -density 100 "{}"'.format(self.Magick, i, i)
             subprocess.run(cmd)
         self.cnt += 1
 
     def eps_to_pdf(self, img):
-        cmd = 'epstopdf.exe "%s"' %(img)
+        cmd = 'epstopdf.exe "{}"'.format(img)
         subprocess.run(cmd)
         self.cnt += 1
 
     def pdf_to_eps(self, img):
-        cmd = 'pdftops -eps "%s"' %(img)
+        cmd = 'pdftops -eps "{}"'.format(img)
         subprocess.run(cmd)
         self.cnt += 1
 
     def svg_to_pdf(self, img):
         trg = self.name_target(img)
-        cmd = '"%s" --export-pdf "%s" "%s"' %(self.Inkscape, trg, img)
+        cmd = '"{}" --export-pdf "{}" "{}"'.format(self.Inkscape, trg, img)
         subprocess.run(cmd)
-        cmd = 'pdfcrop.exe "%s" "%s"' %(trg, trg)
+        cmd = 'pdfcrop.exe "{}" "{}"'.format(trg, trg)
         subprocess.run(cmd)
         self.cnt += 1
 
     def svg_to_eps(self, img):
         trg = self.name_target(img)
-        cmd = '"%s" --export-eps "%s" "%s"' %(self.Inkscape, trg, img)
+        cmd = '"{}" --export-eps "{}" "{}"'.format(self.Inkscape, trg, img)
         subprocess.run(cmd)  
         self.cnt += 1
 
     def convert(self):
         recipe = {}
-        self.trgfmt = self.trgfmt.lower()
-        if not self.trgfmt.startswith('.'):
-            self.trgfmt = '.' + self.trgfmt        
-        recipe['target format'] = self.trgfmt
-        recipe['target type'] = self.check_format(self.trgfmt)
-        for fnpattern in self.images:
+        self.args.target_format = self.args.target_format.lower()
+        if not self.args.target_format.startswith('.'):
+            self.args.target_format = '.' + self.args.target_format        
+        recipe['target format'] = self.args.target_format
+        recipe['target type'] = self.check_format(self.args.target_format)
+        for fnpattern in self.args.images:
             srcfmt = os.path.splitext(fnpattern)[1]
             srctype = self.check_format(srcfmt)
             recipe['source format'] = srcfmt 
@@ -321,8 +295,8 @@ examples:
 
         elif recipe['source type'] == 'vector':
             if recipe['target type'] == 'bitmap':
-                if self.density == 100:
-                    self.density = 254
+                if self.args.density == 100:
+                    self.args.density = 254
                 if self.check_ImageMagick():
                     self.run_recursive(self.vector_to_bitmap)
             elif recipe['target type'] == 'vector':
@@ -341,10 +315,10 @@ examples:
                                 self.run_recursive(self.svg_to_pdf)    
 
     def count(self):
-        if self.resize_bool:
-            print('%d file(s) have been resized.' %(self.cnt))
-        elif not self.info_bool:
-            print('%d file(s) have been converted.' %(self.cnt))
+        if self.args.resize_bool:
+            print('{} file(s) have been resized.'.format(self.cnt))
+        elif not self.args.info_bool:
+            print('{} file(s) have been converted.'.format(self.cnt))
 
 
     def display_formats(self):
@@ -354,13 +328,13 @@ examples:
         print("Vector:", vectors)
 
     def determine_task(self):
-        if len(self.images) == 0:
+        if len(self.args.images) == 0:
             self.display_formats()
         else:          
-            if self.info_bool:
+            if self.args.info_bool:
                 if self.check_ImageMagick():
                     self.run_recursive(self.get_info)
-            elif self.resize_bool:
+            elif self.args.resize_bool:
                 if self.check_ImageMagick(): 
                     self.run_recursive(self.resize_bitmap)
             else:
@@ -368,6 +342,4 @@ examples:
             self.count()
 
 if __name__ == '__main__':
-    iu = ImageUtility()
-    iu.parse_args()
-    iu.determine_task()
+    ImageUtility()    

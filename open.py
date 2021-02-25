@@ -13,6 +13,8 @@ class FileOpener(object):
         self.Adobe_bool = False
         self.texlive_bool = False
         self.web_bool = False
+        self.application = ''
+        self.app_option = ''
         self.initialize()
 
     def initialize(self):        
@@ -32,7 +34,7 @@ class FileOpener(object):
                 print('Make sure to have docenv.ini set properly.')
                 sys.exit()
         else:
-            print('Docenv.ini is not found in %s.' %(inipath))
+            print('Docenv.ini is not found in {}.'.format(inipath))
             sys.exit()
 
 
@@ -87,12 +89,14 @@ class FileOpener(object):
             help = 'Access the given website.'
         )
 
-        self.args = parser.parse_args()    
+        args = parser.parse_args()    
 
-        self.force_bool = self.args.force_bool    
-        self.Adobe_bool = self.args.Adobe_bool    
-        self.texlive_bool = self.args.texlive_bool    
-        self.web_bool = self.args.web_bool    
+        self.force_bool = args.force_bool    
+        self.Adobe_bool = args.Adobe_bool    
+        self.texlive_bool = args.texlive_bool    
+        self.web_bool = args.web_bool    
+        self.application = args.application
+        self.app_option = args.app_option
 
     # def check_editor(self):
 
@@ -135,14 +139,14 @@ class FileOpener(object):
 
         for fnpattern in files:
             for afile in glob.glob(fnpattern):
-                if self.args.application is None:
+                if self.application is None:
                     filetype = self.determine_file_type(afile)
                     if filetype == 'txt' or self.force_bool:
                         self.open_txt(afile)
                     elif filetype ==  'pdf':
                         self.open_pdf(afile)
                     else:
-                        cmd = 'start \"\" \"%s\"' % (afile)
+                        cmd = 'start \"\" \"{}\"'.format(afile)
                         os.system(cmd)
                 else:
                     self.open_app(afile)
@@ -150,23 +154,23 @@ class FileOpener(object):
 
     def open_app(self, afile):
 
-        cmd = '\"%s\" %s %s' % (self.args.application, self.args.app_option, afile)
+        cmd = '\"{}\" {} {}'.format(self.application, self.app_option, afile)
         subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
     def open_txt(self, afile):        
                 
-        cmd = '\"%s\" %s %s' % (self.editor, self.args.app_option, afile)
+        cmd = '\"{}\" {} {}'.format(self.editor, self.app_option, afile)
         subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
     def open_pdf(self, afile):
 
         if self.Adobe_bool:
-            cmd = '\"%s\" \"%s\"' % (self.AdobeReader, afile)
+            cmd = '\"{}\" \"{}\"'.format(self.AdobeReader, afile)
             subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
         else:               
-            cmd = '\"%s\" \"%s\"' % (self.pdf_viewer, afile)
+            cmd = '\"{}\" \"{}\"'.format(self.pdf_viewer, afile)
             subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
 
 
@@ -179,13 +183,13 @@ class FileOpener(object):
                 found = found.rstrip()                
                 self.open_txt(found)
             except subprocess.CalledProcessError:
-                print('%s is not found in TeX Live.' %(afile))
+                print('{} is not found in TeX Live.'.format(afile))
 
 
     def open_web(self, urls):
 
         for url in urls:
-            cmd = '\"%s\" \"%s\"' % (self.WebBrowser, url)
+            cmd = '\"{}\" \"{}\"'.format(self.WebBrowser, url)
             subprocess.Popen(cmd)
 
 

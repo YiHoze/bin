@@ -8,29 +8,30 @@ import re
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
 from ltx import LatexCompiler
-
+from open import FileOpener
 
 class IdleTexnician(object):
 
     def __init__(self):
 
         self.ini = 'i.ini'
+        self.ini_template = '''[tex]
+target = foo.tex
+draft = wordig.py -a "..." -s "..." %(target)s
+final = wordig.py -a "..." -s "..." %(target)s
+after = ltx.py -c
+main = \\input{preamble}
+    \\begin{document}
+    \\maketitle
+    \\input{\\1}
+    \\end{document}'''
         self.parse_args()
         self.determine_tex()
 
+
     def parse_args(self):
 
-        about = '''i.ini should be like:
-    [tex]
-    target = foo.tex
-    draft = wordig.py -a "..." -s "..." %(target)s
-    final = wordig.py -a "..." -s "..." %(target)s
-    after = ltx.py -c
-    main = \\input{preamble}
-	  \\begin{document}
-	  \\maketitle
-	  \\input{\\1}
-	  \\end{document}'''
+        about = 'i.ini should be like:\n{}'.format(self.ini_template)    
 
         parser = argparse.ArgumentParser(
             epilog = about,  
@@ -75,6 +76,13 @@ class IdleTexnician(object):
             action = 'store_false',
             default = True,
             help = "Don't compile only to update i.ini."
+        )
+        parser.add_argument(
+            '-C',
+            dest = 'create_ini_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Create i.ini.'
         )
 
         self.args, self.compile_option = parser.parse_known_args()
@@ -286,9 +294,25 @@ class IdleTexnician(object):
             return False
       
 
+    def create_ini(self):
+
+        if os.path.exists(self.ini):
+            answer = input('{} already exists. Are you sure to overwrite it? [y/N] '.format(self.ini))
+            if answer.lower() == 'y':
+                os.remove(self.ini)
+            else:
+                return 
+
+        with open(self.ini, mode='w', encoding='utf-8') as f:
+            f.write(self.ini_template)
+        opener = FileOpener()
+        opener.open_txt(self.ini)
+
     def determine_tex(self):
 
-        if self.args.list_bool:
+        if self.args.create_ini_bool:
+            self.create_ini()
+        elif self.args.list_bool:
             self.tex = self.determine_from_list()
             if self.tex:                
                 self.compile_tex()

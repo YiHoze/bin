@@ -120,7 +120,7 @@ class LatexTemplate(object):
     def confirm_to_remove(self, afile):
 
         if os.path.exists(afile):
-            answer = input('%s already exists. Are you sure to overwrite it? [y/N] ' %(afile))
+            answer = input('{} already exists. Are you sure to overwrite it? [y/N] '.format(afile))
             if answer.lower() == 'y':
                 os.remove(afile)
                 return True

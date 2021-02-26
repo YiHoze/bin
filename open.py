@@ -91,6 +91,7 @@ class FileOpener(object):
 
         args = parser.parse_args()    
 
+        self.files = args.files
         self.force_bool = args.force_bool    
         self.Adobe_bool = args.Adobe_bool    
         self.texlive_bool = args.texlive_bool    
@@ -206,4 +207,4 @@ class FileOpener(object):
 if __name__ == '__main__':
     opener = FileOpener()      
     opener.parse_args()
-    opener.open(opener.args.files)
+    opener.open(opener.files)

@@ -19,6 +19,7 @@ class IdleTexnician(object):
 target = foo.tex
 draft = wordig.py -a "..." -s "..." %(target)s
 final = wordig.py -a "..." -s "..." %(target)s
+final_compiler = -v
 after = ltx.py -c
 main = \\input{preamble}
     \\begin{document}
@@ -106,6 +107,13 @@ main = \\input{preamble}
             if '.tex' not in cmd:
                 cmd = '{} {}'.format(cmd, target)
             os.system(cmd)
+
+        if self.args.final_bool:
+            compiler = conf.get('tex', 'final_compiler', fallback=False)
+            if compiler:
+                compiler = compiler.split(' ')
+                for i in compiler:
+                    self.compile_option.append(i)
         
 
     def run_postprocess(self):

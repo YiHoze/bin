@@ -199,9 +199,9 @@ examples:
     def resize_bitmap(self, img):
         if self.check_format(img) == 'bitmap':
             if self.args.maxwidth > 0:
-                cmd = '"{}" "{}"  -resize {}x{}^> "{}"'.format(self.Magick, img, self.args.maxwidth, self.args.maxwidth, img)
+                cmd = '"{}"  -resize {}x{}^> "{}" "{}"'.format(self.Magick, self.args.maxwidth, self.args.maxwidth, img, img)
                 subprocess.run(cmd)
-            cmd = '"{}" "{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}"'.format(self.Magick, img, self.args.density, self.args.scale, img)            
+            cmd = '"{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}" "{}"'.format(self.Magick, self.args.density, self.args.scale, img, img)
             subprocess.run(cmd)
             self.cnt += 1
 
@@ -216,7 +216,7 @@ examples:
     
     def bitmap_to_bitmap(self, img):
         trg = self.name_target(img)
-        cmd = '"{}" "{}" -units PixelsPerCentimeter -density {} "{}"'.format(self.Magick, img, self.args.density, trg)
+        cmd = '"{}" -units PixelsPerCentimeter -density {} "{}" "{}"'.format(self.Magick, self.args.density, img, trg)
         subprocess.run(cmd)
         self.cnt += 1 
 
@@ -235,14 +235,15 @@ examples:
 
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
-        cmd = '"{}" "{}" -colorspace rgb -density {}  "{}"'.format(self.Magick, img, self.args.density, trg) 
+        cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
+        print(cmd)
         subprocess.run(cmd)
         page_count = self.count_pdf_pages(img)
         if page_count > 1:
             filename, ext = os.path.splitext(trg)
             trg = filename + '*' + ext
         for i in glob.glob(trg):
-            cmd = '"{}" "{}" -units PixelsPerCentimeter -density 100 "{}"'.format(self.Magick, i, i)
+            cmd = '"{}" -units PixelsPerCentimeter -density 100 "{}" "{}"'.format(self.Magick, i, i)
             subprocess.run(cmd)
         self.cnt += 1
 

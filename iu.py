@@ -236,7 +236,6 @@ examples:
     def vector_to_bitmap(self, img):        
         trg = self.name_target(img)
         cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
-        print(cmd)
         subprocess.run(cmd)
         page_count = self.count_pdf_pages(img)
         if page_count > 1:

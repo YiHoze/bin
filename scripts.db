@@ -3274,3 +3274,35 @@ code=
   `    daily = DailyBusiness()
   `    daily.parse_args()
   `    daily.enumerate_tasks()
+
+[loan]
+description = Calculate monthly loan payment.
+code_output = loan.py
+code = 
+    `import argparse
+    `import math
+    `example = '''
+    `If 100 million should be paid back every month at 2.9%% rate of interest for 20 years:
+    `loan.py 10000 2.9 20
+    `'''
+    `parser = argparse.ArgumentParser(
+    `    epilog = example,  
+    `    formatter_class = argparse.RawDescriptionHelpFormatter, 
+    `    description='Calculate monthly loan payment.'
+    `)
+    `parser.add_argument(
+    `    'loan',
+    `    nargs=3,
+    `    type=float
+    `)
+    `args = parser.parse_args()
+    `loan = args.loan[0]
+    `interest_rate = args.loan[1]    
+    `repayment_years = args.loan[2]
+    `# \[ P_b = L \times \frac{r}{12} \times \frac{ \left(1+\frac{r}{12}\right)^{12\cdot n} }{ \left(1+\frac{r}{12}\right)^{12\cdot n} - 1 } \]
+    `loan = loan * 10000
+    `interest_monthly = (interest_rate / 100) / 12
+    `repayment_months = repayment_years * 12
+    `progression = math.pow(1+interest_monthly, repayment_months)
+    `repayment_amount = loan * interest_monthly * (progression / (progression - 1))
+    `print('{:,.0f}'.format(repayment_amount))

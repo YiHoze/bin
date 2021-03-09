@@ -130,7 +130,9 @@ examples:
         )
         self.args = parser.parse_args()
 
+
     def check_TeXLive(self):
+
         try:
             subprocess.check_call('epstopdf.exe --version')
             return True
@@ -138,7 +140,9 @@ examples:
             print("Make sure TeX Live is included in PATH.")
             return False
 
+
     def check_Inkscape(self):
+
         try:
             subprocess.check_call(self.Inkscape + ' --version')
             return True
@@ -146,7 +150,9 @@ examples:
             print("Check the path to Inkscape.")
             return False
 
+
     def check_ImageMagick(self):
+
         try:
             subprocess.check_call(self.Magick + ' --version')
             return True
@@ -154,7 +160,9 @@ examples:
             print("Check the path to ImageMagick.")
             return False
 
+
     def check_format(self, img):
+
         basename = os.path.basename(img)
         ext = os.path.splitext(basename)[1]
         if not ext:        
@@ -168,10 +176,14 @@ examples:
             print('{} is not covered.'.format(ext))
             return False
 
+
     def get_subdirs(self):
+
         return [x[0] for x in os.walk('.')]
 
+
     def run_recursive(self, func):
+
         if self.args.recursive_bool:
             subdirs = self.get_subdirs()
             for subdir in subdirs:
@@ -184,7 +196,9 @@ examples:
                 for img in glob.glob(fnpattern):
                     func(img)
 
+
     def get_info(self, img):
+
         if self.check_format(img) == 'bitmap':
             cmd = '\"{}\" identify -verbose {}'.format(self.Magick, img)
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)   
@@ -196,7 +210,9 @@ examples:
                 print(result[line])
                 line += 1  
 
+
     def resize_bitmap(self, img):
+
         if self.check_format(img) == 'bitmap':
             if self.args.maxwidth > 0:
                 cmd = '"{}"  -resize {}x{}^> "{}" "{}"'.format(self.Magick, self.args.maxwidth, self.args.maxwidth, img, img)
@@ -205,7 +221,9 @@ examples:
             subprocess.run(cmd)
             self.cnt += 1
 
+
     def name_target(self, img):
+
         filename, ext = os.path.splitext(img)
         ext = ext.lower()
         if ext == '.gif':
@@ -213,14 +231,18 @@ examples:
         else:
             trg = filename + self.args.target_format
         return trg
-    
+
+
     def bitmap_to_bitmap(self, img):
+
         trg = self.name_target(img)
         cmd = '"{}" -units PixelsPerCentimeter -density {} "{}" "{}"'.format(self.Magick, self.args.density, img, trg)
         subprocess.run(cmd)
         self.cnt += 1 
 
+
     def count_pdf_pages(self, img):
+
         ext = os.path.splitext(img)[1]
         if ext.lower() == '.pdf':
             cmd = 'pdfinfo.exe ' + img
@@ -233,7 +255,9 @@ examples:
         else:
             return 0
 
-    def vector_to_bitmap(self, img):        
+
+    def vector_to_bitmap(self, img):
+
         trg = self.name_target(img)
         cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
         subprocess.run(cmd)
@@ -246,17 +270,23 @@ examples:
             subprocess.run(cmd)
         self.cnt += 1
 
+
     def eps_to_pdf(self, img):
+
         cmd = 'epstopdf.exe "{}"'.format(img)
         subprocess.run(cmd)
         self.cnt += 1
 
+
     def pdf_to_eps(self, img):
+
         cmd = 'pdftops -eps "{}"'.format(img)
         subprocess.run(cmd)
         self.cnt += 1
 
+
     def svg_to_pdf(self, img):
+
         trg = self.name_target(img)
         cmd = '"{}" --export-pdf "{}" "{}"'.format(self.Inkscape, trg, img)
         subprocess.run(cmd)
@@ -264,13 +294,17 @@ examples:
         subprocess.run(cmd)
         self.cnt += 1
 
+
     def svg_to_eps(self, img):
+
         trg = self.name_target(img)
         cmd = '"{}" --export-eps "{}" "{}"'.format(self.Inkscape, trg, img)
         subprocess.run(cmd)  
         self.cnt += 1
 
+
     def convert(self):
+
         recipe = {}
         self.args.target_format = self.args.target_format.lower()
         if not self.args.target_format.startswith('.'):
@@ -283,8 +317,10 @@ examples:
             recipe['source format'] = srcfmt 
             recipe['source type'] = srctype
             self.converter_diverge(recipe)
-    
+
+
     def converter_diverge(self, recipe):
+
         if recipe['source type'] == 'bitmap':
             if recipe['target type'] == 'bitmap':
                 if self.check_ImageMagick():
@@ -314,7 +350,9 @@ examples:
                             if self.check_TeXLive():
                                 self.run_recursive(self.svg_to_pdf)    
 
+
     def count(self):
+
         if self.args.resize_bool:
             print('{} file(s) have been resized.'.format(self.cnt))
         elif not self.args.info_bool:
@@ -326,6 +364,7 @@ examples:
         vectors = ', '.join(self.vectors)
         print("Bitmap:", bitmaps)
         print("Vector:", vectors)
+
 
     def determine_task(self):
         if len(self.args.images) == 0:

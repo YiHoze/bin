@@ -3230,207 +3230,213 @@ setting=
  `; app = C:\Program Files (x86)\Kilgray\memoQ-2015\MemoQ32.exe
 code_output=daily.py
 code=
-  `import os
-  `import sys
-  `import argparse
-  `import configparser
-  `import subprocess 
-  `
-  `class DailyBusiness(object):
-  `    def __init__(self, list='daily.ini'):
-  `        self.list = list
-  `        dirCalled = os.path.dirname(__file__)
-  `        self.list = os.path.join(dirCalled, self.list)
-  `
-  `    def parse_args(self):
-  `        parser = argparse.ArgumentParser(
-  `            description = 'Open apps and their targets specified in daily.ini.'
-  `        )
-  `        parser.add_argument(
-  `            'list',
-  `            nargs = '?',
-  `            default = self.list,
-  `            help = 'Specify another daily to-do list.'
-  `        )
-  `        args = parser.parse_args()
-  `        self.list = args.list
-  `
-  `    def enumerate_tasks(self):
-  `        if os.path.exists(self.list):
-  `            config = configparser.ConfigParser()
-  `            config.read([self.list], encoding='utf-8')
-  `            for section in config.sections():
-  `                app = config.get(section, 'app')
-  `                try: 
-  `                    target = config.get(section, 'target')
-  `                except:
-  `                    target = ''
-  `                cmd = '"{0}" {1}'.format(app, target.replace('\n', ' '))                
-  `                subprocess.Popen(cmd)
-  `        else:
-  `            print('{} is not found.'.format(self.list))
-  `
-  `if __name__ == '__main__':
-  `    daily = DailyBusiness()
-  `    daily.parse_args()
-  `    daily.enumerate_tasks()
+` import os
+` import sys
+` import argparse
+` import configparser
+` import subprocess 
+` 
+` class DailyBusiness(object):
+`     def __init__(self, list='daily.ini'):
+`         self.list = list
+`         dirCalled = os.path.dirname(__file__)
+`         self.list = os.path.join(dirCalled, self.list)
+` 
+`     def parse_args(self):
+`         parser = argparse.ArgumentParser(
+`             description = 'Open apps and their targets specified in daily.ini.'
+`         )
+`         parser.add_argument(
+`             'list',
+`             nargs = '?',
+`             default = self.list,
+`             help = 'Specify another daily to-do list.'
+`         )
+`         args = parser.parse_args()
+`         self.list = args.list
+` 
+`     def enumerate_tasks(self):
+`         if os.path.exists(self.list):
+`             config = configparser.ConfigParser()
+`             config.read([self.list], encoding='utf-8')
+`             for section in config.sections():
+`                 app = config.get(section, 'app')
+`                 try: 
+`                     target = config.get(section, 'target')
+`                 except:
+`                     target = ''
+`                 cmd = '"{0}" {1}'.format(app, target.replace('\n', ' '))                
+`                 subprocess.Popen(cmd)
+`         else:
+`             print('{} is not found.'.format(self.list))
+` 
+` if __name__ == '__main__':
+`     daily = DailyBusiness()
+`     daily.parse_args()
+`     daily.enumerate_tasks()
 
 [loan]
 description = Calculate monthly loan payment.
 code_output = loan.py
 code = 
-  `import os
-  `import argparse
-  `import math
-  `
-  `
-  `class LoanCalculator(object):
-  `
-  `    def __init__(self):
-  `
-  `        self.parse_args()
-  `        self.calculate_monthly_repayment()
-  `
-  `
-  `    def parse_args(self): 
-  `        example = '''If 100 million is loaned at 2.9%% rate of interest for 10 years:
-  `        loan.py 10000 2.9 10'''
-  `
-  `        parser = argparse.ArgumentParser(
-  `            epilog = example,
-  `            formatter_class = argparse.RawDescriptionHelpFormatter,
-  `            description='Calculate monthly loan payment.'
-  `        )
-  `        parser.add_argument(
-  `            'loan',
-  `            nargs=3,
-  `            type=float
-  `        )
-  `        parser.add_argument(
-  `            '-m',
-  `            dest = 'month_bool',
-  `            action = 'store_true',
-  `            default = False,
-  `            help = 'Treat the last argument as the number of months, not years.'
-  `        )
-  `        parser.add_argument(
-  `            '-r',
-  `            dest = 'round_bool',
-  `            action = 'store_true',
-  `            default = False,
-  `            help = 'Round off after the decimal point.'
-  `        )
-  `        parser.add_argument(
-  `            '-l',
-  `            dest = 'list_bool',
-  `            action = 'store_true',
-  `            default = False,
-  `            help = 'Enumerate monthly principal and interest.'
-  `        )
-  `        parser.add_argument(
-  `            '-p',
-  `            dest = 'pdf_bool',
-  `            action = 'store_true',
-  `            default = False,
-  `            help = 'Print the result in PDF.'
-  `        )
-  `        self.args = parser.parse_args()
-  `
-  `        self.loan = self.args.loan[0]
-  `        self.rate = self.args.loan[1]
-  `        self.years = self.args.loan[2]        
-  `
-  `    def calculate_monthly_repayment(self):        
-  `
-  `        rate_monthly = (self.rate * 0.01) / 12
-  `        if self.args.month_bool:
-  `            self.months = int(self.years)
-  `        else:
-  `            self.months = int(self.years * 12)
-  `
-  `        self.loan = int(self.loan * 10000)
-  `
-  `        # \[ P = L \times \frac{r}{12} \times \frac{ \left(1+\frac{r}{12}\right)^{12\cdot n} }{ \left(1+\frac{r}{12}\right)^{12\cdot n} - 1 } \]
-  `        progression = math.pow(1+rate_monthly, self.months)
-  `        repayment_monthly = self.loan * rate_monthly * (progression / (progression - 1))
-  `        
-  `        # round off or truncate to get rid of all decimal places
-  `        if self.args.round_bool:
-  `            repayment_monthly = int(round(repayment_monthly, 0))
-  `        else:
-  `            repayment_monthly = int(repayment_monthly)
-  `
-  `        result = 'A loan of {:,} is paid off {:,} for {} months.'.format(self.loan, repayment_monthly, self.months)
-  `        print(result)
-  `        tex = result
-  `        
-  `        interest_accumulated = 0
-  `        balance = self.loan
-  `        principal_accumulated = 0
-  `
-  `        for n in range(self.months):
-  `
-  `            interest_monthly = balance * rate_monthly
-  `            if self.args.round_bool:
-  `                interest_monthly = int(round(interest_monthly, 0))
-  `            else:
-  `                interest_monthly = int(interest_monthly)            
-  `
-  `            if n+1 == self.months:
-  `                principal_monthly = balance
-  `            else:
-  `                principal_monthly = repayment_monthly - interest_monthly
-  `
-  `            principal_accumulated += principal_monthly
-  `            balance -= principal_monthly
-  `            interest_accumulated += interest_monthly
-  `            
-  `            result = '{:>3} {:>9,} {:>9,} {:>12,} {:>12,}'.format(n+1, interest_monthly, principal_monthly, principal_accumulated, balance)
-  `
-  `            if self.args.list_bool:
-  `                print(result)
-  `            elif self.args.pdf_bool:
-  `                tex = tex + '\n' + result 
-  `
-  `        repayment_accumulated = principal_accumulated + interest_accumulated
-  `
-  `        result = 'Accumulated repayment: {:>12,}\nAccumulated interest:  {:>12,}'''.format(repayment_accumulated, interest_accumulated)
-  `        print(result)
-  `
-  `        if self.args.pdf_bool:
-  `            tex = tex + '\n' + result
-  `            self.make_pdf(tex)
-  `
-  `
-  `    def make_pdf(self, content):
-  `
-  `        filename = 'loan.tex'
-  `
-  `        tex_before = r'''
-  `\documentclass[a4per]{article}
-  `\setlength\parindent{0pt}
-  `\begin{document}
-  `\begin{verbatim}
-  `'''
-  `        tex_after = r'''
-  `\end{verbatim}
-  `\end{document}'''   
-  `
-  `        content = tex_before + content + tex_after
-  `
-  `        if os.path.exists(filename):
-  `            answer = input('{} already exists. Are you sure to overwrite it? [y/N] '.format(filename))
-  `            if answer.lower() == 'y':
-  `                os.remove(filename)
-  `            else:
-  `                return False
-  `
-  `        with open(filename, mode='w', encoding='utf-8') as f:
-  `            f.writelines(content)
-  `
-  `        os.system('pdflatex.exe {}'.format(filename))
-  `
-  `
-  `if __name__ == '__main__':
-  `    LoanCalculator()
-  `    
+` import os
+` import argparse
+` import math
+` 
+` 
+` class LoanCalculator(object):
+` 
+`     def __init__(self):
+` 
+`         self.parse_args()
+`         self.calculate_monthly_repayment()
+` 
+` 
+`     def parse_args(self):
+`         example = '''If 100 million is loaned at 2.9% rate of interest for 10 years:
+`         loan.py 10000 2.9 10'''
+` 
+`         parser = argparse.ArgumentParser(
+`             epilog = example,
+`             formatter_class = argparse.RawDescriptionHelpFormatter,
+`             description='Calculate monthly loan payment.'
+`         )
+`         parser.add_argument(
+`             'loan',
+`             nargs=3,
+`             type=float
+`         )
+`         parser.add_argument(
+`             '-m',
+`             dest = 'month_bool',
+`             action = 'store_true',
+`             default = False,
+`             help = 'Treat the last argument as the number of months, not years.'
+`         )
+`         parser.add_argument(
+`             '-r',
+`             dest = 'round_bool',
+`             action = 'store_true',
+`             default = False,
+`             help = 'Round off after the decimal point.'
+`         )
+`         parser.add_argument(
+`             '-l',
+`             dest = 'list_bool',
+`             action = 'store_true',
+`             default = False,
+`             help = 'Enumerate monthly principal and interest.'
+`         )
+`         parser.add_argument(
+`             '-p',
+`             dest = 'pdf_bool',
+`             action = 'store_true',
+`             default = False,
+`             help = 'Print the result in PDF.'
+`         )
+`         self.args = parser.parse_args()
+` 
+`         self.loan = self.args.loan[0]
+`         self.rate = self.args.loan[1]
+`         self.years = self.args.loan[2]
+` 
+`     def calculate_monthly_repayment(self):
+` 
+`         rate_monthly = (self.rate * 0.01) / 12
+`         if self.args.month_bool:
+`             self.months = int(self.years)
+`         else:
+`             self.months = int(self.years * 12)
+` 
+`         self.loan = int(self.loan * 10000)
+` 
+`         # \[ P = L \times \frac{r}{12} \times \frac{ \left(1+\frac{r}{12}\right)^{12\cdot n} }{ \left(1+\frac{r}{12}\right)^{12\cdot n} - 1 } \]
+`         progression = math.pow(1+rate_monthly, self.months)
+`         repayment_monthly = self.loan * rate_monthly * (progression / (progression - 1))
+` 
+`         # round off or truncate to get rid of all decimal places
+`         if self.args.round_bool:
+`             repayment_monthly = int(round(repayment_monthly, 0))
+`         else:
+`             repayment_monthly = int(repayment_monthly)
+` 
+`         result = 'A loan of {:,} is paid off {:,} for {} months.'.format(self.loan, repayment_monthly, self.months)
+`         print(result)
+`         tex = result
+` 
+`         interest_accumulated = 0
+`         balance = self.loan
+`         principal_accumulated = 0
+` 
+`         result = '# | Interest | Principal | P accumulated | Balance'
+`         if self.args.list_bool:
+`             print(result)
+`         elif self.args.pdf_bool:
+`             tex = tex + '\n' + result
+` 
+`         for n in range(self.months):
+` 
+`             interest_monthly = balance * rate_monthly
+`             if self.args.round_bool:
+`                 interest_monthly = int(round(interest_monthly, 0))
+`             else:
+`                 interest_monthly = int(interest_monthly)
+` 
+`             if n+1 == self.months:
+`                 principal_monthly = balance
+`             else:
+`                 principal_monthly = repayment_monthly - interest_monthly
+` 
+`             principal_accumulated += principal_monthly
+`             balance -= principal_monthly
+`             interest_accumulated += interest_monthly
+` 
+`             result = '{:>3} {:>9,} {:>9,} {:>12,} {:>12,}'.format(n+1, interest_monthly, principal_monthly, principal_accumulated, balance)
+` 
+`             if self.args.list_bool:
+`                 print(result)
+`             elif self.args.pdf_bool:
+`                 tex = tex + '\n' + result
+` 
+`         repayment_accumulated = principal_accumulated + interest_accumulated
+` 
+`         result = 'Accumulated repayment: {:>12,}\nAccumulated interest:  {:>12,}'''.format(repayment_accumulated, interest_accumulated)
+`         print(result)
+` 
+`         if self.args.pdf_bool:
+`             tex = tex + '\n' + result
+`             self.make_pdf(tex)
+` 
+` 
+`     def make_pdf(self, content):
+` 
+`         filename = 'loan.tex'
+` 
+`         tex_before = r'''
+` \documentclass[a4per]{article}
+` \setlength\parindent{0pt}
+` \begin{document}
+` \begin{verbatim}
+` '''
+`         tex_after = r'''
+` \end{verbatim}
+` \end{document}'''
+` 
+`         content = tex_before + content + tex_after
+` 
+`         if os.path.exists(filename):
+`             answer = input('{} already exists. Are you sure to overwrite it? [y/N] '.format(filename))
+`             if answer.lower() == 'y':
+`                 os.remove(filename)
+`             else:
+`                 return False
+` 
+`         with open(filename, mode='w', encoding='utf-8') as f:
+`             f.writelines(content)
+` 
+`         os.system('pdflatex.exe {}'.format(filename))
+` 
+` 
+` if __name__ == '__main__':
+`     LoanCalculator()
+` 

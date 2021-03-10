@@ -3403,7 +3403,6 @@ code =
 	 `        tex_before = r'''
 	 `\documentclass[a4per]{article}
 	 `\setlength\parindent{0pt}
-	 `\let\ttfamily\sffamily
 	 `\begin{document}
 	 `\begin{verbatim}
 	 `'''

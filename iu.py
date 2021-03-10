@@ -216,8 +216,8 @@ examples:
         if self.check_format(img) == 'bitmap':
             if self.args.maxwidth > 0:
                 cmd = '"{}"  -resize {}x{}^> "{}" "{}"'.format(self.Magick, self.args.maxwidth, self.args.maxwidth, img, img)
-                subprocess.run(cmd)
-            cmd = '"{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}" "{}"'.format(self.Magick, self.args.density, self.args.scale, img, img)
+                subprocess.run(cmd)            
+            cmd = '"{}" "{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}"'.format(self.Magick, img, self.args.density, self.args.scale, img)
             subprocess.run(cmd)
             self.cnt += 1
 

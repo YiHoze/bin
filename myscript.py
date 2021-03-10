@@ -4,6 +4,7 @@ import glob
 import argparse
 import configparser
 import subprocess
+import re
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -13,16 +14,26 @@ class ScriptScribe(object):
 
     def __init__(self):
 
-        dbFile = 'scripts.db'
-        db = os.path.join(dirCalled, dbFile)
-        if os.path.exists(db):
+        self.dbFile = 'scripts.db'
+        self.dbFile = os.path.join(dirCalled, self.dbFile)
+        if os.path.exists(self.dbFile):
             self.database = configparser.ConfigParser()
-            self.database.read(db, encoding='utf-8')
+            self.database.read(self.dbFile, encoding='utf-8')
         else:
-            print('{} is not found.'.format(dbFile))
+            print('{} is not found.'.format(self.dbFile))
             sys.exit()        
         
         self.parse_args()
+        if self.args.burst_bool:
+            self.burst_scripts()
+        elif self.args.update_bool:
+            self.update_database()
+        elif self.args.script:
+            self.pick_script()
+        else:
+            self.parser.print_help()
+            self.enumerate_scripts()
+
 
     def parse_args(self):
 
@@ -33,6 +44,13 @@ class ScriptScribe(object):
         self.parser.add_argument(
             'script',
             nargs = '?'
+        )
+        self.parser.add_argument(
+            '-U',
+            dest = 'update_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Update the database file with the code file.'
         )
         self.parser.add_argument(
             '-B',
@@ -140,14 +158,29 @@ class ScriptScribe(object):
             if description is None:
                 description = ''
             print('{:12} {}'.format(i,description))
- 
+
+
+    def update_database(self):
+
+        if not self.database.has_section(self.args.script):
+            print('"{}" does not exist.'.format(self.args.script))
+            return
+
+        filename = self.database.get(self.args.script, 'code_output')
+        if not os.path.exists(filename):
+            print('"{}" does not exist.'.format(filename))
+            return
+
+        with open(filename, mode='r', encoding='utf-8') as f:
+            code = f.read()
+
+        code = re.sub("%", "%%", code)
+        code = re.sub("\n", "\n `", code)
+
+        self.database.set(self.args.script, 'code', code)
+        with open(self.dbFile, mode='w', encoding='utf-8') as f:
+            self.database.write(f)
+
 
 if __name__ == '__main__':
-    SS = ScriptScribe()
-    if SS.args.burst_bool:
-        SS.burst_scripts()
-    elif SS.args.script:
-        SS.pick_script()
-    else:
-        SS.parser.print_help()
-        SS.enumerate_scripts()
+    ScriptScribe()

@@ -3348,7 +3348,7 @@ code =
 	 `        else:
 	 `            repayment_monthly = int(repayment_monthly)
 	 `
-	 `        result = 'A loan of {:,} is paid off {:,} for {} months.'.format(self.loan, repayment_monthly, self.months)
+	 `        result = 'A loan of {:,} is paid off {:,} per month for {} months.'.format(self.loan, repayment_monthly, self.months)
 	 `        print(result)
 	 `        tex = result
 	 `

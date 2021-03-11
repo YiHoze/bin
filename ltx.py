@@ -190,7 +190,7 @@ class LatexCompiler(object):
             help = 'Run bibtex.'
         )
         parser.add_argument(
-            '-p',
+            '-P',
             dest = 'python_bool',
             action = 'store_true',
             default = False,

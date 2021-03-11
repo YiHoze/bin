@@ -5,6 +5,7 @@ import sys
 import glob
 import argparse
 import configparser
+import re
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -16,19 +17,32 @@ class LatexTemplate(object):
 
     def __init__(self, argv=None):    
 
-        self.cmd = None
         self.generated_files = []
 
-        tpl = os.path.join(dirCalled, 'latex.tpl')
-        if os.path.exists(tpl):
-            self.templates = configparser.ConfigParser()
-            self.templates.read(tpl, encoding='utf-8')
+        self.dbFile = 'latex.tpl'
+        self.dbFile = os.path.join(dirCalled, self.dbFile)
+        if os.path.exists(self.dbFile):
+            self.database = configparser.ConfigParser()
+            self.database.read(self.dbFile, encoding='utf-8')
         else:
-            print('latex.tpl is not found.')
+            print('{} is not found.'.format(self.dbFile))
             sys.exit()
 
         self.parse_args(argv)
-        self.determine_task()
+
+        if self.args.List_bool:
+            self.enumerate_with_description()
+        elif self.args.list_bool:
+            self.enumerate_without_description()
+        elif self.args.detail_bool:
+            self.show_details()
+        elif self.args.update_bool:
+            self.update_database()
+        elif self.args.burst_bool:
+            self.burst_templates()
+        else:
+            self.make()
+
 
 
     def parse_args(self, argv=None):
@@ -52,7 +66,7 @@ class LatexTemplate(object):
         parser = argparse.ArgumentParser(
             epilog = example,  
             formatter_class = argparse.RawDescriptionHelpFormatter,
-            description = 'Create a LaTeX file from several templates and compile it using ltx.py.'
+            description = 'Create a LaTeX file from the template databse and compile it using ltx.py.'
         )
         parser.add_argument(
             'template',
@@ -66,11 +80,6 @@ class LatexTemplate(object):
             dest = 'substitutes',
             nargs = '*',
             help = 'Specify strings which to replace the tex file with.'
-        )
-        parser.add_argument(
-            '-o',
-            dest = 'output',
-            help = 'Specify a filename for output.'
         )
         parser.add_argument(
             '-n',
@@ -114,10 +123,33 @@ class LatexTemplate(object):
             default = False,
             help = 'Show the details about the specified template.'            
         )
+        parser.add_argument(
+            '-u',
+            dest = 'update_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Update the database file with the files being in the current directory.'
+        )
+        parser.add_argument(
+            '-b',
+            dest = 'burst_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Take out all templates.'
+        )
 
         self.args = parser.parse_args(argv)
 
-    def confirm_to_remove(self, afile):
+    def check_section(self):
+
+        if self.database.has_section(self.args.template):
+            return True
+        else:
+            print('"{}" is not included in the database.'.format(self.args.script))
+            return False
+
+
+    def confirm_to_overwrite(self, afile):
 
         if os.path.exists(afile):
             answer = input('{} already exists. Are you sure to overwrite it? [y/N] '.format(afile))
@@ -130,51 +162,39 @@ class LatexTemplate(object):
             return True
 
 
-    def determine_filename(self):
+    def make_image_list(self, filename='images.lst', exclude='album.pdf'):
 
-        if self.args.output is None:
-            self.filename = self.templates.get(self.args.template, 'output', fallback='mydoc')
-        else:
-            filename = self.args.output
-            self.filename = os.path.splitext(filename)[0]        
-        self.tex = self.filename + '.tex'        
+        if os.path.exists(filename):
+            os.remove(filename)
+        if os.path.exists(exclude):
+            os.remove(exclude)
 
-
-    def make_image_list(self):
-
-        image_list_file = self.templates.get('album', 'image_list', fallback='im@ges.txt')
-        if os.path.exists(image_list_file):
-            os.remove(image_list_file)
-        pdf = self.filename + '.pdf'
-        if os.path.exists(pdf):
-            os.remove(pdf)
-
-        # Make a file to contain a list of image files
         images = []
         image_type = ['pdf', 'jpg', 'jpeg', 'png']
         for img in image_type:
             for afile in glob.glob('*.' + img):
                 images.append(afile)
+
         if len(images) == 0:
             print('No image files are found.')
             return False
+
         images.sort(key=str.lower)
         images = '\n'.join(images)        
-        with open(image_list_file, mode='w', encoding='utf-8') as f:
+        with open(filename, mode='w', encoding='utf-8') as f:
             f.write(images)
 
         if self.args.remove_bool:
-            self.generated_files.append(image_list_file)
+            self.generated_files.append(filename)
 
         return True
 
 
-    def fill_placeholders(self, content):       
-
-        content = content.replace('`', '')
+    def fill_placeholders(self, content):
+        
         try:
-            placeholders = int(self.templates.get(self.args.template, 'placeholders'))
-            defaults = self.templates.get(self.args.template, 'defaults')
+            placeholders = int(self.database.get(self.args.template, 'placeholders'))
+            defaults = self.database.get(self.args.template, 'defaults')
             defaults = defaults.split(', ')
         except:
             return content
@@ -191,71 +211,59 @@ class LatexTemplate(object):
         return content
 
 
-    def write_relatives(self, extension):
+    def write_from_database(self, filename, source):
 
-        content = self.templates.get(self.args.template, extension, fallback=None)
-        ext = self.filename + '.' + extension
-        if content is not None:
-            if extension == 'cmd':
-                self.cmd = ext
-                content = content.replace('\\TEX', self.tex)
-                content = content.replace('\\PDF', self.filename + '.pdf')
-                content = content.replace('\\DVI', self.filename + '.dvi')
-                content = content.replace('\\PS', self.filename + '.ps')
-            else:
-                content = content.replace('`', '')            
-            if self.confirm_to_remove(ext):
-                with open(ext, mode='w', encoding='utf-8') as f:
-                    f.write(content) 
-                if self.args.remove_bool:
-                    self.generated_files.append(ext)
-            
-
-    def write_from_template(self):
-
-        self.write_relatives('bib')
-        self.write_relatives('cmd')
-        self.write_relatives('css')
-        self.write_relatives('gv')
-        self.write_relatives('map')
-        self.write_relatives('sty')
-        self.write_relatives('xdy')
-        # self.confirm_to_remove(self.tex)
-        
-        if self.confirm_to_remove(self.tex):        
+        if self.confirm_to_overwrite(filename):
             try:
-                content = self.templates.get(self.args.template, 'tex')
-                content = self.fill_placeholders(content)
-                with open(self.tex, mode='w', encoding='utf-8') as f:
-                    f.write(content)
+                content = self.database.get(self.args.template, source)
             except:
-                print('Make sure to have latex.tpl set properly.')
+                print('Ensure the template database file is set properly.')
+                print(self.args.template)
                 return False
+            content = content.replace('`', '')
+            if os.path.splitext(filename)[1] == '.tex':
+                content = self.fill_placeholders(content)
+            with open(filename, mode='w', encoding='utf-8') as f:
+                f.write(content)
+            return True
+        else:
+            return False
 
-        if self.args.remove_bool:
-            self.generated_files.append(self.tex)
 
-        if not self.args.force_bool:
-            opener = FileOpener()
-            opener.open_txt(self.tex)
-        return True
+    def pick_template(self):        
+
+        options = self.database.options(self.args.template)
+
+        for option in options:
+            if 'output' in option:
+                filename = self.database.get(self.args.template, option)
+                source = option.split('_')[0]
+                if option == 'tex_output':                
+                    if self.args.burst_bool and filename == 'mydoc.tex':
+                        filename = self.args.template + '.tex'
+                    else:
+                        self.tex = filename
+                if not self.write_from_database(filename, source):
+                    return False
 
 
     def compile(self):
 
-        compiler_option = self.templates.get(self.args.template, 'compiler', fallback=None)
-        if compiler_option is None:
-            if self.args.force_bool:
-                LatexCompiler(self.tex, ['-v'])                
-            else:                
-                if self.cmd is not None:
-                    answer = input('Do you want to run %s? [Y/n] ' %(self.cmd))
-                    if answer.lower() != 'n':
-                        os.system(self.cmd)
-        else:       
-            compiler_option = compiler_option.split(', ')
-            compiler_option.append('-v')            
-            LatexCompiler(self.tex, compiler_option)
+        cmd = self.database.get(self.args.template, 'cmd_output', fallback=False)
+
+        if cmd:
+            answer = input('Do you want to run {}? [Y/n] '.format(cmd))
+            if answer.lower() != 'n':
+                os.system(cmd)
+        else:
+            compiler = self.database.get(self.args.template, 'compiler', fallback=False)
+            if compiler:
+                compiler = compiler.split(', ')
+                compiler.append('-v')
+                LatexCompiler(self.tex, compiler)
+            else:
+                if self.args.force_bool:
+                    LatexCompiler(self.tex, ['-v'])
 
         if self.args.remove_bool:
             for i in self.generated_files:
@@ -264,23 +272,25 @@ class LatexTemplate(object):
 
     def make(self):
 
-        if not self.templates.has_section(self.args.template):
-            print('"{}" is not defined.'.format(self.args.template))
-            return False
-        self.determine_filename()
+        if not self.check_section():
+            return True
+
         if self.args.template == 'album':            
-            if self.make_image_list() is False:
+            if not self.make_image_list():
                 return 
-        if self.write_from_template(): 
-            if not self.args.defy_bool:           
-                self.compile()                
+        
+        if not self.pick_template():
+            return
+
+        if not self.args.defy_bool:           
+            self.compile()                
 
 
     def enumerate_with_description(self):
 
-        templates = sorted(self.templates.sections(), key=str.casefold)
+        templates = sorted(self.database.sections(), key=str.casefold)
         for i in templates:
-            description = self.templates.get(i, 'description', fallback=None)
+            description = self.database.get(i, 'description', fallback=None)
             if description is None:
                 description = ''
             else:
@@ -291,7 +301,7 @@ class LatexTemplate(object):
     def enumerate_without_description(self, columns=4):  
 
         """Print the list of template names."""  
-        templates = sorted(self.templates.sections(), key=str.casefold)
+        templates = sorted(self.database.sections(), key=str.casefold)
         width = 0
         for i in templates:
             width = max(width, len(i))
@@ -308,28 +318,58 @@ class LatexTemplate(object):
             i += columns
             print(line)
 
+
     def show_details(self):
 
-        if not self.templates.has_section(self.args.template):
-            print('"{}" is not defined.'.format(self.args.template))
-            return 
-        usage = self.templates.get(self.args.template, 'description', fallback=None)
+        if not self.check_section():
+            return True
+
+        usage = self.database.get(self.args.template, 'description', fallback=None)
         if usage == None:
             print('"{}" has no decription'.format(self.args.template))
         else: 
             print('\n{}\n'.format(usage))
 
 
-    def determine_task(self):
+    def update_database(self):
 
-        if self.args.List_bool:
-            self.enumerate_with_description()
-        elif self.args.list_bool:
-            self.enumerate_without_description()
-        elif self.args.detail_bool:
-            self.show_details()
-        else:
-            self.make()
+        if not self.check_section():
+            return True
+
+        options = self.database.options(self.args.template)
+        for option in options:
+            if 'output' in option:
+                filename = self.database.get(self.args.template, option)
+                source = option.split('_')[0]
+                self.comply_ini_syntax(filename, source)
+
+        with open(self.dbFile, mode='w', encoding='utf-8') as f:
+            self.database.write(f)
+            print('Successfully updated.')
+
+                
+    def comply_ini_syntax(self, filename, source):
+
+        if not os.path.exists(filename):
+            print('"{}" does not exist in the current directory.'.format(filename))
+            return
+
+        with open(filename, mode='r', encoding='utf-8') as f:
+            content = f.read()
+
+        content = re.sub('%', '%%', content)
+        if os.path.splitext(filename)[1] != '.cmd':
+            content = re.sub('\n', '\n`', content)
+        self.database.set(self.args.template, source, content)
+
+
+    def burst_templates(self):
+
+        templates = self.database.sections()
+        for i in templates:
+            self.args.template = i
+            self.pick_template()
+
 
 if __name__ == '__main__':
     LatexTemplate()

@@ -24,6 +24,7 @@ class ScriptScribe(object):
             sys.exit()        
         
         self.parse_args()
+
         if self.args.burst_bool:
             self.burst_scripts()
         elif self.args.update_bool:
@@ -50,7 +51,7 @@ class ScriptScribe(object):
             dest = 'update_bool',
             action = 'store_true',
             default = False,
-            help = 'Update the database file with the code file.'
+            help = 'Update the database with the file being in the current directory.'
         )
         self.parser.add_argument(
             '-B',
@@ -91,15 +92,14 @@ class ScriptScribe(object):
                 return True
 
 
-    def write_from_database(self, source, filename):        
+    def write_from_database(self, filename, source):
 
         if self.confirm_to_overwrite(filename):
             try:
                 content = self.database.get(self.args.script, source)                
             except:
-                print('Ensure the script database file is set properly.')
-                return False 
-            
+                print('Ensure the script database is set properly.')
+                return False             
             if os.path.splitext(filename)[1] != '.cmd':
                 content = content.replace('`', '')
             with open(filename, mode='w', encoding='utf-8') as f:
@@ -113,7 +113,7 @@ class ScriptScribe(object):
 
         if self.run:
             if not self.database.has_section(self.args.script):
-                print('"{}" does not exist.'.format(self.args.script))
+                print('"{}" is not included in the database.'.format(self.args.script))
                 return
 
         options=self.database.options(self.args.script)
@@ -121,7 +121,7 @@ class ScriptScribe(object):
             if 'output' in option:
                 filename = self.database.get(self.args.script, option)
                 source = option.split('_')[0]
-                if not self.write_from_database(source, filename):
+                if not self.write_from_database(filename, source):
                     return
 
         if self.run:
@@ -163,23 +163,25 @@ class ScriptScribe(object):
     def update_database(self):
 
         if not self.database.has_section(self.args.script):
-            print('"{}" does not exist.'.format(self.args.script))
+            print('"{}" is not included in the database.'.format(self.args.script))
             return
 
         filename = self.database.get(self.args.script, 'code_output')
         if not os.path.exists(filename):
-            print('"{}" does not exist.'.format(filename))
+            print('"{}" does not exist in the current directory.'.format(filename))
             return
 
         with open(filename, mode='r', encoding='utf-8') as f:
             code = f.read()
 
-        code = re.sub("%", "%%", code)
-        code = re.sub("\n", "\n `", code)
-
+        code = re.sub('%', '%%', code)
+        if os.path.splitext(filename)[1] != '.cmd':
+            code = re.sub('\n', '\n`', code)
         self.database.set(self.args.script, 'code', code)
+
         with open(self.dbFile, mode='w', encoding='utf-8') as f:
             self.database.write(f)
+            print('Successfully updated.')
 
 
 if __name__ == '__main__':

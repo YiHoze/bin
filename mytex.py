@@ -217,14 +217,15 @@ class LatexTemplate(object):
             try:
                 content = self.database.get(self.args.template, source)
             except:
-                print('Ensure the template database file is set properly.')
-                print(self.args.template)
+                print('Ensure options under {} are set properly.'.format(self.args.template))
                 return False
             content = content.replace('`', '')
             if os.path.splitext(filename)[1] == '.tex':
                 content = self.fill_placeholders(content)
             with open(filename, mode='w', encoding='utf-8') as f:
                 f.write(content)
+            if self.args.remove_bool:
+                self.generated_files.append(filename)
             return True
         else:
             return False
@@ -248,7 +249,8 @@ class LatexTemplate(object):
                         return False
                 else:
                     print('"{}" is not specified under {}.'.format(option, self.args.template))
-
+                    return False
+        return True
 
     def compile(self):
 
@@ -285,7 +287,7 @@ class LatexTemplate(object):
         if not self.pick_template():
             return
 
-        if not self.args.defy_bool:           
+        if not self.args.defy_bool:    
             self.compile()                
 
 

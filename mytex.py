@@ -236,15 +236,18 @@ class LatexTemplate(object):
 
         for option in options:
             if 'output' in option:
-                filename = self.database.get(self.args.template, option)
-                source = option.split('_')[0]
-                if option == 'tex_output':                
-                    if self.args.burst_bool and filename == 'mydoc.tex':
-                        filename = self.args.template + '.tex'
-                    else:
-                        self.tex = filename
-                if not self.write_from_database(filename, source):
-                    return False
+                filename = self.database.get(self.args.template, option, fallback=False)
+                if filename:
+                    source = option.split('_')[0]
+                    if option == 'tex_output':                
+                        if self.args.burst_bool and filename == 'mydoc.tex':
+                            filename = self.args.template + '.tex'
+                        else:
+                            self.tex = filename
+                    if not self.write_from_database(filename, source):
+                        return False
+                else:
+                    print('"{}" is not specified under {}.'.format(option, self.args.template))
 
 
     def compile(self):

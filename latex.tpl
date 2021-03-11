@@ -3526,7 +3526,7 @@ tex =
 	`	\end{pspicture}%%
 	`}
 	`\end{document}
-cmd_output = 
+cmd_output = mypstricks.cmd
 cmd = 
 	latex.exe mypstricks.tex
 	dvips.exe mypstricks.dvi
@@ -4086,7 +4086,7 @@ tex =
 	\zigzagpar{\verylongtext}
 	\vfill
 	\end{document}
-style_output = 
+style_output = zigzag.sty
 style = 
 	`\RequirePackage{tikzpagenodes}
 	`\RequirePackage{xparse}

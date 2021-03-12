@@ -4,22 +4,15 @@ import glob
 import argparse
 import configparser
 import subprocess
-
+from PyPDF2 import PdfFileReader
 
 class ImageUtility(object):
 
-    def __init__(self):
+    def __init__(self, argv=None):
 
         self.vectors = ('.eps', '.pdf', '.svg')
         self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.jpeg', '.pbm', '.png', '.ppm', '.tga', '.tiff', '.webp')
-        self.cnt = 0
-        self.initialize()
-        self.parse_args()
-        self.determine_task()
-
-
-    def initialize(self):
-
+       
         inipath = os.path.dirname(__file__)
         ini = os.path.join(inipath, 'docenv.ini')
         if os.path.exists(ini):
@@ -40,8 +33,12 @@ class ImageUtility(object):
             self.Inkscape = 'inkscape.com'
             self.Magick = 'magick.exe'
 
+        self.cnt = 0
+        self.parse_args(argv)
+        self.determine_task()
 
-    def parse_args(self):
+
+    def parse_args(self, argv=None):
 
         example = '''With this script you can: 
     1) view a bitmap image's information; 
@@ -128,7 +125,7 @@ examples:
             default = False,
             help = 'Process ones in all subdirectories'
         )
-        self.args = parser.parse_args()
+        self.args = parser.parse_args(argv)
 
 
     # def check_TeXLive(self):
@@ -210,7 +207,7 @@ examples:
         if self.check_format(img) == 'bitmap':
             cmd = '\"{}\" identify -verbose {}'.format(self.Magick, img)
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)   
-            result = result.decode(encoding='utf-8')            
+            result = result.decode(encoding='utf-8')  
             result = result.split('\r\n')
             print('\n {}'.format(img))
             for n in range(4):
@@ -231,11 +228,22 @@ examples:
 
         filename, ext = os.path.splitext(img)
         ext = ext.lower()
+
+        digits=1        
         if ext == '.gif':
-            trg = '{}_%03d{}'.format(filename, self.args.target_format)
+            frames = self.count_gif_frames(img)
+            digits = self.count_digits(frames)
+        elif ext == '.pdf':
+            pages = self.count_pdf_pages(img)
+            digits = self.count_digits(pages)
+
+        if digits > 1:
+            trg = '{}_%0{}d{}'.format(filename, digits, self.args.target_format)
         else:
             trg = filename + self.args.target_format
+
         return trg
+                
 
 
     def bitmap_to_bitmap(self, img):
@@ -245,19 +253,30 @@ examples:
         self.run_cmd(cmd)
 
 
+    def count_digits(self, n):
+
+        digits = 0
+        while(n >= 1):
+            digits += 1
+            n = n /10
+        return digits
+
+
+    def count_gif_frames(self, img):
+
+        cmd = '\"{}\" identify {}'.format(self.Magick, img)
+        result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        result = result.decode(encoding='utf-8')            
+        result = result.split('\n')
+        return len(result)
+
+
     def count_pdf_pages(self, img):
 
-        ext = os.path.splitext(img)[1]
-        if ext.lower() == '.pdf':
-            cmd = 'pdfinfo.exe ' + img
-            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            result = str(result).split('\\r\\n')
-            for i in result:
-                if 'Pages:' in i:
-                    tmp = i.replace('Pages:', '')                    
-                    return int(tmp)
-        else:
-            return 0
+        with open(img, 'rb') as f:
+            pdf = PdfFileReader(f)
+            pages = pdf.getNumPages()
+        return pages
 
 
     def vector_to_bitmap(self, img):
@@ -265,9 +284,10 @@ examples:
         trg = self.name_target(img)
         cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
         self.run_cmd(cmd)
-        page_count = self.count_pdf_pages(img)
-        if page_count > 1:
-            filename, ext = os.path.splitext(trg)
+
+        if self.count_pdf_pages(img) > 1:
+            filename = os.path.splitext(img)[0]
+            ext = os.path.splitext(trg)[1]
             trg = filename + '*' + ext
         for i in glob.glob(trg):
             cmd = '"{}" -units PixelsPerCentimeter -density 100 "{}" "{}"'.format(self.Magick, i, i)

@@ -3429,3 +3429,73 @@ code =
 	`    LoanCalculator()
 	`
 
+[strcomp]
+description = [Python] Get the match rate between two strings.
+code_output = strcomp.py
+code = import os
+	`import sys
+	`import argparse
+	`import csv
+	`from difflib import SequenceMatcher
+	`
+	`
+	`class StringCompare(object):
+	`
+	`    def __init__(self):
+	`
+	`        self.parse_args()   
+	`        if len(self.strings) == 1:
+	`            self.compare_in_TSV()
+	`        else:
+	`            self.compare()
+	`
+	`
+	`    def parse_args(self):
+	`
+	`        parser = argparse.ArgumentParser(
+	`            description = 'Get the match rate between two strings.'
+	`        )
+	`        parser.add_argument(
+	`            'strings',
+	`            nargs = '+',
+	`            help = 'Type two strings wrapped with quotes, or Specify a TSV file that contains strings in two columns.'
+	`        )
+	`        args = parser.parse_args()
+	`        self.strings = args.strings
+	`
+	`
+	`    def compare_in_TSV(self):
+	`
+	`        lines = 0
+	`        matches = 0
+	`        basename = os.path.basename(self.strings[0])
+	`        filename = os.path.splitext(basename)[0]
+	`        infile = filename + '.tsv'
+	`        outfile = filename + '_result.tsv'    
+	`        if not os.path.exists(infile):
+	`            print('{} does not exist.'.format(infile))
+	`            return
+	`        with open(infile, mode='r', encoding='utf-8') as source, open(outfile, mode='w', encoding='utf-8') as result:
+	`            reader = csv.reader(source, delimiter='\t')
+	`            writer = csv.writer(result, delimiter='\t', lineterminator='\n')
+	`            for line in reader:
+	`                s = SequenceMatcher(None, line[0], line[1])
+	`                lines += 1
+	`                match = '{0:.1f}%%'.format(s.ratio() * 100)
+	`                matches += s.ratio()
+	`                writer.writerow([line[0], line[1], match])
+	`            matches = matches / lines
+	`            average = 'Average match rate: {0:.1f}%%'.format(matches * 100)
+	`            print(average)
+	`            writer.writerow([average])
+	`
+	`
+	`    def compare(self):
+	`
+	`        s = SequenceMatcher(None, self.strings[0], self.strings[1])
+	`        print('{0:.1f}%%'.format(s.ratio() * 100))
+	`
+	`
+	`if __name__ == '__main__':
+	`    StringCompare() 
+

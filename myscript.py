@@ -25,15 +25,20 @@ class ScriptScribe(object):
         
         self.parse_args()
 
-        if self.args.burst_bool:
-            self.burst_scripts()
-        elif self.args.update_bool:
-            self.update_database()
-        elif self.args.script:
-            self.pick_script()
+        if self.args.script:
+            if self.args.update_bool:
+                self.update()
+            elif self.args.insert_bool:
+                self.insert_new()
+            else:
+                self.pick_script()
         else:
-            self.parser.print_help()
-            self.enumerate_scripts()
+            if self.args.burst_bool:
+                self.burst_database()
+            else:
+                self.parser.print_help()
+                self.enumerate_scripts()
+
 
 
     def parse_args(self):
@@ -45,6 +50,13 @@ class ScriptScribe(object):
         self.parser.add_argument(
             'script',
             nargs = '?'
+        )
+        self.parser.add_argument(
+            '-I',
+            dest = 'insert_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Insert a new script file into the database file.'
         )
         self.parser.add_argument(
             '-U',
@@ -138,7 +150,7 @@ class ScriptScribe(object):
                 os.remove(filename)
 
 
-    def burst_scripts(self):
+    def burst_database(self):
 
         self.run = False
         scripts = sorted(self.database.sections(), key=str.casefold)
@@ -160,7 +172,7 @@ class ScriptScribe(object):
             print('{:12} {}'.format(i,description))
 
 
-    def update_database(self):
+    def update(self):
 
         if not self.database.has_section(self.args.script):
             print('"{}" is not included in the database.'.format(self.args.script))
@@ -183,6 +195,48 @@ class ScriptScribe(object):
             self.database.write(f)
             print('Successfully updated.')
 
+
+    def insert_new(self):
+
+        filepath = self.args.script
+        if not os.path.exists(filepath):
+            print('"{}" is not found.'.format(filepath))
+            return
+
+        basename = os.path.basename(filepath)
+        filename, ext = os.path.splitext(basename)
+        if ext == '.py':
+            script_type = '[Python]'
+        elif ext == '.ps1':
+            script_type = '[PowerShell]'
+        elif ext == '.cmd':
+            script_type = '[cmd]'
+        else:
+            script_type = '[Unknown]'
+
+        with open(filepath, mode='r', encoding='utf-8') as f:
+            code = f.read()  
+        code = re.sub('%', '%%', code)
+        if os.path.splitext(filename)[1] != '.cmd':
+            code = re.sub('\n', '\n`', code)
+
+        found = re.search('(?<= description = ).*\n', code)
+        if found:
+            description = found.group(0)
+            description = re.sub("^'", "", description)
+            description = re.sub("'\n", "", description)
+            description = '{} {}'.format(script_type, description)
+        else:
+            description = script_type
+        
+        self.database.add_section(filename)
+        self.database.set(filename, 'description', description)
+        self.database.set(filename, 'code_output', basename)
+        self.database.set(filename, 'code', code)
+
+        with open(self.dbFile, mode='w', encoding='utf-8') as f:
+            self.database.write(f)
+            print('Successfully inserted.')
 
 if __name__ == '__main__':
     ScriptScribe()

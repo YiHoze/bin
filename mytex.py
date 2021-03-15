@@ -77,6 +77,12 @@ class LatexTemplate(object):
             help = 'Choose a template.'
         )
         parser.add_argument(
+            '-o',
+            dest = 'output',
+            default = None,
+            help = 'Specify a file name for the output.'
+        )
+        parser.add_argument(
             '-s',
             dest = 'substitutes',
             nargs = '*',
@@ -248,10 +254,12 @@ class LatexTemplate(object):
                 filename = self.database.get(self.args.template, option, fallback=False)
                 if filename:
                     source = option.split('_')[0]
-                    if option == 'tex_output':                
+                    if option == 'tex_output':                            
                         if self.args.burst_bool and filename == 'mydoc.tex':
                             filename = self.args.template + '.tex'
                         else:
+                            if self.args.output:
+                                filename = os.path.splitext(self.args.output)[0] + '.tex'
                             self.tex = filename
                     if not self.write_from_database(filename, source):
                         return False

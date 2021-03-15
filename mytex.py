@@ -19,7 +19,7 @@ class LatexTemplate(object):
 
         self.generated_files = []
 
-        self.dbFile = 'latex.tpl'
+        self.dbFile = 'latex.db'
         self.dbFile = os.path.join(dirCalled, self.dbFile)
         if os.path.exists(self.dbFile):
             self.database = configparser.ConfigParser()

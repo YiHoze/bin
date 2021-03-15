@@ -30,22 +30,20 @@ class LatexTemplate(object):
 
         self.parse_args(argv)
 
-        if self.args.template:
-            if self.args.detail_bool:
-                self.show_details()
-            elif self.args.update_bool:
-                self.update_database()
-            elif self.args.insert_bool:
-                self.insert_new()
-            else:
-                self.make()
-        else:            
-            if self.args.List_bool:
-                self.enumerate_with_description()
-            elif self.args.list_bool:
-                self.enumerate_without_description()        
-            elif self.args.burst_bool:
-                self.burst_templates()
+        if self.args.List_bool:
+            self.enumerate_with_description()
+        elif self.args.list_bool:
+            self.enumerate_without_description()        
+        elif self.args.detail_bool:
+            self.show_details()
+        elif self.args.update_bool:
+            self.update_database()
+        elif self.args.insert_bool:
+            self.insert_new()
+        elif self.args.burst_bool:
+            self.burst_templates()
+        else:
+            self.make()
 
 
     def parse_args(self, argv=None):
@@ -314,7 +312,7 @@ class LatexTemplate(object):
                 description = ''
             else:
                 description = description.split('\n')[0]
-            print('{:20} {}'.format(i, description))
+            print('{:16} {}'.format(i, description))
 
 
     def enumerate_without_description(self, columns=4):  

@@ -30,19 +30,22 @@ class LatexTemplate(object):
 
         self.parse_args(argv)
 
-        if self.args.List_bool:
-            self.enumerate_with_description()
-        elif self.args.list_bool:
-            self.enumerate_without_description()
-        elif self.args.detail_bool:
-            self.show_details()
-        elif self.args.update_bool:
-            self.update_database()
-        elif self.args.burst_bool:
-            self.burst_templates()
-        else:
-            self.make()
-
+        if self.args.template:
+            if self.args.detail_bool:
+                self.show_details()
+            elif self.args.update_bool:
+                self.update_database()
+            elif self.args.insert_bool:
+                self.insert_new()
+            else:
+                self.make()
+        else:            
+            if self.args.List_bool:
+                self.enumerate_with_description()
+            elif self.args.list_bool:
+                self.enumerate_without_description()        
+            elif self.args.burst_bool:
+                self.burst_templates()
 
 
     def parse_args(self, argv=None):
@@ -124,6 +127,13 @@ class LatexTemplate(object):
             help = 'Show the details about the specified template.'            
         )
         parser.add_argument(
+            '-i',
+            dest = 'insert_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Insert a new TeX file into the database file.'
+        )
+        parser.add_argument(
             '-u',
             dest = 'update_bool',
             action = 'store_true',
@@ -145,7 +155,7 @@ class LatexTemplate(object):
         if self.database.has_section(self.args.template):
             return True
         else:
-            print('"{}" is not included in the database.'.format(self.args.script))
+            print('"{}" is not included in the database.'.format(self.args.template))
             return False
 
 
@@ -287,6 +297,10 @@ class LatexTemplate(object):
         if not self.pick_template():
             return
 
+        if not self.args.remove_bool:
+            opener = FileOpener()
+            opener.open_txt(self.tex)
+
         if not self.args.defy_bool:    
             self.compile()                
 
@@ -352,11 +366,41 @@ class LatexTemplate(object):
             self.database.write(f)
             print('Successfully updated.')
 
-                
+
+    def if_exits(self, filename):
+
+        if os.path.exists(filename):
+            return True
+        else:
+            print('"{}" does not exist in the current directory.'.format(filename))
+            return False
+
+
+    def insert_new(self):
+
+        filename = os.path.basename(self.args.template)
+        if not self.if_exits(filename):
+            return
+        
+        name = os.path.splitext(filename)[0]
+        if name in self.database.sections():
+            print('"{}" is already included in the database.'.format(name))
+            return
+
+        self.args.template = name
+        self.database.add_section(name)
+        self.database.set(name, 'description', '')
+        self.database.set(name, 'tex_output', filename)
+        self.comply_ini_syntax(filename, 'tex')
+
+        with open(self.dbFile, mode='w', encoding='utf-8') as f:
+            self.database.write(f)
+            print('Successfully inserted.')
+
+
     def comply_ini_syntax(self, filename, source):
 
-        if not os.path.exists(filename):
-            print('"{}" does not exist in the current directory.'.format(filename))
+        if not self.if_exits(filename):
             return
 
         with open(filename, mode='r', encoding='utf-8') as f:

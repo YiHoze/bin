@@ -83,6 +83,14 @@ class ScriptScribe(object):
         self.args, self.script_arguments = self.parser.parse_known_args()
         self.run = True  
 
+    def check_section(self):
+
+        if self.database.has_section(self.args.script):
+            return True
+        else:
+            print('"{}" is not included in the database.'.format(self.args.script))
+            return False
+
 
     def confirm_to_overwrite(self, afile):
 
@@ -124,8 +132,7 @@ class ScriptScribe(object):
     def pick_script(self):
 
         if self.run:
-            if not self.database.has_section(self.args.script):
-                print('"{}" is not included in the database.'.format(self.args.script))
+            if not self.check_section():
                 return
 
         options=self.database.options(self.args.script)
@@ -172,23 +179,30 @@ class ScriptScribe(object):
             print('{:12} {}'.format(i,description))
 
 
+    def if_exits(self, filename):
+
+        if os.path.exists(filename):
+            return True
+        else:
+            print('"{}" does not exist in the current directory.'.format(filename))
+            return False
+
+
     def update(self):
 
-        if not self.database.has_section(self.args.script):
-            print('"{}" is not included in the database.'.format(self.args.script))
+        if not self.check_section():            
             return
 
         filename = self.database.get(self.args.script, 'code_output')
-        if not os.path.exists(filename):
-            print('"{}" does not exist in the current directory.'.format(filename))
+        if not self.if_exits(filename):
             return
 
         with open(filename, mode='r', encoding='utf-8') as f:
             code = f.read()
-
         code = re.sub('%', '%%', code)
         if os.path.splitext(filename)[1] != '.cmd':
             code = re.sub('\n', '\n`', code)
+
         self.database.set(self.args.script, 'code', code)
 
         with open(self.dbFile, mode='w', encoding='utf-8') as f:
@@ -198,13 +212,15 @@ class ScriptScribe(object):
 
     def insert_new(self):
 
-        filepath = self.args.script
-        if not os.path.exists(filepath):
-            print('"{}" is not found.'.format(filepath))
+        filename = os.path.basename(self.args.script)
+        if not self.if_exits(filename):
             return
 
-        basename = os.path.basename(filepath)
-        filename, ext = os.path.splitext(basename)
+        name, ext = os.path.splitext(filename)
+        if name in self.database.sections():
+            print('"{}" is already included in the database.'.format(name))
+            return
+
         if ext == '.py':
             script_type = '[Python]'
         elif ext == '.ps1':
@@ -214,7 +230,7 @@ class ScriptScribe(object):
         else:
             script_type = '[Unknown]'
 
-        with open(filepath, mode='r', encoding='utf-8') as f:
+        with open(filename, mode='r', encoding='utf-8') as f:
             code = f.read()  
         code = re.sub('%', '%%', code)
         if os.path.splitext(filename)[1] != '.cmd':
@@ -229,10 +245,10 @@ class ScriptScribe(object):
         else:
             description = script_type
         
-        self.database.add_section(filename)
-        self.database.set(filename, 'description', description)
-        self.database.set(filename, 'code_output', basename)
-        self.database.set(filename, 'code', code)
+        self.database.add_section(name)
+        self.database.set(name, 'description', description)
+        self.database.set(name, 'code_output', filename)
+        self.database.set(name, 'code', code)
 
         with open(self.dbFile, mode='w', encoding='utf-8') as f:
             self.database.write(f)

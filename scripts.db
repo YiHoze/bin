@@ -3401,7 +3401,7 @@ code =
 	`        else:
 	`            repayment_monthly = int(repayment_monthly)
 	`
-	`        result = 'A loan of {:,} is paid off {:,} per month for {} months.'.format(self.loan, repayment_monthly, self.months)
+	`        result = 'A loan of {:,} at {:4.2f}%% rate of interest is paid back\n{:,} per month for {} months.\n'.format(self.loan, self.rate, repayment_monthly, self.months)
 	`        print(result)
 	`        tex = result
 	`
@@ -3440,8 +3440,9 @@ code =
 	`                tex = tex + '\n' + result
 	`
 	`        repayment_accumulated = principal_accumulated + interest_accumulated
+	`        rate_actual = interest_accumulated * 100 / principal_accumulated
 	`
-	`        result = 'Accumulated repayment: {:>12,}\nAccumulated interest:  {:>12,}'''.format(repayment_accumulated, interest_accumulated)
+	`        result = 'Accumulated repayment: {:>12,}\nAccumulated interest:  {:>12,}\nActual rate of interest:     {:4.2f}%%'.format(repayment_accumulated, interest_accumulated, rate_actual)
 	`        print(result)
 	`
 	`        if self.args.pdf_bool:
@@ -3652,7 +3653,7 @@ code = import os
 [countind]
 description = [Python] Count how many page numbers each index entry has.
 code_output = countind.py
-code = import os 
+code = import os
 	`import sys
 	`import argparse
 	`import re
@@ -3691,7 +3692,7 @@ code = import os
 	`
 	`lines = src.readlines()
 	`for line in lines:
-	`    trg.write(CountHyperpage(line))        
+	`    trg.write(CountHyperpage(line))
 	`
 	`src.close()
 	`trg.close()

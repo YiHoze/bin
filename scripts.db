@@ -3700,3 +3700,27 @@ code = import os
 	`os.remove(file)
 	`os.rename(trgfile, file)
 
+[randompw]
+description = [Python]
+code_output = randompw.py
+code = import sys
+	`from numpy.random import seed
+	`from numpy.random import randint
+	`
+	`if len(sys.argv) > 1:
+	`    try:
+	`        digits = int(sys.argv[1])
+	`    except:
+	`        digits = 8
+	`else:
+	`    digits = 8
+	`
+	`# seed(1)
+	`numerals = randint(0, 10, digits)
+	`print(numerals)
+	`password = ''
+	`for i in numerals:
+	`    password += str(i)
+	`print(password)
+	`
+

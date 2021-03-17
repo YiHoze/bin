@@ -109,10 +109,10 @@ class FontInfo(object):
     def get_info(self): 
 
         if os.path.exists(self.args.font):
-            cmd = 'otfinfo -i {}'.format(self.args.font)
+            cmd = 'otfinfo.exe -i {}'.format(self.args.font)
             os.system(cmd)
         else:
-            cmd = 'fc-list -f "%{{file}}\n" "{}"'.format(self.args.font)
+            cmd = 'fc-list.exe -f "%{{file}}\n" "{}"'.format(self.args.font)
             fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             fonts = fonts.decode(encoding='utf-8')        
             if fonts == '':

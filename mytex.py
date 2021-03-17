@@ -279,7 +279,7 @@ class LatexTemplate(object):
         else:
             compiler = self.database.get(self.args.template, 'compiler', fallback=False)
             if compiler:
-                compiler = compiler.split(', ')
+                compiler = compiler.split(' ')
                 compiler.append('-v')
                 LatexCompiler(self.tex, compiler)
             else:

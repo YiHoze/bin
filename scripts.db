@@ -3648,3 +3648,54 @@ code = import os
 	`
 	`if __name__ == '__main__':
 	`    RasterizePDF()
+
+[countind]
+description = [Python] Count how many page numbers each index entry has.
+code_output = countind.py
+code = import os 
+	`import sys
+	`import argparse
+	`import re
+	`
+	`parser = argparse.ArgumentParser(
+	`    description = 'Count how many page numbers each index entry has.')
+	`parser.add_argument(
+	`    'file',
+	`    metavar='IND',
+	`    type=str,
+	`    nargs=1,
+	`    help='Specify an ind file.'
+	`    )
+	`args = parser.parse_args()
+	`file = args.file[0]
+	`
+	`if not os.path.exists(file):
+	`    print('{} is not found.'.format(file))
+	`    sys.exit()
+	`if not file.endswith('.ind'):
+	`    print('{} is not an index file. Specify an .ind file.'.format(file))
+	`    sys.exit()
+	`
+	`def CountHyperpage(line):
+	`    page = line.count('hyperpage')
+	`    if page > 1:
+	`        found = re.search('(\\\\w*item .+?),', line)
+	`        if found:
+	`            substitute = '{} ({}),'.format(found.group(1), page)
+	`            line = line.replace(found.group(0), substitute)
+	`    return line
+	`
+	`trgfile = 't@mp.ind'
+	`src = open(file, mode='r', encoding='utf-8')
+	`trg = open(trgfile, mode='w', encoding='utf-8')
+	`
+	`lines = src.readlines()
+	`for line in lines:
+	`    trg.write(CountHyperpage(line))        
+	`
+	`src.close()
+	`trg.close()
+	`
+	`os.remove(file)
+	`os.rename(trgfile, file)
+

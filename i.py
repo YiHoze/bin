@@ -17,10 +17,11 @@ class IdleTexnician(object):
         self.ini = 'i.ini'
         self.ini_template = '''[tex]
 target = foo.tex
+compiler = 
 draft = wordig.py -a "..." -s "..." %(target)s
 final = wordig.py -a "..." -s "..." %(target)s
-final_compiler = -v
-after = ltx.py -c
+final_compiler = 
+after = 
 main = \\input{preamble}
     \\begin{document}
     \\maketitle
@@ -114,7 +115,7 @@ main = \\input{preamble}
                 compiler = compiler.split(' ')
                 for i in compiler:
                     self.compile_option.append(i)
-        
+       
 
     def run_postprocess(self):
 
@@ -149,6 +150,15 @@ main = \\input{preamble}
 
         if not self.args.run_bool:
             return
+
+        if os.path.exists(self.ini):
+            conf = configparser.ConfigParser()
+            conf.read(self.ini)
+            compiler = conf.get('tex', 'compiler', fallback=False)
+            if compiler:
+                compiler = compiler.split(' ')
+                for i in compiler:
+                    self.compile_option.append(i)
 
         if type(self.tex) is list:
             for i in self.tex:

@@ -387,7 +387,7 @@ cmd =
 description = Use this template to permute letters
 	usage: mytex.py permute -s LETTERS
 	defaults: adei
-compiler = -l, -c
+compiler = -l -c
 tex_output = permute.tex
 placeholders = 1
 defaults = adei
@@ -447,7 +447,7 @@ tex =
 description = Use this template to pick lotto numbers randomly.
 	usage: mytex.py lotto -s WEEKS FREQUENCY
 	defaults: 8 5
-compiler = -l, -c
+compiler = -l -c
 tex_output = lotto.tex
 placeholders = 2
 defaults = 8, 5
@@ -530,7 +530,7 @@ description = Use this template to convert numbers to ancient Chinese numerals.
 	The Apple Symbols font is required.
 	usage: mytex.py tys -s NUMBERS
 	defaults: "12.86, 302.9534, -8276.1,5.1064, 389.56"
-compiler = -x, -c
+compiler = -x -c
 tex_output = tys.tex
 placeholders = 1
 defaults = 12.86,302.9534,-8276.1,5.1064,389.56
@@ -1801,7 +1801,7 @@ tex = `\documentclass{article}
 
 [bibtex]
 description = Use this tempalte to see an example of bibtex.
-compiler = -f, -B
+compiler = -f -B
 tex_output = mybib.tex
 tex = \documentclass{article}
 	\usepackage{natbib}
@@ -1914,7 +1914,7 @@ tex = `\documentclass{standalone}
 
 [xindy]
 description = This template shows how to change index style for texindy.
-compiler = -w, -i, -ist, myxindy.xdy
+compiler = -w -i -I myxindy.xdy
 tex_output = myxindy.tex
 tex = \documentclass[a4paper]{article}
 	\usepackage{kotex}

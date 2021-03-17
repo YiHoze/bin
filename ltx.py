@@ -73,6 +73,20 @@ class LatexCompiler(object):
             help = 'Specify a TeX file.'
         )
         parser.add_argument(
+            '-l',
+            dest = 'luatex_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Use LuaLaTeX.'
+        )
+        parser.add_argument(
+            '-x',
+            dest = 'xetex_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Use XeLaTeX.'
+        )
+        parser.add_argument(
             '-b',
             dest = 'batch_bool',
             action = 'store_true',
@@ -120,20 +134,6 @@ class LatexCompiler(object):
             action = 'store_true',
             default = False,
             help = 'Sort index using TeXindy.'
-        )
-        parser.add_argument(
-            '-l',
-            dest = 'luatex_bool',
-            action = 'store_true',
-            default = False,
-            help = 'Use LuaLaTeX.'
-        )
-        parser.add_argument(
-            '-x',
-            dest = 'xetex_bool',
-            action = 'store_true',
-            default = False,
-            help = 'Use XeLaTeX.'
         )
         parser.add_argument(
             '-L',

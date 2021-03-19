@@ -868,56 +868,93 @@ code =
 	`from pathlib import Path
 	`import shutil
 	`
+	`
+	`def parse_args():
+	`
+	`    parser = argparse.ArgumentParser(
+	`        description = 'Download images from the Web.'
+	`    )
+	`    parser.add_argument(
+	`        'url',
+	`        nargs = '+',
+	`        help = 'Specify an image URL.'
+	`    )
+	`    parser.add_argument(
+	`        '-o',
+	`        dest = 'output',
+	`        help = 'Specify a file name for output.'
+	`    )
+	`    parser.add_argument(
+	`        '-d',
+	`        dest = 'directory',
+	`        help = 'Specify a directory for output.'
+	`    )
+	`    args = parser.parse_args()
+	`    WebImage(args.url, args.output)
+	`
 	`class WebImage(object):
 	`
 	`    def __init__(self, url=None, output=None):
-	`        self.url = url
-	`        self.output = output
 	`
-	`    def parse_args(self):
-	`        parser = argparse.ArgumentParser(
-	`            description = 'Download images from the Web.'
-	`        )
-	`        parser.add_argument(
-	`            'url',
-	`            nargs = '+',
-	`            help = 'Specify an image URL.'
-	`        )
-	`        parser.add_argument(
-	`            '-o',
-	`            dest = 'output',
-	`            help = 'Specify a file name for output.'
-	`        )
-	`        args = parser.parse_args()
-	`        self.url = args.url
-	`        self.output = args.output
+	`        self.url = url
+	`
+	`        if output:
+	`            self.dir, self.output = os.path.split(output)
+	`            self.output = os.path.splitext(self.output)[0]
+	`            if self.dir == '' or self.dir == '.':
+	`                self.dir = None
+	`            if self.output == '':
+	`                self.output = None
+	`        else:
+	`            self.output = None
+	`            self.dir = None
+	`
+	`        self.download_image()
 	`
 	`    def name_file(self, url):
-	`        org_name = Path(urlparse(url).path).name
-	`        if self.output is None:
-	`            filename = org_name
+	`
+	`        org_filename = Path(urlparse(url).path).name
+	`        name, ext = os.path.splitext(org_filename)  
+	`
+	`        if self.output:
+	`            name = self.output
+	`        if self.dir:
+	`            if not os.path.exists(self.dir):
+	`                os.mkdir(self.dir)
+	`            filename = '{}/{}{}'.format(self.dir, name, ext)        
 	`        else:
-	`            name = os.path.splitext(self.output)[0]
-	`            ext = os.path.splitext(org_name)[1]
-	`            filename = '{}{}'.format(name, ext)
+	`            filename = '{}{}'.format(name, ext)        
+	`
 	`        counter = 0
 	`        while os.path.exists(filename):
 	`            counter += 1
-	`            filename = '{}({}){}'.format(name, counter, ext)
+	`            if self.dir:
+	`                filename = '{}/{}({}){}'.format(self.dir, name, counter, ext)
+	`            else:
+	`                filename = '{}({}){}'.format(name, counter, ext)
 	`        return filename
 	`
+	`
 	`    def download_image(self):
+	`
+	`        cnt = 0
 	`        for url in self.url:
-	`            filename = self.name_file(url)
 	`            resp = requests.get(url, stream=True)
-	`            local_file = open(filename, 'wb')
-	`            resp.raw.decode_content = True
-	`            shutil.copyfileobj(resp.raw, local_file)
+	`            if resp.status_code == 200:
+	`                filename = self.name_file(url)
+	`                local_file = open(filename, 'wb')
+	`                resp.raw.decode_content = True
+	`                shutil.copyfileobj(resp.raw, local_file)
+	`                print('{} is downloaded {:20}'.format(url, ' '), end='\r')
+	`                cnt += 1
+	`            else:
+	`                print('{} is a wrong URL {:20}'.format(url, ' '), end='\r')
+	`
+	`        print('\n{} files have been downloaded'.format(cnt))
 	`
 	`if __name__ == '__main__':
-	`    WI = WebImage()
-	`    WI.parse_args()
-	`    WI.download_image()
+	`    parse_args()   
+	`    
 
 [factorial]
 description = [Python] Find a number's factorial.
@@ -3700,11 +3737,10 @@ code = import os
 	`os.remove(file)
 	`os.rename(trgfile, file)
 
-[randompw]
+[rannum]
 description = [Python]
-code_output = randompw.py
+code_output = rannum.py
 code = import sys
-	`from numpy.random import seed
 	`from numpy.random import randint
 	`
 	`if len(sys.argv) > 1:
@@ -3715,12 +3751,12 @@ code = import sys
 	`else:
 	`    digits = 8
 	`
-	`# seed(1)
 	`numerals = randint(0, 10, digits)
-	`print(numerals)
 	`password = ''
-	`for i in numerals:
-	`    password += str(i)
-	`print(password)
+	`for i, numeral in enumerate(numerals):
+	`    password += str(numeral)
+	`    if (i+1) %% 4 == 0:
+	`        password += ' '
 	`
+	`print(password)
 

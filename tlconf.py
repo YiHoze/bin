@@ -43,13 +43,13 @@ class TeXLiveConfigure(object):
         parser = argparse.ArgumentParser(
             description ='Configure your documentation environment for LaTeX.'
         )
-        parser.add_argument(
-            '-s',
-            dest = 'store_to_local',
-            action = 'store_true',
-            default = False,
-            help = 'Copy the provided latex class and style files into the local TEXMF directory.'
-        )
+        # parser.add_argument(
+        #     '-s',
+        #     dest = 'store_to_local',
+        #     action = 'store_true',
+        #     default = False,
+        #     help = 'Copy the provided latex class and style files into the local TEXMF directory.'
+        # )
         parser.add_argument(
             '-H',
             dest = 'texmfhome',
@@ -345,8 +345,8 @@ class TeXLiveConfigure(object):
     def configure(self):
 
         if self.args.batch:
-            if not self.ToContinue(self.store_to_local):
-                return None
+            # if not self.ToContinue(self.store_to_local):
+            #     return None
             if not self.ToContinue(self.set_texmfhome):
                 return None
             if not self.ToContinue(self.modify_texmf_cnf):
@@ -365,8 +365,8 @@ class TeXLiveConfigure(object):
                 return None
             self.ToContinue(self.luaotfload)
         else:
-            if self.args.store_to_local:
-                self.store_to_local()
+            # if self.args.store_to_local:
+            #     self.store_to_local()
             if self.args.texmfhome:
                 self.set_texmfhome()
             if self.args.texmf_cnf:

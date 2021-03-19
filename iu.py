@@ -197,8 +197,9 @@ examples:
     def run_cmd(self, cmd, cnt=1):
 
         try:
-            subprocess.check_output(cmd, stderr=subprocess.PIPE)
+            subprocess.check_output(cmd, stderr=subprocess.PIPE)            
             self.cnt += cnt
+            print(self.cnt, end='\r')
         except subprocess.CalledProcessError as e:
             print(e.stderr)
 

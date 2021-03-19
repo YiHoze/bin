@@ -181,7 +181,7 @@ class FileOpener(object):
             try:
                 result = subprocess.check_output(['kpsewhich', afile], stderr=subprocess.STDOUT)
                 found = str(result, 'utf-8')  
-                found = found.rstrip()                
+                found = found.rstrip()
                 self.open_txt(found)
             except subprocess.CalledProcessError:
                 print('{} is not found in TeX Live.'.format(afile))

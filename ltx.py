@@ -4,6 +4,7 @@ import glob
 import argparse
 import configparser
 import re
+import subprocess
 import shutil
 
 dirCalled = os.path.dirname(__file__)
@@ -246,7 +247,7 @@ class LatexCompiler(object):
             self.pdf = filename + '.pdf'
             self.py = filename + '.pytxcode'
             if not os.path.exists(self.tex):                
-                print('%s is not found.' %(self.tex))
+                print('{} is not found.'.format(self.tex))
                 self.tex = None
 
 
@@ -293,18 +294,24 @@ class LatexCompiler(object):
 
     def run_bibtex(self):    
 
-        os.system('bibtex.exe %s' %(self.aux))
+        os.system('bibtex.exe {}'.format(self.aux))
 
 
     def sort_index(self):
 
         if not os.path.exists(self.idx):
-            print('%s is not found' % (self.idx))
+            print('{} is not found'.format(self.idx))
             return
         if self.args.komkindex_bool:
-            cmd = 'komkindex.exe -s %s %s' %(self.args.index_style, self.idx)
+            cmd = 'komkindex.exe -s {} {}'.format(self.args.index_style, self.idx)
         else:
-            cmd = 'texindy.exe --module hzguide.xdy --module %s %s' %(self.xindy, self.idx)             
+
+            result = subprocess.check_output(['kpsewhich', 'hzguide.xdy'], stderr=subprocess.STDOUT)
+            if result:
+                hzxdy = str(result, 'utf-8').rstrip()
+                cmd = 'texindy.exe --module {} --module {} {}'.format(hzxdy, self.xindy, self.idx)             
+            else:
+                cmd = 'texindy.exe --module {} {}'.format(self.xindy, self.idx)        
         os.system(cmd)    
         if self.args.bookmark_index_bool or self.args.bookmark_python_bool:
             self.bookmark_index()
@@ -334,7 +341,7 @@ class LatexCompiler(object):
             page = re.findall(r'\\hyperpage\{(\d+)\}', line)
             append = ''
             for i in range(len(page)):
-                append +=  '\t\\bookmark[level=2, page=%s]{%s}\n' %(page[i], entry)
+                append +=  '\t\\bookmark[level=2, page={}]{{{}}}\n'.format(page[i], entry)
             line +=  append
         return line
 
@@ -352,7 +359,7 @@ class LatexCompiler(object):
 
     def pythontex(self):
 
-        os.system('pythontex.exe --runall=true %s' %(self.py))
+        os.system('pythontex.exe --runall=true {}'.format(self.py))
 
 
     def compile(self):
@@ -367,7 +374,7 @@ class LatexCompiler(object):
                     self.run_bibtex()            
         else:
             if self.tex:
-                cmd_tex = '%s %s "%s"' %(self.compiler, self.compile_mode, self.tex)
+                cmd_tex = '{} {} "{}"'.format(self.compiler, self.compile_mode, self.tex)
                 if self.args.fully_bool:
                     self.compile_fully(cmd_tex)
                 elif self.args.twice_bool:

@@ -30,6 +30,8 @@ class ScriptScribe(object):
                 self.update()
             elif self.args.insert_bool:
                 self.insert_new()
+            elif self.args.remove_bool:
+                self.remove()
             else:
                 self.pick_script()
         else:
@@ -78,6 +80,13 @@ class ScriptScribe(object):
             action = 'store_true',
             default = False,
             help = 'Delete the script file after a run.'
+        )
+        self.parser.add_argument(
+            '-R',
+            dest = 'remove_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Remove the script from the database.'
         )
 
         self.args, self.script_arguments = self.parser.parse_known_args()
@@ -209,6 +218,18 @@ class ScriptScribe(object):
             self.database.write(f)
             print('Successfully updated.')
 
+
+    def remove(self):
+
+        if not self.check_section():
+            return
+
+        answer = input('Are you sure to remove "{}" from the database? [y/N]'.format(self.args.script))        
+        if answer.lower() == 'y':
+            self.database.remove_section(self.args.script)
+            with open(self.dbFile, mode='w', encoding='utf-8') as f:
+                self.database.write(f)
+                print('Successfully removed.')
 
     def insert_new(self):
 

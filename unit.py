@@ -39,7 +39,7 @@ class ConvertUnit(object):
         This type of RGB value is converted to CMYK.
     unit.py -c 240,120,99
         This type of RGB value is converted to CMYK.
-    unit.py -c 0.1,0.33,0.01
+    unit.py -c 0,0.1,0.33,0.01
         This type of CMYK value is converted to RGB.
         
     To use a comma as thousand separator in Powershell, 

@@ -217,7 +217,7 @@ class LatexCompiler(object):
         else:
             self.compile_mode = '-synctex=1 '
         if self.args.shell_bool:
-            self.compile_mode +=  '-shell-escape'
+            self.compile_mode +=  '-shell-escape '
 
         # language by which to sort index
         index_modules = {

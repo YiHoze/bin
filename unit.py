@@ -19,7 +19,9 @@ class ConvertUnit(object):
             'pyeong': ['pyeongs', 'm²', 3.305785],
             'yard': ['yards', 'm', 0.9144],
             'knot': ['knots', 'km/h', 1.852],
-            'pascal': ['kg/cm²', 'Pa', 98066.5]
+            'pascal': ['kg/cm²', 'Pa', 98066.5],
+            'km/h': ['km/h', 'm/s', 0.277778],
+            'hp': ['hp', 'kW', 0.7457] 
         }
         self.unit_types = []
         for i in self.units.keys():

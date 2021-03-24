@@ -118,13 +118,15 @@ class FontInfo(object):
             if fonts == '':
                 print('No relevant fonts are found.')
                 return
-            else:
-                font = self.find_path(fonts)
-                if font is not False:
+            else: 
+                if fonts.count('\n') == 1:
+                    print(fonts)    
+                    font = fonts
+                else:
+                    font = self.find_path(fonts)
+                if font:
                     cmd = 'otfinfo -i "{}"'.format(font)
-                    print('')
                     os.system(cmd)
-                    print('')
 
 
     def determine_task(self):

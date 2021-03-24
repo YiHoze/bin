@@ -88,9 +88,16 @@ class ScriptScribe(object):
             default = False,
             help = 'Remove the script from the database.'
         )
+        self.parser.add_argument(
+            '-N',
+            dest = 'run_bool',
+            action = 'store_false',
+            default = True,
+            help = 'Do not run the script.'
+        )
 
         self.args, self.script_arguments = self.parser.parse_known_args()
-        self.run = True  
+        
 
     def check_section(self):
 
@@ -103,7 +110,7 @@ class ScriptScribe(object):
 
     def confirm_to_overwrite(self, afile):
 
-        if not self.run:
+        if not self.args.run_bool:
             return True
 
         if afile is None:
@@ -140,7 +147,7 @@ class ScriptScribe(object):
         
     def pick_script(self):
 
-        if self.run:
+        if self.args.run_bool:
             if not self.check_section():
                 return
 
@@ -148,27 +155,35 @@ class ScriptScribe(object):
         for option in options:
             if 'output' in option:
                 filename = self.database.get(self.args.script, option)
+                if option == 'code_output':
+                    codefile = filename
                 source = option.split('_')[0]
                 if not self.write_from_database(filename, source):
                     return
 
-        if self.run:
-            ext = os.path.splitext(filename)[1]
+        if self.args.run_bool:
+            ext = os.path.splitext(codefile)[1]
             if ext == '.ps1':
-                self.script_arguments.insert(0,'powershell.exe ./{}'.format(filename))
+                self.script_arguments.insert(0,'powershell.exe ./{}'.format(codefile))
             else:
-                self.script_arguments.insert(0, filename)
+                self.script_arguments.insert(0, codefile)
+            
             cmd = ' '.join(self.script_arguments)
+            if len(self.script_arguments) < 2:
+                sargs = self.database.get(self.args.script, 'default_arguments', fallback=None)
+                if sargs:
+                    cmd = '{} {}'.format(cmd, sargs)                   
+
             print(cmd)
             os.system(cmd)
 
             if self.args.clear_bool:
-                os.remove(filename)
+                os.remove(codefile)
 
 
     def burst_database(self):
 
-        self.run = False
+        self.args.run_bool = False
         scripts = sorted(self.database.sections(), key=str.casefold)
 
         for i in scripts:

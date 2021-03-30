@@ -286,10 +286,11 @@ examples:
         cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
         self.run_cmd(cmd)
 
-        if self.count_pdf_pages(img) > 1:
-            filename = os.path.splitext(img)[0]
-            ext = os.path.splitext(trg)[1]
-            trg = filename + '*' + ext
+        if os.path.splitext(img)[1].lower() == '.pdf':        
+            if self.count_pdf_pages(img) > 1:
+                filename = os.path.splitext(img)[0]
+                ext = os.path.splitext(trg)[1]
+                trg = filename + '*' + ext
         for i in glob.glob(trg):
             cmd = '"{}" -units PixelsPerCentimeter -density 100 "{}" "{}"'.format(self.Magick, i, i)
             self.run_cmd(cmd, 0)

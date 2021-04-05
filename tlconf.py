@@ -228,26 +228,26 @@ class TeXLiveConfigure(object):
         subprocess.Popen(cmd)
 
 
-    def modify_texmf_cnf(self):
+    # def modify_texmf_cnf(self):
 
-        print('\n[texmf.cnf]')
-        try:
-            texmf_cnf = self.config.get('TEXMF.CNF', 'path')
-            target = self.config.get('TEXMF.CNF', 'target')
-            substitute = self.config.get('TEXMF.CNF', 'substitute')
-        except:
-            print('Make sure to have docenv.ini set properly')
-            return
-        query = "'{}' will be replaced with '{}' in <{}>\nEnter [Y] to proceed, [n] to abandon.".format(target, substitute, texmf_cnf)
-        answer = self.confirm(query)
-        if (answer.lower() == 'n'):
-            return
-        else:
-            with open(texmf_cnf, mode='r') as f:
-                content = f.read()
-                content = content.replace(target, substitute)
-            with open(texmf_cnf, mode='w') as f:
-                f.write(content)
+    #     print('\n[texmf.cnf]')
+    #     try:
+    #         texmf_cnf = self.config.get('TEXMF.CNF', 'path')
+    #         target = self.config.get('TEXMF.CNF', 'target')
+    #         substitute = self.config.get('TEXMF.CNF', 'substitute')
+    #     except:
+    #         print('Make sure to have docenv.ini set properly')
+    #         return
+    #     query = "'{}' will be replaced with '{}' in <{}>\nEnter [Y] to proceed, [n] to abandon. ".format(target, substitute, texmf_cnf)
+    #     answer = self.confirm(query)
+    #     if (answer.lower() == 'n'):
+    #         return
+    #     else:
+    #         with open(texmf_cnf, mode='r') as f:
+    #             content = f.read()
+    #             content = content.replace(target, substitute)
+    #         with open(texmf_cnf, mode='w') as f:
+    #             f.write(content)
 
 
     def create_local_conf(self):
@@ -259,7 +259,7 @@ class TeXLiveConfigure(object):
         except:
             print('Make sure to have docenv.ini set properly')
             return
-        query = "<{}> will be created to include {}\nEnter [Y] to proceed, [n] to abandon.".format(local_conf, content)
+        query = "<{}> will be created to include {}\nEnter [Y] to proceed, [n] to abandon. ".format(local_conf, content)
         answer = self.confirm(query)
         if answer.lower() == 'n':
             return
@@ -349,8 +349,8 @@ class TeXLiveConfigure(object):
             #     return None
             if not self.ToContinue(self.set_texmfhome):
                 return None
-            if not self.ToContinue(self.modify_texmf_cnf):
-                return None
+            # if not self.ToContinue(self.modify_texmf_cnf):
+            #     return None
             if not self.ToContinue(self.create_local_conf):
                 return None
             if not self.ToContinue(self.set_texedit):
@@ -369,8 +369,8 @@ class TeXLiveConfigure(object):
             #     self.store_to_local()
             if self.args.texmfhome:
                 self.set_texmfhome()
-            if self.args.texmf_cnf:
-                self.modify_texmf_cnf()
+            # if self.args.texmf_cnf:
+            #     self.modify_texmf_cnf()
             if self.args.local_conf:
                 self.create_local_conf()
             if self.args.texedit:

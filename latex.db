@@ -2662,8 +2662,9 @@ tex_output = myjamo.tex
 tex = \documentclass{article}
 	
 	\usepackage{fontspec}
-	\usepackage{pmhanguljamo}
-	\setmainfont{Noto Serif CJK KR}[Script=Hangul]
+	\usepackage{pmhanguljamo}	
+	\setmainfont{Noto Serif CJK KR}[Script=Hangul, Renderer=OpenType]
+	%%\setmainfont{Noto Serif CJK KR}[Script=Hangul, Renderer=Harfbuzz]
 	\setlength\parskip{.5\baselineskip}
 	\setlength\parindent{0pt}
 	

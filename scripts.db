@@ -1850,32 +1850,35 @@ code =
 	`
 	`class TaxRate(object):
 	`
-	`    def __init__(self, salary=0, show=False, plot=False):
 	`
-	`        self.salary = salary
-	`        self.show_bool = show
-	`        self.plot_bool = plot
+	`    def __init__(self):
 	`
 	`        # 1200만 원 초과 ~ 4600만 원 이하: 15%%
-	`        # self.rate_sections = OrderedDict({1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 50001:42})
-	`        # to be compatible with WinPython
-	`        self.rate_sections = {1200:6, 4600:15, 8800:24, 15000:35, 30000:38, 50000:40, 50001:42}
-	`        self.rate_sections = OrderedDict(sorted(self.rate_sections.items()))
-	`        self.accumulated_sections = {}
+	`        self.unit = 10000
+	`        self.last_section = 1000000001
+	`        self.rate_sections = {12000000:6, 46000000:15, 88000000:24, 150000000:35, 300000000:38, 500000000:40, 1000000000:42, self.last_section:45}
+	`        self.rate_sections = OrderedDict(sorted(self.rate_sections.items()))        
+	`        self.progressive_sections = {}
+	`        self.deduction_sections = {}
 	`        self.initialize()
+	`
 	`
 	`    def initialize(self):
 	`
 	`        accumulated = 0
 	`        preceding = 0
 	`        for limit in self.rate_sections:
+	`            rate = self.rate_sections[limit] / 100
 	`            if preceding == 0:
-	`                self.accumulated_sections[limit] = 0
-	`            else:
-	`                self.accumulated_sections[limit] = int(accumulated)
-	`            rate = self.rate_sections[limit]
-	`            accumulated = accumulated + ((limit - preceding) * rate/100)
+	`                self.progressive_sections[limit] = 0
+	`                self.deduction_sections[limit] = 0
+	`            else:                
+	`                self.progressive_sections[limit] = int(accumulated)
+	`                deduction = limit * rate - ( (limit - preceding) * rate + accumulated )
+	`                self.deduction_sections[limit] = int(deduction)
+	`            accumulated = accumulated + ((limit - preceding) * rate)
 	`            preceding = limit
+	`
 	`
 	`    def parse_args(self):
 	`
@@ -1885,9 +1888,16 @@ code =
 	`        parser.add_argument(
 	`            'salary',
 	`            nargs = '?',
-	`            type = int,
-	`            default = 0,
-	`            help = 'Specify an amount of salary in unit of 10,000.'
+	`            type = str,
+	`            default = '0',
+	`            help = 'Specify an amount of salary in unit of 10,000 or use decimal point for a precise amout, such as 2186.9760'
+	`        )
+	`        parser.add_argument(
+	`            '-m',
+	`            dest = 'minimum', # 8720 in 2021
+	`            action = 'store_true',
+	`            default = False,
+	`            help = 'Specify minimum wage per hour to calculate annual salary and monthly pay.'
 	`        )
 	`        parser.add_argument(
 	`            '-s',
@@ -1904,9 +1914,14 @@ code =
 	`            help = 'Draw a bar plot for rate sections.'
 	`        )
 	`        args = parser.parse_args()
-	`        self.salary = args.salary
+	`        if args.minimum:
+	`            self.salary = int(float(args.salary) * 209 * 12)
+	`        else:
+	`            self.salary = int(float(args.salary) * self.unit)
+	`
 	`        self.show_bool = args.show
 	`        self.plot_bool = args.plot
+	`
 	`
 	`    def rate_section_show(self):
 	`
@@ -1915,26 +1930,29 @@ code =
 	`        if self.plot_bool is True:
 	`            self.rate_section_draw()
 	`
+	`
 	`    def rate_section_itemize(self):
 	`
 	`        for limit in self.rate_sections:
-	`            if limit == 50001:
-	`                salary = '{:,}'.format(preceding)
-	`                print(" Over {:6}: {} %%%%".format(salary, self.rate_sections[limit]))
+	`            if limit == self.last_section:
+	`                salary = '{:.0f}'.format(preceding/self.unit)
+	`                print(" Over {:5}: {} %% {:.0f}".format(salary, self.rate_sections[limit], self.deduction_sections[limit]/self.unit))
 	`            else:
-	`                salary = '{:,}'.format(limit)
-	`                print("Up to {:>6}: {:>2} %%%%".format(salary, self.rate_sections[limit]))
+	`                salary = '{:.0f}'.format(limit/self.unit)
+	`                print("Up to {:>5}: {:>2} %% {:.0f}".format(salary, self.rate_sections[limit], self.deduction_sections[limit]/self.unit))
 	`                preceding = limit
+	`
+	`
 	`
 	`    def rate_section_draw(self):
 	`
 	`        sections, rates = [], []
 	`        for limit in self.rate_sections:
-	`            if limit == 50001:
-	`                salary = '>'+'{:,}'.format(preceding)
+	`            if limit == self.last_section:
+	`                salary = '>'+'{:.0f}'.format(preceding/self.unit)
 	`                sections.append(salary)
 	`            else:
-	`                salary = '≤'+'{:,}'.format(limit)
+	`                salary = '≤'+'{:.0f}'.format(limit/self.unit)
 	`                sections.append(salary)
 	`                preceding = limit
 	`            rates.append(self.rate_sections[limit])
@@ -1946,42 +1964,83 @@ code =
 	`        plt.title('소득세')
 	`        plt.show()
 	`
+	`
 	`    def calculate_tax(self, salary):
 	`
-	`        corresponding = 0
+	`        # corresponding = 0
+	`        # for limit in self.rate_sections:
+	`        #     if salary > limit:
+	`        #         if limit == self.last_section:
+	`        #             preceding = corresponding
+	`        #         corresponding = limit
+	`        #     else:
+	`        #         preceding = corresponding
+	`        #         corresponding = limit
+	`        #         break
+	`        # accumulated = self.progressive_sections[corresponding]        
+	`        # rate = self.rate_sections[corresponding] / 100
+	`        # tax = accumulated + ((salary - preceding) * rate)
+	`        
 	`        for limit in self.rate_sections:
-	`            if salary > limit:
-	`                if limit == 50001:
-	`                    preceding = corresponding
-	`                corresponding = limit
-	`            else:
-	`                preceding = corresponding
-	`                corresponding = limit
+	`            if salary < limit:
+	`                section = limit
 	`                break
-	`        accumulated = self.accumulated_sections[corresponding]
-	`        rate = self.rate_sections[corresponding]
-	`        tax = accumulated + ((salary - preceding) * rate/100)
-	`        return tax
+	`        if salary > self.last_section:
+	`            section = self.last_section
+	`        
+	`        rate = self.rate_sections[section] / 100
+	`        tax = int((salary * rate) - self.deduction_sections[section])        
+	`        return self.trunc_ones(tax)
+	`
+	`
+	`    def trunc_ones(self, num):        
+	`        
+	`        num = int(num)
+	`        return int(num - num %% 10)
+	`
 	`
 	`    def display_pay(self, salary):
 	`
 	`        tax = self.calculate_tax(salary)
 	`        actual_rate = tax * 100 / salary
-	`        monthly_pay = salary/12
-	`        monthly_tax = monthly_pay * actual_rate / 100
-	`        post_tax_pay = monthly_pay - monthly_tax
 	`
-	`        output = '''Salary: {}
-	`Tax: {}
-	`Actual tax rate: {:.2f}%%
-	`Monthly pay: {:.1f}
-	`Monthly tax: {:.1f}
-	`Post-tax pay: {:.1f}
-	`            '''.format(salary, tax, actual_rate, monthly_pay, monthly_tax, post_tax_pay)
+	`        monthly_pay = salary / 12
+	`        monthly_tax = tax / 12
+	`        
+	`        state_pension = monthly_pay * 0.045
+	`        health_care = monthly_pay * 0.0343 + monthly_pay * 0.0343 * 0.1152 # 장기요양보험 포함
+	`        employment_insurance = monthly_pay * 0.008
+	`        deduction = health_care + state_pension + employment_insurance         
+	`
+	`        monthly_tax = monthly_tax - deduction
+	`        post_tax_pay = monthly_pay - (deduction + monthly_tax)
+	`
+	`        output = '''
+	`Salary: {:,}
+	`Tax: {:,}
+	`Actual tax rate: {:.2f} %%
+	`Monthly pay: {:,}
+	`State pension: {:,}
+	`Health care: {:,}
+	`Employment insurnace: {:,}
+	`Monthly tax: {:,}
+	`Post-tax pay: {:,}
+	`            '''.format(
+	`                salary, 
+	`                tax, 
+	`                actual_rate, 
+	`                self.trunc_ones(monthly_pay), 
+	`                self.trunc_ones(state_pension), 
+	`                self.trunc_ones(health_care), 
+	`                self.trunc_ones(employment_insurance), 
+	`                self.trunc_ones(monthly_tax), 
+	`                self.trunc_ones(post_tax_pay)
+	`            )
 	`        print(output)
 	`        self.rate_section_show()
 	`
 	`if __name__=="__main__":
+	`
 	`    taxrate = TaxRate()
 	`    taxrate.parse_args()
 	`    if taxrate.salary == 0:
@@ -3349,7 +3408,7 @@ code = import os
 	`
 	`    def make_chart(self, data):
 	`
-	`        # sum by group for legend        
+	`        # sum by group for legend
 	`        xticks = data[0]
 	`        del data[0]
 	`        total = []
@@ -3357,7 +3416,7 @@ code = import os
 	`            t = sum(j for j in i)
 	`            total.append(t)
 	`            # total.append('{:,}'.format(t))
-	`        
+	`
 	`        groups = len(data)
 	`        entries = len(data[0])
 	`

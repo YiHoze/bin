@@ -1,5 +1,3 @@
-# wordig.py -U "가①⑴⒜ⓐⅰⅠㄱ㉠㉮㈀㈎"
-
 import os
 import sys
 import argparse
@@ -10,6 +8,7 @@ import re
 import codecs
 import unicodedata
 from PyPDF2 import PdfFileReader
+from chardet.universaldetector import UniversalDetector
 
 dirCalled = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(dirCalled))
@@ -20,7 +19,7 @@ class WordDigger(object):
 
     def __init__(self):
 
-        global texlive_bool        
+        global texlive_bool
 
         try:
             print("Checking whether pdftotext.exe is available:\n")
@@ -118,12 +117,10 @@ class WordDigger(object):
         wordig.py [-p foo.tsv] -d *.tex
             Remove macros from TeX files. 
             If not specified otherwise, detex.tsv, an accompanying file, is used.
-        wordig.py -U "unicode 유니코드"
+        wordig.py -u "unicode 유니코드"
             Get the unicode code points and UTF-8 bytes for the given characters.
             The format of output is:
             Char  Dec  Hex  Bin  Bytes  Bits  Description
-        wordig.py -c *.txt
-            Convert EUC-KR encoded files to UTF-8.
         '''
 
         parser = argparse.ArgumentParser(
@@ -233,11 +230,18 @@ class WordDigger(object):
             help = 'Get the uncode information.',
         )        
         parser.add_argument(
-            '-c',
-            dest = 'convert_bool',
+            '-C',
+            dest = 'convert_UTF_bool',
             action = 'store_true',
             default = False,
-            help = 'Covert EUC-KR to UTF-8.'
+            help = 'Covert CP949-encoded files to UTF-8.'
+        )
+        parser.add_argument(
+            '-D',
+            dest = 'detect_UTF_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Detect if files are encoded in UTF-8 or not.'
         )
 
         self.args = parser.parse_args()
@@ -245,16 +249,17 @@ class WordDigger(object):
         if self.args.detex_bool and self.args.pattern is None:
             self.args.pattern = os.path.join(dirCalled, 'detex.tsv')
             if not os.path.exists(self.args.pattern):
-                # self.args.pattern = 'detex.tsv'
                 with open(self.args.pattern, mode='w', encoding='utf-8') as f:
                     f.write(self.detex_tsv)
 
         if self.args.extract_string_bool and self.args.pattern is None:
             self.args.pattern = os.path.join(dirCalled, 'UI.txt')
             if not os.path.exists(self.args.pattern):
-                # self.args.pattern = 'UI.txt'
                 with open(self.args.pattern, mode='w', encoding='utf-8') as f:
                     f.write(self.ui_txt)
+
+        if self.args.detect_UTF_bool:
+            self.detector = UniversalDetector()
 
 
     def run_recursive(self, func):
@@ -264,19 +269,19 @@ class WordDigger(object):
             for subdir in subdirs:
                 for fnpattern in self.args.targets:
                     fnpattern = os.path.join(subdir, fnpattern)
-                    for afile in glob.glob(fnpattern):
-                        func(afile)
+                    for filename in glob.glob(fnpattern):
+                        func(filename)
         else:
             for fnpattern in self.args.targets:
-                for afile in glob.glob(fnpattern):
-                    func(afile)
+                for filename in glob.glob(fnpattern):
+                    func(filename)
 
 
-    def find(self, afile):
+    def find(self, filename):
 
-        print(afile)    
+        print(filename)    
         try:
-            with open(afile, mode='r', encoding='utf-8') as f:        
+            with open(filename, mode='r', encoding='utf-8') as f:        
                 for num, line in enumerate(f):                
                     if re.search(self.args.aim, line):
                         print('%5d:\t%s' %(num, line.replace('\n', ' ')))
@@ -284,19 +289,19 @@ class WordDigger(object):
             print('is not encoded in UTF-8.')
 
 
-    def replace(self, afile):
+    def replace(self, filename):
 
         tmp = 't@mp.@@@'
 
         try:
-            with open(afile, mode='r', encoding='utf-8') as f:
+            with open(filename, mode='r', encoding='utf-8') as f:
                 content = f.read() 
         except:
-            print('%s is not encoded in UTF-8.' %(afile))
+            print('%s is not encoded in UTF-8.' %(filename))
             return
 
         if self.args.pattern is None:
-            content = re.sub(self.args.aim, self.args.substitute, content)            
+            content = re.sub(self.args.aim, self.args.substitute, content, flags=re.MULTILINE)
         else:
             ptrn_ext = os.path.splitext(self.args.pattern)[1].lower()
             with open(self.args.pattern, mode='r', encoding='utf-8') as ptrn:
@@ -305,41 +310,41 @@ class WordDigger(object):
                 else:
                     reader = csv.reader(ptrn)
                 for row in reader:  
-                    if not row[0].startswith('#'):
-                        content = re.sub(row[0], row[1], content)                 
+                    if not row[0].startswith('`#'):
+                        content = re.sub(row[0], row[1], content, flags=re.MULTILINE)
         
         with open(tmp, mode='w', encoding='utf-8') as f:
             f.write(content)
         
         if self.args.detex_bool:            
-            filename = os.path.splitext(afile)[0]
+            base_name = os.path.splitext(filename)[0]
             if self.args.output is None:
-                output = filename + '_cleaned.txt'
+                output = base_name + '_cleaned.txt'
             else:
-                output = filename + '_' + self.args.output + '.txt'
+                output = base_name + '_' + self.args.output + '.txt'
             if os.path.exists(output):
                 os.remove(output)
             os.rename(tmp, output)
             self.opener.open_txt(output)                
         elif self.args.backup_bool:
-            filename, ext = os.path.splitext(afile)
-            backup = filename + '_bak' + ext
+            base_name, ext = os.path.splitext(filename)
+            backup = base_name + '_bak' + ext
             if os.path.exists(backup):
                 os.remove(backup)
-            os.rename(afile, backup)
-            os.rename(tmp, afile)
+            os.rename(filename, backup)
+            os.rename(tmp, filename)
         else:
-            if os.path.exists(afile):
-                os.remove(afile)
-            os.rename(tmp, afile)
+            if os.path.exists(filename):
+                os.remove(filename)
+            os.rename(tmp, filename)
 
 
-    def extract_strings(self, afile):
+    def extract_strings(self, filename):
 
         with open(self.args.pattern, mode='r', encoding='utf-8') as ptrn:
             macros = [line.rstrip() for line in ptrn]
 
-        with open(afile, mode='r', encoding='utf-8') as f:
+        with open(filename, mode='r', encoding='utf-8') as f:
             content = f.read()
 
         for i in range(len(macros)):
@@ -347,15 +352,15 @@ class WordDigger(object):
             self.found += p.findall(content)
 
 
-    def extract_words(self, afile):
+    def extract_words(self, filename):
 
-        filename, ext = os.path.splitext(afile)
+        base_name, ext = os.path.splitext(filename)
         if self.args.output is None:
-            output = filename + '_words_extracted' +  ext
+            output = base_name + '_words_extracted' +  ext
         else:
-            output = filename + '_' + self.args.output + ext
+            output = base_name + '_' + self.args.output + ext
 
-        with open(afile, mode='r', encoding='utf-8') as f:
+        with open(filename, mode='r', encoding='utf-8') as f:
             content = f.read()
 
         # remove numbers and tex macros
@@ -372,36 +377,36 @@ class WordDigger(object):
         self.opener.open_txt(output)
 
 
-    def extract_tex_macros(self, afile):
+    def extract_tex_macros(self, filename):
 
-        with open(afile, mode='r', encoding='utf-8') as f:
+        with open(filename, mode='r', encoding='utf-8') as f:
             content = f.read()
         for i in range(len(self.tex_patterns)):
             p = re.compile(self.tex_patterns[i])
             self.found += p.findall(content)
 
 
-    def check_if_pdf(self, afile):
+    def check_if_pdf(self, filename):
 
-        filename, ext = os.path.splitext(afile)
+        base_name, ext = os.path.splitext(filename)
         if ext.lower() == '.pdf':
             if texlive_bool:
-                cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 {}'.format(afile)
+                cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 {}'.format(filename)
                 os.system(cmd)            
-                return(filename + '.txt')
+                return(base_name + '.txt')
             else:
                 return None
         else:
-            return afile
+            return filename
 
 
-    def count_words(self, afile):
+    def count_words(self, filename):
 
         # Spaces are not counted as a character.
         lines, chars, words = 0, 0, 0
 
-        afile = self.check_if_pdf(afile)
-        f = open(afile, mode='r', encoding='utf-8')
+        filename = self.check_if_pdf(filename)
+        f = open(filename, mode='r', encoding='utf-8')
         for line in f.readlines():
             lines += 1
             chars += len(line.replace(' ', '')) 
@@ -409,29 +414,59 @@ class WordDigger(object):
             words += len(this)
         f.close()
 
-        print( '{}\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(afile, lines, words, chars) )
+        print( '{}\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(filename, lines, words, chars) )
         self.lines += lines
         self.words += words
         self.chars += chars
 
 
-    def count_pdf_pages(self, afile):
+    def count_pdf_pages(self, filename):
 
-        with open(afile, 'rb') as f:
+        with open(filename, 'rb') as f:
             pdf = PdfFileReader(f)
             pages = pdf.getNumPages()
-        print('{}: {}'.format(afile, pages))
+        print('{}: {}'.format(filename, pages))
         self.pages += pages
 
 
-    def convert_euckr_utf8(self, afile):
+    def convert_UTF(self, filename):
 
-        output = afile.replace('.', '_UTF8.')
-        with open(afile, mode='r', encoding='euc-kr') as f:
+        with open(filename, mode='r', encoding='cp949') as f:
             content = f.read()
+        output = filename.replace('.', '_UTF8.')
         with open(output, mode='w', encoding='utf-8') as f:
             f.write(content)
         self.opener.open_txt(output) 
+
+
+    def align_string(self, string: str, width: int):
+
+        nfc_string = unicodedata.normalize('NFC', string)
+        wide_chars = [unicodedata.east_asian_width(c) for c in nfc_string]
+        num_wide_chars = sum(map(wide_chars.count, ['W', 'F']))
+        width = max(width-num_wide_chars, num_wide_chars)
+        return '{:{w}}'.format(nfc_string, w=width)
+
+
+    def detect_UTF(self, filename):
+
+        self.detector.reset()
+
+        with open(filename, 'rb') as f:
+            lines = f.readlines()
+
+        for line in lines:
+            self.detector.feed(line)
+            if self.detector.done: break
+
+        self.detector.close()
+
+        filename = os.path.basename(filename)
+        if self.detector.result['encoding'] == 'utf-8':
+            encoding = 'UTF-8'
+        else:
+            encoding = 'Other'
+        print('{}: {}'.format(self.align_string(filename, 40), encoding))
 
 
     def write_collection(self):
@@ -465,7 +500,7 @@ class WordDigger(object):
                     self.run_recursive(self.replace)
             else:            
                 if os.path.exists(self.args.pattern):
-                    if self.args.extract_string_bool:                        
+                    if self.args.extract_string_bool:
                         if self.args.output is None:
                             self.args.output = 'strings_collected.txt'
                         self.run_recursive(self.extract_strings)
@@ -474,17 +509,19 @@ class WordDigger(object):
                     else:
                         self.run_recursive(self.replace)
                 else:
-                    print('{} is not found.'.format(self.args.pattern))            
+                    print('{} is not found.'.format(self.args.pattern))
         else:            
             if self.args.extract_word_bool:
-                self.run_recursive(self.extract_words)                
+                self.run_recursive(self.extract_words)
             elif self.args.extract_tex_bool:
                 if self.args.output is None:
                     self.args.output = 'tex_macros_collected.tex'
                 self.run_recursive(self.extract_tex_macros)  
                 self.write_collection()
-            elif self.args.convert_bool:
-                self.run_recursive(self.convert_euckr_utf8)
+            elif self.args.convert_UTF_bool:
+                self.run_recursive(self.convert_UTF)
+            elif self.args.detect_UTF_bool:
+                self.run_recursive(self.detect_UTF)
             elif self.args.page_count_bool:
                 self.run_recursive(self.count_pdf_pages)
                 print( 'Total pages: {:,}'.format(self.pages) )
@@ -548,7 +585,7 @@ class UnicodeDigger(object):
             normal = '\x1b[0m'
 
         if byte_index > 0: 
-            if self.totex_bool:                
+            if self.totex_bool:
                 return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:2], byte[2:])
             else:
                 return head + byte[:2] + tail + byte[2:] + normal
@@ -581,7 +618,7 @@ class UnicodeDigger(object):
             Bcode = bin(Dcode).replace('0b', '')
             # Bcode = Bcode.zfill(8)
             Bcode = self.highlight_binary_code(Dcode, Bcode)
-            
+
             # hexadecimal UTF-8 bytes
             if Dcode > 127:
                 Hbyte = str(char.encode('utf-8'))
@@ -598,7 +635,7 @@ class UnicodeDigger(object):
                 Hbyte = ''.join(Hbyte)
                 Bbyte = ' '.join(Bbyte)
                 if self.totex_bool:
-                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, '\\\\')                
+                    print(char, Dcode, '\\tab', Hcode, Bcode, '\\tab', Hbyte, Bbyte, '\\\\')
                 else:
                     print(char, Dcode, Hcode, Bcode, Hbyte, Bbyte, charname)
             else:

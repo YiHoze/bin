@@ -37,9 +37,9 @@ class WordDigger(object):
         self.found = []
 
         self.tex_patterns = [
-                r'\\[^a-zA-Z]', 
+                r'\\[^a-zA-Z]',
                 r'\\[a-zA-Z*^|+]+',
-                r'\\begin(\{.+?\}[*^|+]*)', 
+                r'\\begin(\{.+?\}[*^|+]*)',
                 r'\s(\w+=)'
             ]
 
@@ -63,35 +63,35 @@ class WordDigger(object):
 \\anota.?\{(.+?)\}	\1
 \\menu.?\{(.+?)\}\{(.+?)\}	\1 \2
 \\item\[(.+?)\]	\1
-\\begin\{.+?\}.*?\n	
-\\end\{.+?\}\n	
-\\CoverSetup\{	
-\\.+?Setup\[.+?\](.|\n)+?\}\n	
-\\.+?Setup(.|\n)+?\}\n	
-\\.+?\{.+?\}\{(.|\n)+?\}\n	 
+\\begin\{.+?\}.*?\n
+\\end\{.+?\}\n
+\\CoverSetup\{
+\\.+?Setup\[.+?\](.|\n)+?\}\n
+\\.+?Setup(.|\n)+?\}\n
+\\.+?\{.+?\}\{(.|\n)+?\}\n
 \\([가-로]{1,2})	\1
 \\\\	\n
 ([#\$%\^&_])	\1
-\\node(.|\n)+?\};	
-\\.+?\{.+?\}\{.+?\}\{.+?\}	
-\\.+?\{.+?\}\{.+?\}	 
-\\.+?\{.+?\}\[.+?\]	 
-\\.+?\[.+?\]\{.+?\}	 
-\\.+?\{.+?\}	 
-\\.+?\s	 
-\\.+?$	 
+\\node(.|\n)+?\};
+\\.+?\{.+?\}\{.+?\}\{.+?\}
+\\.+?\{.+?\}\{.+?\}
+\\.+?\{.+?\}\[.+?\]
+\\.+?\[.+?\]\{.+?\}
+\\.+?\{.+?\}
+\\.+?\s
+\\.+?$
 \\.+?\n	\n
-\|	
-\{	
-\}	
+\|
+\{
+\}
 (\s*\n){3,}	\n'''
 
-        self.ui_txt = r'''\\ui\{.+?}	
+        self.ui_txt = r'''\\ui\{.+?}
 \\item\[.+?\]'''
 
         self.opener = FileOpener()
         self.parse_args()
-        self.determine_task()        
+        self.determine_task()
 
 
     def parse_args(self):
@@ -107,15 +107,15 @@ class WordDigger(object):
             Make backup copies before replacing "foo" with "goo".
         wordig.py -P foo.tsv *.txt
             Find and replace using foo.tsv in which regular expressions are specified.
-        wordig.py [-p foo.txt] -e *.tex 
-            Extract and collect strings using the given pattern file. 
+        wordig.py [-p foo.txt] -e *.tex
+            Extract and collect strings using the given pattern file.
             If not specified otherwise, UI.txt, an accompanying file, is used.
         wordig.py -w *.txt
             Extract words.
         wordig.py -t *.tex
             Extract and collect macros and option keys from TeX files.
         wordig.py [-p foo.tsv] -d *.tex
-            Remove macros from TeX files. 
+            Remove macros from TeX files.
             If not specified otherwise, detex.tsv, an accompanying file, is used.
         wordig.py -u "unicode 유니코드"
             Get the unicode code points and UTF-8 bytes for the given characters.
@@ -179,7 +179,7 @@ class WordDigger(object):
             action = 'store_true',
             default = False,
             help = 'Extract specific strings referring to the given pattern file.'
-        )  
+        )
         parser.add_argument(
             '-w',
             dest = 'extract_word_bool',
@@ -193,7 +193,7 @@ class WordDigger(object):
             action = 'store_true',
             default = False,
             help = 'Extract macros from TeX files.'
-        )              
+        )
         parser.add_argument(
             '-d',
             dest = 'detex_bool',
@@ -203,7 +203,7 @@ class WordDigger(object):
         )
         parser.add_argument(
             '-o',
-            dest = 'output',            
+            dest = 'output',
             default = None,
             help = 'Specify a file name or suffix for output. The default varies according to options.'
         )
@@ -228,7 +228,7 @@ class WordDigger(object):
             action = 'store_true',
             default = False,
             help = 'Get the uncode information.',
-        )        
+        )
         parser.add_argument(
             '-C',
             dest = 'convert_UTF_bool',
@@ -279,10 +279,10 @@ class WordDigger(object):
 
     def find(self, filename):
 
-        print(filename)    
+        print(filename)
         try:
-            with open(filename, mode='r', encoding='utf-8') as f:        
-                for num, line in enumerate(f):                
+            with open(filename, mode='r', encoding='utf-8') as f:
+                for num, line in enumerate(f):
                     if re.search(self.args.aim, line):
                         print('%5d:\t%s' %(num, line.replace('\n', ' ')))
         except:
@@ -295,7 +295,7 @@ class WordDigger(object):
 
         try:
             with open(filename, mode='r', encoding='utf-8') as f:
-                content = f.read() 
+                content = f.read()
         except:
             print('%s is not encoded in UTF-8.' %(filename))
             return
@@ -309,14 +309,14 @@ class WordDigger(object):
                     reader = csv.reader(ptrn, delimiter='\t')
                 else:
                     reader = csv.reader(ptrn)
-                for row in reader:  
+                for row in reader:
                     if not row[0].startswith('`#'):
                         content = re.sub(row[0], row[1], content, flags=re.MULTILINE)
-        
+
         with open(tmp, mode='w', encoding='utf-8') as f:
             f.write(content)
-        
-        if self.args.detex_bool:            
+
+        if self.args.detex_bool:
             base_name = os.path.splitext(filename)[0]
             if self.args.output is None:
                 output = base_name + '_cleaned.txt'
@@ -325,7 +325,7 @@ class WordDigger(object):
             if os.path.exists(output):
                 os.remove(output)
             os.rename(tmp, output)
-            self.opener.open_txt(output)                
+            self.opener.open_txt(output)
         elif self.args.backup_bool:
             base_name, ext = os.path.splitext(filename)
             backup = base_name + '_bak' + ext
@@ -364,14 +364,14 @@ class WordDigger(object):
             content = f.read()
 
         # remove numbers and tex macros
-        for i in range(len(self.tex_patterns)):            
-            content = re.sub(self.tex_patterns[i], '', content)    
+        for i in range(len(self.tex_patterns)):
+            content = re.sub(self.tex_patterns[i], '', content)
 
         p = re.compile('\\w+')
         extracted = p.findall(content)
         extracted = set(extracted)
         content = '\n'.join(sorted(extracted))
-        
+
         with open(output, mode='w', encoding='utf-8') as f:
             f.write(content)
         self.opener.open_txt(output)
@@ -392,7 +392,7 @@ class WordDigger(object):
         if ext.lower() == '.pdf':
             if texlive_bool:
                 cmd = 'pdftotext -nopgbrk -raw -enc UTF-8 {}'.format(filename)
-                os.system(cmd)            
+                os.system(cmd)
                 return(base_name + '.txt')
             else:
                 return None
@@ -409,7 +409,7 @@ class WordDigger(object):
         f = open(filename, mode='r', encoding='utf-8')
         for line in f.readlines():
             lines += 1
-            chars += len(line.replace(' ', '')) 
+            chars += len(line.replace(' ', ''))
             this = line.split(None)
             words += len(this)
         f.close()
@@ -436,7 +436,7 @@ class WordDigger(object):
         output = filename.replace('.', '_UTF8.')
         with open(output, mode='w', encoding='utf-8') as f:
             f.write(content)
-        self.opener.open_txt(output) 
+        self.opener.open_txt(output)
 
 
     def align_string(self, string: str, width: int):
@@ -476,9 +476,9 @@ class WordDigger(object):
         strings = '\n'.join(sorted(self.found, key=str.lower))
         with open(self.args.output, mode='w', encoding='utf-8') as f:
             f.write(strings)
-        self.opener.open_txt(self.args.output)  
+        self.opener.open_txt(self.args.output)
 
-    def determine_task(self): 
+    def determine_task(self):
 
         if self.args.unicode_bool:
             UTF = UnicodeDigger(chars=self.args.targets[0])
@@ -498,25 +498,24 @@ class WordDigger(object):
                     self.run_recursive(self.find)
                 else:
                     self.run_recursive(self.replace)
-            else:            
+            else:
                 if os.path.exists(self.args.pattern):
                     if self.args.extract_string_bool:
                         if self.args.output is None:
                             self.args.output = 'strings_collected.txt'
                         self.run_recursive(self.extract_strings)
                         self.write_collection()
-                        
                     else:
                         self.run_recursive(self.replace)
                 else:
                     print('{} is not found.'.format(self.args.pattern))
-        else:            
+        else:
             if self.args.extract_word_bool:
                 self.run_recursive(self.extract_words)
             elif self.args.extract_tex_bool:
                 if self.args.output is None:
                     self.args.output = 'tex_macros_collected.tex'
-                self.run_recursive(self.extract_tex_macros)  
+                self.run_recursive(self.extract_tex_macros)
                 self.write_collection()
             elif self.args.convert_UTF_bool:
                 self.run_recursive(self.convert_UTF)
@@ -547,7 +546,7 @@ class UnicodeDigger(object):
             normal = '\x1b[0m'
 
         if self.totex_bool:
-            if dec < int('0x80', 16):        
+            if dec < int('0x80', 16):
                 byte = byte.zfill(8)
                 return '{}\\codetail{{{}}}'.format(byte[:1], byte[1:])
             elif dec < int('0x800', 16):
@@ -560,7 +559,7 @@ class UnicodeDigger(object):
                 byte = byte.zfill(24)
                 return '{}\\codetail{{{}}}{}\\codetail{{{}}}'.format(byte[0:6], byte[6:12], byte[12:18], byte[18:24])
         else:
-            if dec < int('0x80', 16):        
+            if dec < int('0x80', 16):
                 byte = byte.zfill(8)
                 return head + byte[:1] + tail + byte[1:] + normal
             elif dec < int('0x800', 16):
@@ -584,7 +583,7 @@ class UnicodeDigger(object):
             tail = '\x1b[33m'
             normal = '\x1b[0m'
 
-        if byte_index > 0: 
+        if byte_index > 0:
             if self.totex_bool:
                 return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:2], byte[2:])
             else:
@@ -593,9 +592,9 @@ class UnicodeDigger(object):
             if self.totex_bool:
                 if byte_number == 2:
                     return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:3], byte[3:])
-                elif byte_number == 3:                    
+                elif byte_number == 3:
                     return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:4], byte[4:])
-                elif byte_number == 4:                    
+                elif byte_number == 4:
                     return '\\bytehead{{{}}}\\bytetail{{{}}}'.format(byte[:5], byte[5:])
             else:
                 if byte_number == 2:
@@ -645,5 +644,5 @@ class UnicodeDigger(object):
                     print(char, Dcode, Hcode, Bcode, charname)
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     WordDigger()

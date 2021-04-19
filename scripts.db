@@ -1857,7 +1857,7 @@ code =
 	`        self.unit = 10000
 	`        self.last_section = 1000000001
 	`        self.rate_sections = {12000000:6, 46000000:15, 88000000:24, 150000000:35, 300000000:38, 500000000:40, 1000000000:42, self.last_section:45}
-	`        self.rate_sections = OrderedDict(sorted(self.rate_sections.items()))        
+	`        self.rate_sections = OrderedDict(sorted(self.rate_sections.items()))
 	`        self.progressive_sections = {}
 	`        self.deduction_sections = {}
 	`        self.initialize()
@@ -1872,7 +1872,7 @@ code =
 	`            if preceding == 0:
 	`                self.progressive_sections[limit] = 0
 	`                self.deduction_sections[limit] = 0
-	`            else:                
+	`            else:
 	`                self.progressive_sections[limit] = int(accumulated)
 	`                deduction = limit * rate - ( (limit - preceding) * rate + accumulated )
 	`                self.deduction_sections[limit] = int(deduction)
@@ -1977,24 +1977,24 @@ code =
 	`        #         preceding = corresponding
 	`        #         corresponding = limit
 	`        #         break
-	`        # accumulated = self.progressive_sections[corresponding]        
+	`        # accumulated = self.progressive_sections[corresponding]
 	`        # rate = self.rate_sections[corresponding] / 100
 	`        # tax = accumulated + ((salary - preceding) * rate)
-	`        
+	`
 	`        for limit in self.rate_sections:
 	`            if salary < limit:
 	`                section = limit
 	`                break
 	`        if salary > self.last_section:
 	`            section = self.last_section
-	`        
+	`
 	`        rate = self.rate_sections[section] / 100
-	`        tax = int((salary * rate) - self.deduction_sections[section])        
+	`        tax = int((salary * rate) - self.deduction_sections[section])
 	`        return self.trunc_ones(tax)
 	`
 	`
-	`    def trunc_ones(self, num):        
-	`        
+	`    def trunc_ones(self, num):
+	`
 	`        num = int(num)
 	`        return int(num - num %% 10)
 	`
@@ -2006,11 +2006,11 @@ code =
 	`
 	`        monthly_pay = salary / 12
 	`        monthly_tax = tax / 12
-	`        
+	`
 	`        state_pension = monthly_pay * 0.045
 	`        health_care = monthly_pay * 0.0343 + monthly_pay * 0.0343 * 0.1152 # 장기요양보험 포함
 	`        employment_insurance = monthly_pay * 0.008
-	`        deduction = health_care + state_pension + employment_insurance         
+	`        deduction = health_care + state_pension + employment_insurance
 	`
 	`        monthly_tax = monthly_tax - deduction
 	`        post_tax_pay = monthly_pay - (deduction + monthly_tax)
@@ -2026,14 +2026,14 @@ code =
 	`Monthly tax: {:,}
 	`Post-tax pay: {:,}
 	`            '''.format(
-	`                salary, 
-	`                tax, 
-	`                actual_rate, 
-	`                self.trunc_ones(monthly_pay), 
-	`                self.trunc_ones(state_pension), 
-	`                self.trunc_ones(health_care), 
-	`                self.trunc_ones(employment_insurance), 
-	`                self.trunc_ones(monthly_tax), 
+	`                salary,
+	`                tax,
+	`                actual_rate,
+	`                self.trunc_ones(monthly_pay),
+	`                self.trunc_ones(state_pension),
+	`                self.trunc_ones(health_care),
+	`                self.trunc_ones(employment_insurance),
+	`                self.trunc_ones(monthly_tax),
 	`                self.trunc_ones(post_tax_pay)
 	`            )
 	`        print(output)
@@ -3273,13 +3273,13 @@ code = import sys
 	`    digits = 8
 	`
 	`numerals = randint(0, 10, digits)
-	`password = ''
+	`PIN = ''
 	`for i, numeral in enumerate(numerals):
-	`    password += str(numeral)
+	`    PIN += str(numeral)
 	`    if (i+1) %% 4 == 0:
-	`        password += ' '
+	`        PIN += ' '
 	`
-	`print(password)
+	`print(PIN)
 
 [barchart]
 description = [Python] Make and save a chart.

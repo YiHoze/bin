@@ -17,9 +17,9 @@ class FileOpener(object):
         self.app_option = ''
         self.initialize()
 
-    def initialize(self):        
+    def initialize(self):
 
-        inipath = os.path.dirname(__file__) 
+        inipath = os.path.dirname(__file__)
         ini = os.path.join(inipath, 'docenv.ini')
         if os.path.exists(ini):
             config = configparser.ConfigParser()
@@ -47,7 +47,7 @@ class FileOpener(object):
             'files',
             nargs = '+',
             help = 'Specify files to open.'
-        )        
+        )
         parser.add_argument(
             '-a',
             dest = 'application',
@@ -89,13 +89,13 @@ class FileOpener(object):
             help = 'Access the given website.'
         )
 
-        args = parser.parse_args()    
+        args = parser.parse_args()
 
         self.files = args.files
-        self.force_bool = args.force_bool    
-        self.Adobe_bool = args.Adobe_bool    
-        self.texlive_bool = args.texlive_bool    
-        self.web_bool = args.web_bool    
+        self.force_bool = args.force_bool
+        self.Adobe_bool = args.Adobe_bool
+        self.texlive_bool = args.texlive_bool
+        self.web_bool = args.web_bool
         self.application = args.application
         self.app_option = args.app_option
 
@@ -115,7 +115,7 @@ class FileOpener(object):
     #     else:
     #         print('Check the path to the PDF viewer.')
     #         return False
-    
+
 
     # def check_AdobeReader(self):
 
@@ -127,7 +127,7 @@ class FileOpener(object):
 
     def determine_file_type(self, afile):
 
-        ext = os.path.splitext(afile)[1]        
+        ext = os.path.splitext(afile)[1]
         if ext.lower() in self.associations:
             return 'txt'
         elif ext.lower() ==  '.pdf':
@@ -159,8 +159,8 @@ class FileOpener(object):
         subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
-    def open_txt(self, afile):        
-                
+    def open_txt(self, afile):
+
         cmd = '\"{}\" {} {}'.format(self.editor, self.app_option, afile)
         subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
@@ -169,10 +169,10 @@ class FileOpener(object):
 
         if self.Adobe_bool:
             cmd = '\"{}\" \"{}\"'.format(self.AdobeReader, afile)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
-        else:               
+            subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        else:
             cmd = '\"{}\" \"{}\"'.format(self.pdf_viewer, afile)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE)                 
+            subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
     def search_tex_live(self, files):
@@ -180,7 +180,7 @@ class FileOpener(object):
         for afile in files:
             try:
                 result = subprocess.check_output(['kpsewhich', afile], stderr=subprocess.STDOUT)
-                found = str(result, 'utf-8')  
+                found = str(result, 'utf-8')
                 found = found.rstrip()
                 self.open_txt(found)
             except subprocess.CalledProcessError:
@@ -195,7 +195,7 @@ class FileOpener(object):
 
 
     def open(self, files=None):
-            
+
         if self.texlive_bool:
             self.search_tex_live(files)
         elif self.web_bool:
@@ -205,6 +205,6 @@ class FileOpener(object):
 
 
 if __name__ == '__main__':
-    opener = FileOpener()      
+    opener = FileOpener()
     opener.parse_args()
     opener.open(opener.files)

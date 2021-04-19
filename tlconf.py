@@ -12,7 +12,7 @@ class TeXLiveConfigure(object):
     def __init__(self):
 
         self.initialize()
-        self.check_TeXLive()        
+        self.check_TeXLive()
         self.parse_args()
         self.configure()
 
@@ -276,7 +276,7 @@ class TeXLiveConfigure(object):
         if answer.lower() == 'n':
             return
         else:
-            os.system('tlmgr.bat update --self --all')
+            os.system('tlmgr.bat update --all')
 
 
     def set_repository(self):
@@ -307,7 +307,7 @@ class TeXLiveConfigure(object):
                 return answer
         else:
             return False
-        
+
 
     def cache_font(self):
 
@@ -387,4 +387,4 @@ class TeXLiveConfigure(object):
                 self.luaotfload()
 
 if __name__ == '__main__':
-    TeXLiveConfigure()    
+    TeXLiveConfigure()

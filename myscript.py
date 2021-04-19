@@ -21,8 +21,8 @@ class ScriptScribe(object):
             self.database.read(self.dbFile, encoding='utf-8')
         else:
             print('{} is not found.'.format(self.dbFile))
-            sys.exit()        
-        
+            sys.exit()
+
         self.parse_args()
 
         if self.args.script:
@@ -97,7 +97,7 @@ class ScriptScribe(object):
         )
 
         self.args, self.script_arguments = self.parser.parse_known_args()
-        
+
 
     def check_section(self):
 
@@ -132,19 +132,19 @@ class ScriptScribe(object):
 
         if self.confirm_to_overwrite(filename):
             try:
-                content = self.database.get(self.args.script, source)                
+                content = self.database.get(self.args.script, source)
             except:
                 print('Ensure the script database is set properly.')
-                return False             
+                return False
             if os.path.splitext(filename)[1] != '.cmd':
                 content = content.replace('`', '')
             with open(filename, mode='w', encoding='utf-8') as f:
                 f.write(content)
             return True
         else:
-            return False   
+            return False
 
-        
+
     def pick_script(self):
 
         if self.args.run_bool:
@@ -167,12 +167,12 @@ class ScriptScribe(object):
                 self.script_arguments.insert(0,'powershell.exe ./{}'.format(codefile))
             else:
                 self.script_arguments.insert(0, codefile)
-            
+
             cmd = ' '.join(self.script_arguments)
             if len(self.script_arguments) < 2:
                 sargs = self.database.get(self.args.script, 'default_arguments', fallback=None)
                 if sargs:
-                    cmd = '{} {}'.format(cmd, sargs)                   
+                    cmd = '{} {}'.format(cmd, sargs)
 
             print(cmd)
             os.system(cmd)
@@ -214,7 +214,7 @@ class ScriptScribe(object):
 
     def update(self):
 
-        if not self.check_section():            
+        if not self.check_section():
             return
 
         filename = self.database.get(self.args.script, 'code_output')
@@ -239,7 +239,7 @@ class ScriptScribe(object):
         if not self.check_section():
             return
 
-        answer = input('Are you sure to remove "{}" from the database? [y/N]'.format(self.args.script))        
+        answer = input('Are you sure to remove "{}" from the database? [y/N]'.format(self.args.script))
         if answer.lower() == 'y':
             self.database.remove_section(self.args.script)
             with open(self.dbFile, mode='w', encoding='utf-8') as f:
@@ -267,7 +267,7 @@ class ScriptScribe(object):
             script_type = '[Unknown]'
 
         with open(filename, mode='r', encoding='utf-8') as f:
-            code = f.read()  
+            code = f.read()
         code = re.sub('%', '%%', code)
         if os.path.splitext(filename)[1] != '.cmd':
             code = re.sub('\n', '\n`', code)
@@ -280,7 +280,7 @@ class ScriptScribe(object):
             description = '{} {}'.format(script_type, description)
         else:
             description = script_type
-        
+
         self.database.add_section(name)
         self.database.set(name, 'description', description)
         self.database.set(name, 'code_output', filename)

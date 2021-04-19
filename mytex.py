@@ -1,4 +1,4 @@
-#>mytex.py template -s foo1 foo2 foo3 
+#>mytex.py template -s foo1 foo2 foo3
 
 import os
 import sys
@@ -15,12 +15,11 @@ from ltx import LatexCompiler
 
 class LatexTemplate(object):
 
-    def __init__(self, argv=None):    
+    def __init__(self, argv=None):
 
         self.generated_files = []
 
-        self.dbFile = 'latex.db'
-        self.dbFile = os.path.join(dirCalled, self.dbFile)
+        self.dbFile = os.path.join(dirCalled, 'latex.db')
         if os.path.exists(self.dbFile):
             self.database = configparser.ConfigParser()
             self.database.read(self.dbFile, encoding='utf-8')
@@ -33,7 +32,7 @@ class LatexTemplate(object):
         if self.args.List_bool:
             self.enumerate_with_description()
         elif self.args.list_bool:
-            self.enumerate_without_description()        
+            self.enumerate_without_description()
         elif self.args.detail_bool:
             self.show_details()
         elif self.args.update_bool:
@@ -55,9 +54,9 @@ class LatexTemplate(object):
         enumerates templates
     mytex.py metapost -d
         gives a brief description of the metapost template.
-    mytex.py memoir -o foo 
+    mytex.py memoir -o foo
         makes "foo.tex" out of the memoir template.
-    mytex.py lotto -s 20 10 
+    mytex.py lotto -s 20 10
         makes and compiles lotto.tex, of which two placeholders are replaced with "20" and "10".
     mytex.py lotto -n
         makes lotto.tex but doesn't compile though this template has some compilation options.
@@ -65,7 +64,7 @@ class LatexTemplate(object):
         makes and compiles myfont.tex though this template has no comilation options.
         '''
         parser = argparse.ArgumentParser(
-            epilog = example,  
+            epilog = example,
             formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Create a LaTeX file from the template databse and compile it using ltx.py.'
         )
@@ -128,7 +127,7 @@ class LatexTemplate(object):
             dest = 'detail_bool',
             action = 'store_true',
             default = False,
-            help = 'Show the details about the specified template.'            
+            help = 'Show the details about the specified template.'
         )
         parser.add_argument(
             '-i',
@@ -194,7 +193,7 @@ class LatexTemplate(object):
             return False
 
         images.sort(key=str.lower)
-        images = '\n'.join(images)        
+        images = '\n'.join(images)
         with open(filename, mode='w', encoding='utf-8') as f:
             f.write(images)
 
@@ -205,7 +204,7 @@ class LatexTemplate(object):
 
 
     def fill_placeholders(self, content):
-        
+
         try:
             placeholders = int(self.database.get(self.args.template, 'placeholders'))
             defaults = self.database.get(self.args.template, 'defaults')
@@ -245,7 +244,7 @@ class LatexTemplate(object):
             return False
 
 
-    def pick_template(self):        
+    def pick_template(self):
 
         options = self.database.options(self.args.template)
 
@@ -254,7 +253,7 @@ class LatexTemplate(object):
                 filename = self.database.get(self.args.template, option, fallback=False)
                 if filename:
                     source = option.split('_')[0]
-                    if option == 'tex_output':                            
+                    if option == 'tex_output':
                         if self.args.burst_bool and filename == 'mydoc.tex':
                             filename = self.args.template + '.tex'
                         else:
@@ -296,10 +295,10 @@ class LatexTemplate(object):
         if not self.check_section():
             return True
 
-        if self.args.template == 'album':            
+        if self.args.template == 'album':
             if not self.make_image_list():
-                return 
-        
+                return
+
         if not self.pick_template():
             return
 
@@ -307,8 +306,8 @@ class LatexTemplate(object):
             opener = FileOpener()
             opener.open_txt(self.tex)
 
-        if not self.args.defy_bool:    
-            self.compile()                
+        if not self.args.defy_bool:
+            self.compile()
 
 
     def enumerate_with_description(self):
@@ -323,9 +322,9 @@ class LatexTemplate(object):
             print('{:16} {}'.format(i, description))
 
 
-    def enumerate_without_description(self, columns=4):  
+    def enumerate_without_description(self, columns=4):
 
-        """Print the list of template names."""  
+        """Print the list of template names."""
         templates = sorted(self.database.sections(), key=str.casefold)
         width = 0
         for i in templates:
@@ -352,7 +351,7 @@ class LatexTemplate(object):
         usage = self.database.get(self.args.template, 'description', fallback=None)
         if usage == None:
             print('"{}" has no decription'.format(self.args.template))
-        else: 
+        else:
             print('\n{}\n'.format(usage))
 
 
@@ -387,7 +386,7 @@ class LatexTemplate(object):
         filename = os.path.basename(self.args.template)
         if not self.if_exits(filename):
             return
-        
+
         name = os.path.splitext(filename)[0]
         if name in self.database.sections():
             print('"{}" is already included in the database.'.format(name))

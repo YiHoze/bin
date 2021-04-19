@@ -21,7 +21,7 @@ class ConvertUnit(object):
             'knot': ['knots', 'km/h', 1.852],
             'pascal': ['kg/cm²', 'Pa', 98066.5],
             'km/h': ['km/h', 'm/s', 0.277778],
-            'hp': ['hp', 'kW', 0.7457] 
+            'hp': ['hp', 'kW', 0.7457]
         }
         self.unit_types = []
         for i in self.units.keys():
@@ -29,9 +29,9 @@ class ConvertUnit(object):
         self.unit_types = sorted(self.unit_types)
 
     def parse_args(self):
-    
+
         example = '''examples:
-    unit.py 
+    unit.py
         Supported units are displayed.
     unit.py 10 mi 20
         10 to 20 miles are converted to kilometers.
@@ -43,14 +43,14 @@ class ConvertUnit(object):
         This type of RGB value is converted to CMYK.
     unit.py -c 0,0.1,0.33,0.01
         This type of CMYK value is converted to RGB.
-        
-    To use a comma as thousand separator in Powershell, 
+
+    To use a comma as thousand separator in Powershell,
     wrap the number with quotes or use the escape character.
         unit "100,000" pa
         unit 100`,000 pa
     '''
         parser = argparse.ArgumentParser(
-            epilog = example,  
+            epilog = example,
             formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Convert non-metric units to the metric system.'
         )
@@ -130,15 +130,15 @@ class ConvertUnit(object):
             lower += 1
 
     def convert_calculate(self, numeral):
-        if self.coefficient_bool is True:        
+        if self.coefficient_bool is True:
             nonmetric_coefficient = 1 / self.coefficient
             nonmetric_value = numeral * nonmetric_coefficient
             metric_value = numeral * self.coefficient
         else:
             func = self.coefficient + '(' + str(numeral) + ')'
-            nonmetric_value, metric_value = eval(func)        
+            nonmetric_value, metric_value = eval(func)
         result = '{:,.2f} {} = {:,.2f} {} \t {:,.2f} {} = {:,.2f} {}'.format(
-            numeral, self.nonmetric_unit, metric_value, self.metric_unit, 
+            numeral, self.nonmetric_unit, metric_value, self.metric_unit,
             numeral, self.metric_unit, nonmetric_value, self.nonmetric_unit
             )
         print(result)
@@ -147,13 +147,13 @@ class ColorModel(object):
 
     def __init__(self, color=None):
         self.color = color
-        for i in self.color:    
-            self.identify_color_model(i)     
+        for i in self.color:
+            self.identify_color_model(i)
 
     def error_message(self):
-        print('The value is formatted wrong.')        
+        print('The value is formatted wrong.')
 
-    def identify_color_model(self, color: str):   
+    def identify_color_model(self, color: str):
         color = color.replace(' ', '')
         if color.count(',') >= 3:
             C, M, Y, K = self.parse_CMYK(color)
@@ -176,14 +176,14 @@ class ColorModel(object):
                 else:
                     self.RGB_to_CMYK(R, G, B)
 
-    def parse_CMYK(self, color: str):        
+    def parse_CMYK(self, color: str):
         color = color.split(',')
-        if len(color) == 4:            
+        if len(color) == 4:
             try:
                 C = float(color[0])
                 M = float(color[1])
                 Y = float(color[2])
-                K = float(color[3])                
+                K = float(color[3])
             except:
                 C, M, Y, K = False, False, False, False
         else:
@@ -192,7 +192,7 @@ class ColorModel(object):
         return C, M, Y, K
 
     def parse_RGB(self, color: str):
-        if color.count(',') == 0:        
+        if color.count(',') == 0:
             if len(color) == 6:
                 try:
                     R = int(color[0:2], 16)
@@ -201,7 +201,7 @@ class ColorModel(object):
                 except:
                     R, G, B = False, False, False
 
-        if color.count(',') == 2: 
+        if color.count(',') == 2:
             color = color.split(',')
             try:
                 R = int(color[0])
@@ -209,7 +209,7 @@ class ColorModel(object):
                 B = int(color[2])
             except:
                 R, G, B = False, False, False
-        
+
         return R, G, B
 
     def RGB_hex(self, R, G, B):
@@ -224,7 +224,7 @@ class ColorModel(object):
         RGB = ''.join(RGB)
         return RGB
 
-    def RGB_to_CMYK(self, R, G, B):        
+    def RGB_to_CMYK(self, R, G, B):
         Rp = R/255
         Gp = G/255
         Bp = B/255
@@ -239,18 +239,18 @@ class ColorModel(object):
         RGBp = '{:1.2f}, {:1.2f}, {:1.2f}'.format(Rp, Gp, Bp)
         # FFFFFF
         RGBh = self.RGB_hex(R, G, B)
-        
+
         result = '{} ({} / {}) = {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}'.format(RGBd, RGBp, RGBh, C, M, Y, K)
         print(result)
 
     def CMYK_to_RGB(self, C, M, Y, K):
-        R = 255 * (1 - C) * (1 - K) 
+        R = 255 * (1 - C) * (1 - K)
         G = 255 * (1 - M) * (1 - K)
         B = 255 * (1 - Y) * (1 - K)
         Rp = R/255
         Gp = G/255
         Bp = B/255
-        
+
         CMYK = map(lambda x: '{:3.2f}'.format(x), [C, M, Y, K])
         CMYK = ', '.join(CMYK)
         # 1.0,1.0,1.0

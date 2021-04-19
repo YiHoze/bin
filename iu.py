@@ -12,21 +12,21 @@ class ImageUtility(object):
 
         self.vectors = ('.eps', '.pdf', '.svg')
         self.bitmaps = ('.bmp', '.cr2', '.gif', '.jpg', '.jpeg', '.pbm', '.png', '.ppm', '.tga', '.tiff', '.webp')
-       
+
         inipath = os.path.dirname(__file__)
         ini = os.path.join(inipath, 'docenv.ini')
         if os.path.exists(ini):
             config = configparser.ConfigParser()
             config.read(ini)
-            
-            self.Inkscape = config.get('Inkscape', 'path', fallback=False)                
+
+            self.Inkscape = config.get('Inkscape', 'path', fallback=False)
             if not self.Inkscape:
                 print('Make sure to have docenv.ini set properly with Inkscape.')
                 self.Inkscape = 'inkscape.com'
-            
+
             self.Magick = config.get('ImageMagick', 'path', fallback=False)
             if not self.Magick:
-                print('Make sure to have docenv.ini set properly with ImageMagick.')  
+                print('Make sure to have docenv.ini set properly with ImageMagick.')
                 self.Magick = 'magick.exe'
         else:
             print('Docenv.ini is not found in {}.'.format(inipath))
@@ -40,11 +40,11 @@ class ImageUtility(object):
 
     def parse_args(self, argv=None):
 
-        example = '''With this script you can: 
-    1) view a bitmap image's information; 
-    2) resize bitmap images by changing their resolution or scale; 
-    3) convert bitmap images to another format; 
-    4) convert vector images to another vector or bitmap format. 
+        example = '''With this script you can:
+    1) view a bitmap image's information;
+    2) resize bitmap images by changing their resolution or scale;
+    3) convert bitmap images to another format;
+    4) convert vector images to another vector or bitmap format.
     Be aware that SVG cannot be the target format.
 examples:
     iu.py
@@ -162,7 +162,7 @@ examples:
 
         basename = os.path.basename(img)
         ext = os.path.splitext(basename)[1]
-        if not ext:        
+        if not ext:
             ext = img
         ext = ext.lower()
         if ext in self.bitmaps:
@@ -184,9 +184,9 @@ examples:
         if self.args.recursive_bool:
             subdirs = self.get_subdirs()
             for subdir in subdirs:
-                for fnpattern in self.args.images:            
+                for fnpattern in self.args.images:
                     fnpattern = os.path.join(subdir, fnpattern)
-                    for img in glob.glob(fnpattern):                        
+                    for img in glob.glob(fnpattern):
                         func(img)
         else:
             for fnpattern in self.args.images:
@@ -197,7 +197,7 @@ examples:
     def run_cmd(self, cmd, cnt=1):
 
         try:
-            subprocess.check_output(cmd, stderr=subprocess.PIPE)            
+            subprocess.check_output(cmd, stderr=subprocess.PIPE)
             self.cnt += cnt
             print(self.cnt, end='\r')
         except subprocess.CalledProcessError as e:
@@ -207,8 +207,8 @@ examples:
 
         if self.check_format(img) == 'bitmap':
             cmd = '\"{}\" identify -verbose {}'.format(self.Magick, img)
-            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)   
-            result = result.decode(encoding='utf-8')  
+            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            result = result.decode(encoding='utf-8')
             result = result.split('\r\n')
             print('\n {}'.format(img))
             for n in range(4):
@@ -220,8 +220,8 @@ examples:
         if self.check_format(img) == 'bitmap':
             if self.args.maxwidth > 0:
                 cmd = '"{}"  -resize {}x{}^> "{}" "{}"'.format(self.Magick, self.args.maxwidth, self.args.maxwidth, img, img)
-                self.run_cmd(cmd, 0)            
-            cmd = '"{}" "{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}"'.format(self.Magick, img, self.args.density, self.args.scale, img)            
+                self.run_cmd(cmd, 0)
+            cmd = '"{}" "{}" -auto-orient -units PixelsPerCentimeter -density {} -resize {}%  "{}"'.format(self.Magick, img, self.args.density, self.args.scale, img)
             self.run_cmd(cmd)
 
 
@@ -230,7 +230,7 @@ examples:
         filename, ext = os.path.splitext(img)
         ext = ext.lower()
 
-        digits=1        
+        digits=1
         if ext == '.gif':
             frames = self.count_gif_frames(img)
             digits = self.count_digits(frames)
@@ -244,7 +244,7 @@ examples:
             trg = filename + self.args.target_format
 
         return trg
-                
+
 
 
     def bitmap_to_bitmap(self, img):
@@ -267,7 +267,7 @@ examples:
 
         cmd = '\"{}\" identify {}'.format(self.Magick, img)
         result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        result = result.decode(encoding='utf-8')            
+        result = result.decode(encoding='utf-8')
         result = result.split('\n')
         return len(result)
 
@@ -283,10 +283,10 @@ examples:
     def vector_to_bitmap(self, img):
 
         trg = self.name_target(img)
-        cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg) 
+        cmd = '"{}" -colorspace rgb -density {}  "{}" "{}"'.format(self.Magick, self.args.density, img, trg)
         self.run_cmd(cmd)
 
-        if os.path.splitext(img)[1].lower() == '.pdf':        
+        if os.path.splitext(img)[1].lower() == '.pdf':
             if self.count_pdf_pages(img) > 1:
                 filename = os.path.splitext(img)[0]
                 ext = os.path.splitext(trg)[1]
@@ -321,7 +321,7 @@ examples:
 
         trg = self.name_target(img)
         cmd = '"{}" --export-eps "{}" "{}"'.format(self.Inkscape, trg, img)
-        self.run_cmd(cmd)  
+        self.run_cmd(cmd)
 
 
     def convert(self):
@@ -329,13 +329,13 @@ examples:
         recipe = {}
         self.args.target_format = self.args.target_format.lower()
         if not self.args.target_format.startswith('.'):
-            self.args.target_format = '.' + self.args.target_format        
+            self.args.target_format = '.' + self.args.target_format
         recipe['target format'] = self.args.target_format
         recipe['target type'] = self.check_format(self.args.target_format)
         for fnpattern in self.args.images:
             srcfmt = os.path.splitext(fnpattern)[1]
             srctype = self.check_format(srcfmt)
-            recipe['source format'] = srcfmt 
+            recipe['source format'] = srcfmt
             recipe['source type'] = srctype
             self.converter_diverge(recipe)
 
@@ -362,7 +362,7 @@ examples:
                     if recipe['target format'] == '.eps':
                         self.run_recursive(self.svg_to_eps)
                     elif recipe['target format'] == '.pdf':
-                        self.run_recursive(self.svg_to_pdf)    
+                        self.run_recursive(self.svg_to_pdf)
 
 
     def count(self):
@@ -385,7 +385,7 @@ examples:
 
         if len(self.args.images) == 0:
             self.display_formats()
-        else:          
+        else:
             if self.args.info_bool:
                 self.run_recursive(self.get_info)
             elif self.args.resize_bool:
@@ -396,4 +396,4 @@ examples:
 
 
 if __name__ == '__main__':
-    ImageUtility()    
+    ImageUtility()

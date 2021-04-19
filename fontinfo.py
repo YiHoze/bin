@@ -1,5 +1,5 @@
 import os
-import sys 
+import sys
 import re
 import argparse
 import subprocess
@@ -21,19 +21,19 @@ class FontInfo(object):
     def parse_args(self):
 
         example = '''examples:
-    fontinfo.py     
+    fontinfo.py
         The information about the installed fonts is gathered into "fonts_list.txt".
     fontinfo.py -o foo.txt
         "foo.txt" is used instead of "fonts_list.txt".
     fontinfo.py "Noto Serif"
         "NotoSerif.pdf" is created, which contains multilingual text.
     fontinfo.py -i NotoSerif-Regular.ttf
-        The font details are displayed, including the full name.         
+        The font details are displayed, including the full name.
     fontinfo.py -i "Noto Serif"
         Every font that belongs to the same family is enumerated.
         '''
-        parser = argparse.ArgumentParser( 
-            epilog = example,  
+        parser = argparse.ArgumentParser(
+            epilog = example,
             formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'This script requires TeX Live.'
         )
@@ -51,7 +51,7 @@ class FontInfo(object):
         )
         parser.add_argument(
             '-o',
-            dest = 'fonts_list',    
+            dest = 'fonts_list',
             default = 'fonts_list.txt',
             help = 'Specify a file name for the output.'
         )
@@ -70,11 +70,11 @@ class FontInfo(object):
         if os.path.exists(self.args.fonts_list):
             os.remove(self.args.fonts_list)
         cmd = 'fc-list -f "%%{file} : %%{family} \\n" > %s' %(self.args.fonts_list) # %%{family} %%{fullname} %%{style}
-        os.system(cmd)        
+        os.system(cmd)
         with open(self.args.fonts_list, mode='r', encoding='utf-8') as f:
             content = f.readlines()
         content = set(content)
-        content = ''.join(sorted(content, key=str.lower))    
+        content = ''.join(sorted(content, key=str.lower))
         with open(self.args.fonts_list, mode='w', encoding='utf-8') as f:
             f.write(content)
         opener = FileOpener()
@@ -91,9 +91,9 @@ class FontInfo(object):
             fonts = fonts.split('\n')
             print('')
             i = 1
-            while i < len(fonts):        
+            while i < len(fonts):
                 print('{}: {}'.format(i, fonts[i-1]))
-                i = i + 1 
+                i = i + 1
             index = input('\nSelect a font by entering its number to see the details: ')
             try:
                 index = int(index)
@@ -106,7 +106,7 @@ class FontInfo(object):
                 return False
 
 
-    def get_info(self): 
+    def get_info(self):
 
         if os.path.exists(self.args.font):
             cmd = 'otfinfo.exe -i {}'.format(self.args.font)
@@ -114,13 +114,13 @@ class FontInfo(object):
         else:
             cmd = 'fc-list.exe -f "%{{file}}\n" "{}"'.format(self.args.font)
             fonts = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            fonts = fonts.decode(encoding='utf-8')        
+            fonts = fonts.decode(encoding='utf-8')
             if fonts == '':
                 print('No relevant fonts are found.')
                 return
-            else: 
+            else:
                 if fonts.count('\n') == 1:
-                    print(fonts)    
+                    print(fonts)
                     font = fonts
                 else:
                     font = self.find_path(fonts)

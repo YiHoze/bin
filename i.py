@@ -17,11 +17,11 @@ class IdleTexnician(object):
         self.ini = 'i.ini'
         self.ini_template = '''[tex]
 target = foo.tex
-compiler = 
+compiler =
 draft = wordig.py -a "..." -s "..." %(target)s
 final = wordig.py -a "..." -s "..." %(target)s
-final_compiler = 
-after = 
+final_compiler =
+after =
 main = \\input{preamble}
     \\begin{document}
     \\maketitle
@@ -33,17 +33,17 @@ main = \\input{preamble}
 
     def parse_args(self):
 
-        about = 'i.ini should be like:\n{}'.format(self.ini_template)    
+        about = 'i.ini should be like:\n{}'.format(self.ini_template)
 
         parser = argparse.ArgumentParser(
-            epilog = about,  
+            epilog = about,
             formatter_class = argparse.RawDescriptionHelpFormatter,
             description = 'Find and compile a tex file using ltx.py. Options unknown to this script are passed to ltx.py.'
         )
         parser.add_argument(
             'tex',
             nargs = '?'
-        )        
+        )
         parser.add_argument(
             '-U',
             dest = 'list_bool',
@@ -93,12 +93,12 @@ main = \\input{preamble}
     def run_preprocess(self, target):
 
         if not os.path.exists(self.ini):
-            print('i.ini is not found.')  
+            print('i.ini is not found.')
             return
 
         conf = configparser.ConfigParser()
         conf.read(self.ini)
-        
+
         if self.args.draft_bool:
             cmd = conf.get('tex', 'draft', fallback=False)
         else:
@@ -115,7 +115,7 @@ main = \\input{preamble}
                 compiler = compiler.split(' ')
                 for i in compiler:
                     self.compile_option.append(i)
-       
+
 
     def run_postprocess(self):
 
@@ -136,7 +136,7 @@ main = \\input{preamble}
             main = conf.get('tex', 'main', fallback=False)
             if main:
                 main = main.replace('\\1', self.tex)
-            
+
             with open('t@x.tex', mode='w') as f:
                 f.write(main)
 
@@ -166,12 +166,12 @@ main = \\input{preamble}
         else:
             self.do_compile(self.tex)
 
-        
+
     def do_compile(self, tex):
 
         if self.args.draft_bool or self.args.final_bool:
             self.run_preprocess(tex)
-        
+
         if self.args.wrap_bool:
             self.write_tex()
 
@@ -184,7 +184,7 @@ main = \\input{preamble}
                 if os.path.exists(self.pdf):
                     os.remove(self.pdf)
                 os.rename('t@x.pdf', self.pdf)
-        
+
         self.run_postprocess()
 
 
@@ -213,14 +213,14 @@ main = \\input{preamble}
         else:
             if os.path.exists(self.ini):
                 conf = configparser.ConfigParser()
-                conf.read(self.ini)            
+                conf.read(self.ini)
                 files = conf.get('tex', 'target', fallback=False)
                 if files:
                     files = files.split('\n')
                     if len(files) == 1:
                         return files[0]
                     else:
-                        return self.enumerate_list(files)                    
+                        return self.enumerate_list(files)
                 else:
                     return False
             else:
@@ -237,7 +237,7 @@ main = \\input{preamble}
             fnpattern = os.path.splitext(self.args.tex)[0]
             if not '*' in fnpattern:
                 fnpattern = '*{}*'.format(fnpattern)
-            fnpattern += '.tex'            
+            fnpattern += '.tex'
 
         for i in glob.glob(fnpattern):
             files.append(i)
@@ -273,7 +273,7 @@ main = \\input{preamble}
         for i in tmp:
             if '-' in i:
                 x = i.split('-')
-                try: 
+                try:
                     x = range(int(x[0]), int(x[1])+1)
                     for n in x:
                         selection.append(n)
@@ -286,19 +286,19 @@ main = \\input{preamble}
                 except:
                     print('Wrong selection.')
                     return False
-        
+
         if len(selection) > 0:
             for i, v in enumerate(selection):
                 selection[i] = files[v-1]
-            return selection 
+            return selection
         else:
             return False
 
 
     def determine_from_list(self):
-        
+
         count, files = self.count_tex_files()
-        
+
         if count == 0:
             return False
         elif count == 1:
@@ -310,7 +310,7 @@ main = \\input{preamble}
             return selection
         else:
             return False
-      
+
 
     def create_ini(self):
 
@@ -319,7 +319,7 @@ main = \\input{preamble}
             if answer.lower() == 'y':
                 os.remove(self.ini)
             else:
-                return 
+                return
 
         with open(self.ini, mode='w', encoding='utf-8') as f:
             f.write(self.ini_template)
@@ -332,7 +332,7 @@ main = \\input{preamble}
             self.create_ini()
         elif self.args.list_bool:
             self.tex = self.determine_from_list()
-            if self.tex:                
+            if self.tex:
                 self.compile_tex()
         else:
             self.tex = self.get_target()
@@ -340,9 +340,9 @@ main = \\input{preamble}
                 self.compile_tex()
             else:
                 self.tex = self.determine_from_list()
-                if self.tex:                    
+                if self.tex:
                     self.compile_tex()
 
 
 if __name__ == "__main__":
-    IdleTexnician()       
+    IdleTexnician()

@@ -148,7 +148,7 @@ class LatexTemplate(object):
             dest = 'burst_bool',
             action = 'store_true',
             default = False,
-            help = 'Take out all templates.'
+            help = 'Take out every template.'
         )
 
         self.args = parser.parse_args(argv)

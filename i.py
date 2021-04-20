@@ -204,23 +204,23 @@ main = \\input{preamble}
 
     def get_target(self):
 
-        count, files = self.count_tex_files()
+        count, existing_files = self.count_tex_files()
 
         if count == 0:
             sys.exit()
         elif count == 1:
-            return files[0]
+            return existing_files[0]
         else:
             if os.path.exists(self.ini):
                 conf = configparser.ConfigParser()
                 conf.read(self.ini)
-                files = conf.get('tex', 'target', fallback=False)
-                if files:
-                    files = files.split('\n')
-                    if len(files) == 1:
-                        return files[0]
+                registered_files = conf.get('tex', 'target', fallback=False)
+                if registered_files:
+                    registered_files = registered_files.split('\n')
+                    if len(registered_files) == 1:
+                        return registered_files[0]
                     else:
-                        return self.enumerate_list(files)
+                        return self.enumerate_list(registered_files)
                 else:
                     return False
             else:

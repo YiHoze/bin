@@ -953,13 +953,10 @@ code =
 [myip]
 description = [Python] Find your local and public IP addresses.
 code_output = myip.py
-code = 
-	`import argparse
+code = `# description = Find your local and public IP addresses.
+	`
 	`import socket
 	`from requests import get
-	`
-	`parser = argparse.ArgumentParser(description='Find your local and public IP addresses.')
-	`args = parser.parse_args()
 	`
 	`ip = socket.gethostbyname(socket.gethostname())
 	`print('Your local IP address is: ', ip)
@@ -3259,9 +3256,11 @@ code = import os
 	`os.rename(trgfile, file)
 
 [rannum]
-description = [Python]
+description = [Python] Pick a number as large as specified randomly.
 code_output = rannum.py
-code = import sys
+code = `# description = Pick a number as large as specified randomly.
+	`
+	`import sys
 	`from numpy.random import randint
 	`
 	`if len(sys.argv) > 1:

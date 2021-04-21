@@ -68,33 +68,34 @@ class ScriptScribe(object):
             help = 'Update the database with the file being in the current directory.'
         )
         self.parser.add_argument(
-            '-B',
-            dest = 'burst_bool',
-            action = 'store_true',
-            default = False,
-            help = 'Take out all scripts.'
-        )
-        self.parser.add_argument(
-            '-C',
-            dest = 'clear_bool',
-            action = 'store_true',
-            default = False,
-            help = 'Delete the script file after a run.'
-        )
-        self.parser.add_argument(
             '-R',
             dest = 'remove_bool',
             action = 'store_true',
             default = False,
-            help = 'Remove the script from the database.'
+            help = 'Remove the specified script from the database.'
+        )
+        self.parser.add_argument(
+            '-B',
+            dest = 'burst_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Take out every script.'
         )
         self.parser.add_argument(
             '-N',
             dest = 'run_bool',
             action = 'store_false',
             default = True,
-            help = 'Do not run the script.'
+            help = 'Extract but do not run the specified script.'
         )
+        self.parser.add_argument(
+            '-C',
+            dest = 'clear_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Delete the extracted script file after a run.'
+        )
+
 
         self.args, self.script_arguments = self.parser.parse_known_args()
 
@@ -181,28 +182,6 @@ class ScriptScribe(object):
                 os.remove(codefile)
 
 
-    def burst_database(self):
-
-        self.args.run_bool = False
-        scripts = sorted(self.database.sections(), key=str.casefold)
-
-        for i in scripts:
-            self.script = i
-            self.pick_script()
-
-
-    def enumerate_scripts(self):
-
-        scripts = sorted(self.database.sections(), key=str.casefold)
-
-        print()
-        for i in scripts:
-            description = self.database.get(i, 'description', fallback=None)
-            if description is None:
-                description = ''
-            print('{:12} {}'.format(i,description))
-
-
     def if_exits(self, filename):
 
         if os.path.exists(filename):
@@ -210,6 +189,59 @@ class ScriptScribe(object):
         else:
             print('"{}" does not exist in the current directory.'.format(filename))
             return False
+
+
+    def read_script_file(self, filename):
+
+        ext = os.path.splitext(filename)[1]
+
+        if ext == '.py':
+            script_type = '[Python]'
+        elif ext == '.ps1':
+            script_type = '[PowerShell]'
+        elif ext == '.cmd':
+            script_type = '[cmd]'
+        else:
+            script_type = '[Unknown]'
+
+        with open(filename, mode='r', encoding='utf-8') as f:
+            code = f.read()
+        code = re.sub('%', '%%', code)
+        if os.path.splitext(filename)[1] != '.cmd':
+            code = re.sub('^', '`', code, flags=re.MULTILINE)
+
+        found = re.search('(?<= description = ).*$', code, flags=re.MULTILINE)
+        if found:
+            description = found.group(0)
+            description = re.sub("^'", "", description)
+            description = re.sub("'\n", "", description)
+            description = '{} {}'.format(script_type, description)
+        else:
+            description = script_type
+
+        return description, code
+
+    def insert_new(self):
+
+        filename = os.path.basename(self.args.script)
+        if not self.if_exits(filename):
+            return
+
+        name = os.path.splitext(filename)[0]
+        if name in self.database.sections():
+            print('"{}" is already included in the database.'.format(name))
+            return
+
+        description, code = self.read_script_file(filename)
+
+        self.database.add_section(name)
+        self.database.set(name, 'description', description)
+        self.database.set(name, 'code_output', filename)
+        self.database.set(name, 'code', code)
+
+        with open(self.dbFile, mode='w', encoding='utf-8') as f:
+            self.database.write(f)
+            print('Successfully inserted.')
 
 
     def update(self):
@@ -221,12 +253,9 @@ class ScriptScribe(object):
         if not self.if_exits(filename):
             return
 
-        with open(filename, mode='r', encoding='utf-8') as f:
-            code = f.read()
-        code = re.sub('%', '%%', code)
-        if os.path.splitext(filename)[1] != '.cmd':
-            code = re.sub('\n', '\n`', code)
+        description, code = self.read_script_file(filename)
 
+        self.database.set(self.args.script, 'description', description)
         self.database.set(self.args.script, 'code', code)
 
         with open(self.dbFile, mode='w', encoding='utf-8') as f:
@@ -246,49 +275,27 @@ class ScriptScribe(object):
                 self.database.write(f)
                 print('Successfully removed.')
 
-    def insert_new(self):
 
-        filename = os.path.basename(self.args.script)
-        if not self.if_exits(filename):
-            return
+    def enumerate_scripts(self):
 
-        name, ext = os.path.splitext(filename)
-        if name in self.database.sections():
-            print('"{}" is already included in the database.'.format(name))
-            return
+        scripts = sorted(self.database.sections(), key=str.casefold)
 
-        if ext == '.py':
-            script_type = '[Python]'
-        elif ext == '.ps1':
-            script_type = '[PowerShell]'
-        elif ext == '.cmd':
-            script_type = '[cmd]'
-        else:
-            script_type = '[Unknown]'
+        print()
+        for i in scripts:
+            description = self.database.get(i, 'description', fallback=None)
+            if description is None:
+                description = ''
+            print('{:12} {}'.format(i,description))
 
-        with open(filename, mode='r', encoding='utf-8') as f:
-            code = f.read()
-        code = re.sub('%', '%%', code)
-        if os.path.splitext(filename)[1] != '.cmd':
-            code = re.sub('\n', '\n`', code)
 
-        found = re.search('(?<= description = ).*\n', code)
-        if found:
-            description = found.group(0)
-            description = re.sub("^'", "", description)
-            description = re.sub("'\n", "", description)
-            description = '{} {}'.format(script_type, description)
-        else:
-            description = script_type
+    def burst_database(self):
 
-        self.database.add_section(name)
-        self.database.set(name, 'description', description)
-        self.database.set(name, 'code_output', filename)
-        self.database.set(name, 'code', code)
+        self.args.run_bool = False
+        scripts = sorted(self.database.sections(), key=str.casefold)
 
-        with open(self.dbFile, mode='w', encoding='utf-8') as f:
-            self.database.write(f)
-            print('Successfully inserted.')
+        for i in scripts:
+            self.script = i
+            self.pick_script()
 
 if __name__ == '__main__':
     ScriptScribe()

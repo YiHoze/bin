@@ -1,3 +1,6 @@
+# C:\>wordig.py -U 가①⑴ⓐ⒜ㄱ㉠㉮㈀㈎
+# C:\>wordig.py -U 𐊀
+
 import os
 import sys
 import argparse
@@ -22,12 +25,10 @@ class WordDigger(object):
         global texlive_bool
 
         try:
-            print("Checking whether pdftotext.exe is available:\n")
-            subprocess.check_call('pdftotext -v')
-            print()
+            subprocess.check_output('pdftotext -v', stderr=subprocess.PIPE)
             texlive_bool = True
-        except OSError:
-            print('pdftotext.exe is needed to counts words in PDF files but not found.')
+        except subprocess.CalledProcessError as e:
+            print(e.stderr)
             texlive_bool = False
 
         self.lines = 0
@@ -117,7 +118,7 @@ class WordDigger(object):
         wordig.py [-p foo.tsv] -d *.tex
             Remove macros from TeX files.
             If not specified otherwise, detex.tsv, an accompanying file, is used.
-        wordig.py -u "unicode 유니코드"
+        wordig.py -U "unicode 유니코드"
             Get the unicode code points and UTF-8 bytes for the given characters.
             The format of output is:
             Char  Dec  Hex  Bin  Bytes  Bits  Description

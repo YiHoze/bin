@@ -128,6 +128,7 @@ main = \\input{preamble}
         if cmd:
             os.system(cmd)
 
+
     def write_tex(self):
 
         if os.path.exists(self.ini):
@@ -188,18 +189,40 @@ main = \\input{preamble}
         self.run_postprocess()
 
 
-    def update_ini(self, fnpattern):
+    def update_ini(self, selection):
 
         conf = configparser.ConfigParser()
 
         if os.path.exists(self.ini):
             conf.read(self.ini)
-            conf.set('tex', 'target', fnpattern)
+            conf.set('tex', 'target', selection)
         else:
-            conf['tex'] = {'target': fnpattern}
+            conf['tex'] = {'target': selection}
 
         with open(self.ini, 'w') as f:
             conf.write(f)
+
+
+    def count_tex_files(self):
+
+        files = []
+
+        if self.args.tex is None:
+            fnpattern = '*.tex'
+        else:
+            fnpattern, ext = os.path.splitext(self.args.tex)
+            if ext == '.':
+                fnpattern += '.tex'
+            elif not '*' in fnpattern:
+                fnpattern = '*{}*'.format(fnpattern) + '.tex'
+
+        for i in glob.glob(fnpattern):
+            files.append(i)
+
+        if len(files) == 0:
+            print('No tex files are found.')
+
+        return len(files), files
 
 
     def get_target(self):
@@ -209,7 +232,9 @@ main = \\input{preamble}
         if count == 0:
             sys.exit()
         elif count == 1:
-            return existing_files[0]
+            print(existing_files[0])
+            sys.exit()
+            # return existing_files[0]
         else:
             if os.path.exists(self.ini):
                 conf = configparser.ConfigParser()
@@ -225,27 +250,6 @@ main = \\input{preamble}
                     return False
             else:
                 return False
-
-
-    def count_tex_files(self):
-
-        files = []
-
-        if self.args.tex is None:
-            fnpattern = '*.tex'
-        else:
-            fnpattern = os.path.splitext(self.args.tex)[0]
-            if not '*' in fnpattern:
-                fnpattern = '*{}*'.format(fnpattern)
-            fnpattern += '.tex'
-
-        for i in glob.glob(fnpattern):
-            files.append(i)
-
-        if len(files) == 0:
-            print('No tex files are found.')
-
-        return len(files), files
 
 
     def enumerate_list(self, files):
@@ -325,6 +329,7 @@ main = \\input{preamble}
             f.write(self.ini_template)
         opener = FileOpener()
         opener.open_txt(self.ini)
+
 
     def determine_tex(self):
 

@@ -31,7 +31,9 @@ class WordDigger(object):
             print(e.stderr)
             texlive_bool = False
 
+        self.files = 0
         self.lines = 0
+        self.spc_chars = 0
         self.chars = 0
         self.words = 0
         self.pages = 0
@@ -404,21 +406,30 @@ class WordDigger(object):
     def count_words(self, filename):
 
         # Spaces are not counted as a character.
-        lines, chars, words = 0, 0, 0
+        lines, spc_chars, chars, words = 0, 0, 0, 0
 
         filename = self.check_if_pdf(filename)
         f = open(filename, mode='r', encoding='utf-8')
         for line in f.readlines():
             lines += 1
+            spc_chars += len(line)
             chars += len(line.replace(' ', ''))
             this = line.split(None)
             words += len(this)
         f.close()
 
-        print( '{}\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(filename, lines, words, chars) )
+        output = '''{}
+ Lines: {:,}
+ Words: {:,}
+ Characters including spaces: {:,}
+ Characters without spaces: {:,}'''.format(filename, lines, words, spc_chars, chars) 
+        print(output)
+
         self.lines += lines
         self.words += words
+        self.spc_chars += spc_chars
         self.chars += chars
+        self.files += 1
 
 
     def count_pdf_pages(self, filename):
@@ -527,7 +538,13 @@ class WordDigger(object):
                 print( 'Total pages: {:,}'.format(self.pages) )
             else:
                 self.run_recursive(self.count_words)
-                print( 'Total\n Lines: {:,}\n Words: {:,}\n Characters: {:,}\n'.format(self.lines, self.words, self.chars) )
+                if self.files > 1:
+                    output = '''Total
+ Lines: {:,}
+ Words: {:,} 
+ Characters including spaces: {:,}
+ Characters without spaces: {:,}'''.format(self.lines, self.words, self.spc_chars, self.chars) 
+                    print(output)
 
 
 

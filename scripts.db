@@ -1835,9 +1835,9 @@ code =
 	`    eRate.calculate()
 
 [taxrate]
-description = [Python] Calculate income tax.
+description = [Python] Calculate income tax.'
 code_output = taxrate.py
-code = 
+code = `
 	`import argparse
 	`import numpy as np
 	`from collections import OrderedDict
@@ -2013,8 +2013,8 @@ code =
 	`        post_tax_pay = monthly_pay - (deduction + monthly_tax)
 	`
 	`        output = '''
-	`Salary: {:,}
-	`Tax: {:,}
+	`Annual salary: {:,}
+	`Annual tax: {:,}
 	`Actual tax rate: {:.2f} %%
 	`Monthly pay: {:,}
 	`State pension: {:,}

@@ -232,9 +232,7 @@ main = \\input{preamble}
         if count == 0:
             sys.exit()
         elif count == 1:
-            print(existing_files[0])
-            sys.exit()
-            # return existing_files[0]
+            return existing_files[0]
         else:
             if os.path.exists(self.ini):
                 conf = configparser.ConfigParser()

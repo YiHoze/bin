@@ -2662,7 +2662,7 @@ tex_output = myjamo.tex
 tex = \documentclass{article}
 	
 	\usepackage{fontspec}
-	\usepackage{pmhanguljamo}	
+	\usepackage{pmhanguljamo}
 	\setmainfont{Noto Serif CJK KR}[Script=Hangul, Renderer=OpenType]
 	%%\setmainfont{Noto Serif CJK KR}[Script=Hangul, Renderer=Harfbuzz]
 	\setlength\parskip{.5\baselineskip}
@@ -5067,3 +5067,31 @@ style =
 	`	 }
 	`}
 	`\ExplSyntaxOff
+
+[query]
+description = 
+tex_output = query.tex
+tex = \documentclass[10pt, openany, Noto, pairquote]{hzguide}
+	`\LayoutSetup{}
+	`\HeadingSetup{article, sectionstyle=sparse}
+	`\SectionNewpageOn
+	`\setlist[enumerate]{itemsep=1.75\onelineskip}
+	`\graphicspath{ {images/}{photo/} }
+	`\ImageSetup{middle, showfilename}
+	`
+	`\begin{document}
+	`
+	`\section{기본 조건}
+	`
+	`\begin{enumerate}
+	`\item 모델 이름:
+	`\item 기한:
+	`\item 번역:
+	`\item 판형: A4 가로, A5 세로
+	`\item 색상: 1도, 4도
+	`\item 문서 도구: PDF, 인디자인, 워드, 파워포인트
+	`\item 문서 개발 및 기술 지원 담당:
+	`\end{enumerate}
+	`
+	`\end{document}
+

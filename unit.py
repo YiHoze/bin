@@ -14,6 +14,7 @@ class ConvertUnit(object):
             'foot': ['feet', 'm', 0.3048],
             'inch': ['inches', 'cm', 2.54],
             'mile': ['miles', 'km', 1.609344],
+            'Newton': ['N', 'kg', 0.10197],
             'point': ['points', 'mm', 0.352778],
             'pound': ['pounds', 'kg', 0.453592],
             'pyeong': ['pyeongs', 'm²', 3.305785],

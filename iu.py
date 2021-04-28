@@ -206,7 +206,7 @@ examples:
     def get_info(self, img):
 
         if self.check_format(img) == 'bitmap':
-            cmd = '\"{}\" identify -verbose {}'.format(self.Magick, img)
+            cmd = '"{}" identify -verbose "{}"'.format(self.Magick, img)
             result = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = result.decode(encoding='utf-8')
             result = result.split('\r\n')

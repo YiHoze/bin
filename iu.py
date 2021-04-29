@@ -91,6 +91,13 @@ examples:
             help = 'Specify a target format. (default: pdf)'
         )
         parser.add_argument(
+            '-T',
+            dest = 'transparent_bool',
+            action = 'store_true',
+            default = False,
+            help = 'Make white transparent. This is available only with PNG as target format.'
+        )
+        parser.add_argument(
             '-r',
             dest = 'resize_bool',
             action = 'store_true',
@@ -246,12 +253,15 @@ examples:
         return trg
 
 
-
     def bitmap_to_bitmap(self, img):
 
-        trg = self.name_target(img)
+        trg = self.name_target(img)        
         cmd = '"{}" -units PixelsPerCentimeter -density {} "{}" "{}"'.format(self.Magick, self.args.density, img, trg)
         self.run_cmd(cmd)
+
+        if self.args.transparent_bool and self.args.target_format.lower() == '.png':
+            cmd = '"{}" "{}" -transparent #FFFFFF "{}"'.format(self.Magick, trg, trg)
+            self.run_cmd(cmd, 0)
 
 
     def count_digits(self, n):

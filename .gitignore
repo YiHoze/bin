@@ -2,13 +2,8 @@
 __pycache__/
 build/
 coverage/
-private/
-obsolete/
+jsx/
 pandoc/
 pdf2htmlEX/
-*.cls
-*.json
-*.sty
-*.spec
-*.log
+private/
 daily.ini
